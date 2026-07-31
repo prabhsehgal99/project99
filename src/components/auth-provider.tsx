@@ -15,7 +15,7 @@ import {
   useState,
   type ReactNode
 } from "react";
-import { firebaseReady, getFirebaseAuth, googleProvider } from "@/lib/firebase";
+import { firebaseReady, getFirebaseAuth, getGoogleProvider } from "@/lib/firebase";
 import { ensureUserDocuments } from "@/lib/firestore";
 
 type AuthContextValue = {
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const credential = await signInWithPopup(getFirebaseAuth(), googleProvider);
+      const credential = await signInWithPopup(getFirebaseAuth(), getGoogleProvider());
       await ensureUserDocuments(credential.user);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed.");
