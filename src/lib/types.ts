@@ -1,16 +1,52 @@
 import type { Timestamp } from "firebase/firestore";
 
-export type DailyMetric = {
+export type ActivityStatus = "planned" | "complete" | "rest" | "missed";
+
+export type ScaleLevel = 1 | 2 | 3 | 4 | 5;
+
+export type DailyLog = {
+  schemaVersion: 1;
   date: string;
+  timezone: string;
   weightKg: number | null;
+  sleepHours: number | null;
   caloriesConsumed: number;
   proteinConsumed: number;
+  carbohydratesConsumed: number;
+  fatConsumed: number;
+  fibreConsumed: number;
   waterMl: number;
-  workoutStatus: "planned" | "complete" | "rest" | "missed";
-  cardioStatus: "planned" | "complete" | "rest" | "missed";
-  sleepHours: number | null;
+  workoutStatus: ActivityStatus;
+  cardioStatus: ActivityStatus;
   habitDone: boolean;
+  moodLevel: ScaleLevel | null;
+  energyLevel: ScaleLevel | null;
+  sorenessLevel: ScaleLevel | null;
+  steps: number | null;
+  journalNotes: string;
+  createdAt?: Timestamp;
   updatedAt?: Timestamp;
+};
+
+export type DailyLogDraft = {
+  date: string;
+  timezone: string;
+  weightKg: number | "";
+  sleepHours: number | "";
+  caloriesConsumed: number | "";
+  proteinConsumed: number | "";
+  carbohydratesConsumed: number | "";
+  fatConsumed: number | "";
+  fibreConsumed: number | "";
+  waterLitres: number | "";
+  workoutStatus: ActivityStatus;
+  cardioStatus: ActivityStatus;
+  habitDone: boolean;
+  moodLevel: ScaleLevel | null;
+  energyLevel: ScaleLevel | null;
+  sorenessLevel: ScaleLevel | null;
+  steps: number | "";
+  journalNotes: string;
 };
 
 export type UserProfile = {
@@ -30,16 +66,26 @@ export type UserSettings = {
   updatedAt?: Timestamp;
 };
 
-export const defaultDailyMetric = (date: string): DailyMetric => ({
+export const defaultDailyLog = (date: string, timezone = "UTC"): DailyLog => ({
+  schemaVersion: 1,
   date,
+  timezone,
   weightKg: null,
+  sleepHours: null,
   caloriesConsumed: 0,
   proteinConsumed: 0,
+  carbohydratesConsumed: 0,
+  fatConsumed: 0,
+  fibreConsumed: 0,
   waterMl: 0,
   workoutStatus: "planned",
   cardioStatus: "planned",
-  sleepHours: null,
-  habitDone: false
+  habitDone: false,
+  moodLevel: null,
+  energyLevel: null,
+  sorenessLevel: null,
+  steps: null,
+  journalNotes: ""
 });
 
 export const defaultSettings: UserSettings = {

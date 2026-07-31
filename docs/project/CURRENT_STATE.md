@@ -45,6 +45,23 @@ flow.
   allowed only when `request.auth.uid == userId`; unmatched paths default to
   denial. Application Firestore helpers use the signed-in `user.uid` for profile,
   settings, and daily metric paths.
+- Daily Log vertical slice is implemented on branch
+  `feature/daily-log-vertical-slice`: `/log` resolves to today's local date,
+  `/log/{yyyy-mm-dd}` opens a date-addressed editor, the dashboard summarizes
+  today's normalized Daily Log instead of duplicating the full editor, settings
+  save independently, and the authenticated app shell exposes Dashboard and Daily
+  Log navigation on mobile and desktop.
+- Daily Log data continues to use
+  `users/{uid}/dailyMetrics/{yyyy-mm-dd}` while application code uses the
+  `DailyLog` domain name. Legacy daily metric documents are normalized in the
+  Firestore boundary and are additively upgraded on the next editor save.
+- Firestore rules now use a specific `dailyMetrics/{date}` match for Daily Log
+  owner-scoped read/write access and field validation, with the prior recursive
+  nested owner catch-all removed so the specific validator cannot be bypassed.
+- For the Daily Log branch, `npm run lint`, `npm run typecheck`, and
+  `npm run build` pass locally after `npm ci`. The local Node runtime is
+  `v26.3.1`, so npm reports the repository's `node: 22.x` engine warning during
+  install; CI/Vercel remain pinned to Node.js 22.
 
 ## Reported complete
 
@@ -99,3 +116,9 @@ with real project values.
   still works, and auth-state restoration survives browser restarts.
 - Firestore emulator verification is blocked in this workspace because no Java
   runtime is installed and no rules test harness is currently configured.
+- Daily Log authenticated runtime QA, cross-device save/restore, Chrome/Safari
+  sign-in smoke testing, and Vercel preview smoke testing remain pending until
+  Firebase public web app values or a configured preview environment are
+  available. `firebase emulators:exec --only firestore "true"` still fails
+  because Java is not installed, so Daily Log rule validation is limited to
+  static review in this workspace.
