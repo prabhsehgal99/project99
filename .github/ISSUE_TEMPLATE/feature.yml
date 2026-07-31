@@ -1,0 +1,66 @@
+name: Feature
+description: Define a user-facing Project99 capability.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: Keep the outcome specific. The implementation agent will read the repository context before starting.
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What real problem should this feature solve?
+      placeholder: As a user, I need...
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe the successful user experience, not the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In scope
+      description: List the behavior that must be included.
+      placeholder: |
+        -
+        -
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Out of scope
+      description: List nearby behavior that should not be built in this task.
+      placeholder: |
+        -
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Provide observable checks that determine whether the work is complete.
+      placeholder: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Add screenshots, designs, feature briefs, or related issues.
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Roadmap phase
+      options:
+        - Phase 1 — Foundation
+        - Phase 2 — Insights
+        - Phase 3 — Engagement
+        - Phase 4 — Community
+        - Needs product decision
+    validations:
+      required: true
