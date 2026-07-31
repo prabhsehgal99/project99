@@ -1,0 +1,46 @@
+name: Technical task
+description: Track foundation, maintenance, security, or infrastructure work.
+title: "[Task]: "
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What concrete technical outcome is required?
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why now?
+      description: What user outcome, milestone, risk, or dependency makes this necessary?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      placeholder: |
+        -
+        -
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks and constraints
+      description: Include security, data migration, deployment, or compatibility concerns.
+  - type: textarea
+    id: handoff
+    attributes:
+      label: Existing work or handoff
+      description: Link branches, pull requests, discussions, or prior attempts.
