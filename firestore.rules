@@ -10,11 +10,125 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == userId;
     }
 
+    function validDateKey(date) {
+      return date.matches('^\\d{4}-\\d{2}-\\d{2}$');
+    }
+
+    function validActivityStatus(value) {
+      return value in ['planned', 'complete', 'rest', 'missed'];
+    }
+
+    function validNullableNumber(value, min, max) {
+      return value == null || (value is number && value >= min && value <= max);
+    }
+
+    function validScale(value) {
+      return value == null || (value is int && value >= 1 && value <= 5);
+    }
+
+    function validDailyLog(date) {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+        'schemaVersion',
+        'date',
+        'timezone',
+        'weightKg',
+        'sleepHours',
+        'caloriesConsumed',
+        'proteinConsumed',
+        'carbohydratesConsumed',
+        'fatConsumed',
+        'fibreConsumed',
+        'waterMl',
+        'workoutStatus',
+        'cardioStatus',
+        'habitDone',
+        'moodLevel',
+        'energyLevel',
+        'sorenessLevel',
+        'steps',
+        'journalNotes',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasAll([
+        'schemaVersion',
+        'date',
+        'timezone',
+        'weightKg',
+        'sleepHours',
+        'caloriesConsumed',
+        'proteinConsumed',
+        'carbohydratesConsumed',
+        'fatConsumed',
+        'fibreConsumed',
+        'waterMl',
+        'workoutStatus',
+        'cardioStatus',
+        'habitDone',
+        'moodLevel',
+        'energyLevel',
+        'sorenessLevel',
+        'steps',
+        'journalNotes',
+        'createdAt',
+        'updatedAt'
+      ])
+      && validDateKey(date)
+      && data.schemaVersion == 1
+      && data.date == date
+      && data.timezone is string
+      && data.timezone.size() > 0
+      && data.timezone.size() <= 100
+      && validNullableNumber(data.weightKg, 25, 300)
+      && validNullableNumber(data.sleepHours, 0, 24)
+      && data.caloriesConsumed is int
+      && data.caloriesConsumed >= 0
+      && data.caloriesConsumed <= 20000
+      && data.proteinConsumed is int
+      && data.proteinConsumed >= 0
+      && data.proteinConsumed <= 1000
+      && data.carbohydratesConsumed is int
+      && data.carbohydratesConsumed >= 0
+      && data.carbohydratesConsumed <= 2000
+      && data.fatConsumed is int
+      && data.fatConsumed >= 0
+      && data.fatConsumed <= 1000
+      && data.fibreConsumed is int
+      && data.fibreConsumed >= 0
+      && data.fibreConsumed <= 200
+      && data.waterMl is int
+      && data.waterMl >= 0
+      && data.waterMl <= 15000
+      && validActivityStatus(data.workoutStatus)
+      && validActivityStatus(data.cardioStatus)
+      && data.habitDone is bool
+      && validScale(data.moodLevel)
+      && validScale(data.energyLevel)
+      && validScale(data.sorenessLevel)
+      && (data.steps == null || (data.steps is int && data.steps >= 0 && data.steps <= 200000))
+      && data.journalNotes is string
+      && data.journalNotes.size() <= 2000
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
     match /users/{userId} {
       allow read, create, update, delete: if owns(userId);
 
-      match /{document=**} {
+      match /settings/{document} {
         allow read, create, update, delete: if owns(userId);
+      }
+
+      match /dailyMetrics/{date} {
+        allow read, delete: if owns(userId);
+        allow create: if owns(userId) && validDailyLog(date);
+        allow update: if owns(userId)
+          && validDailyLog(date)
+          && (
+            !resource.data.keys().hasAny(['createdAt'])
+            || request.resource.data.createdAt == resource.data.createdAt
+          );
       }
     }
   }

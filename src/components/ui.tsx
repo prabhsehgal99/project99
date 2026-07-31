@@ -58,6 +58,7 @@ export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?:
 }
 
 type NumberInputProps = {
+  id?: string;
   label: string;
   value: number | "";
   min?: number;
@@ -65,6 +66,7 @@ type NumberInputProps = {
   step?: number;
   decimalPlaces?: number;
   suffix?: string;
+  error?: string;
   onChange: (value: number | "") => void;
 };
 
@@ -94,6 +96,7 @@ function formatNumber(value: number | "", decimalPlaces: number) {
 }
 
 export function NumberInput({
+  id,
   label,
   value,
   min,
@@ -101,6 +104,7 @@ export function NumberInput({
   step = 1,
   decimalPlaces,
   suffix,
+  error,
   onChange
 }: NumberInputProps) {
   const precision = useMemo(() => decimalPlaces ?? decimalsFromStep(step), [decimalPlaces, step]);
@@ -108,6 +112,7 @@ export function NumberInput({
   const [draft, setDraft] = useState(formattedValue);
   const [focused, setFocused] = useState(false);
   const displayValue = focused ? draft : formattedValue;
+  const errorId = id ? `${id}-error` : undefined;
 
   function commitDraft(raw: string) {
     setDraft(raw);
@@ -150,6 +155,7 @@ export function NumberInput({
           <Minus className="h-4 w-4" aria-hidden="true" />
         </button>
         <input
+          id={id}
           className="min-h-11 w-full min-w-0 border-0 bg-transparent px-3 text-center text-base text-zinc-50 outline-none placeholder:text-zinc-600 focus:ring-0"
           type="number"
           inputMode="decimal"
@@ -157,6 +163,8 @@ export function NumberInput({
           max={max}
           step={step}
           value={displayValue}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={errorId}
           onFocus={() => {
             setFocused(true);
             setDraft(formattedValue);
@@ -175,6 +183,11 @@ export function NumberInput({
           <Plus className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
+      {error ? (
+        <span id={errorId} className="mt-2 block text-sm text-red-200">
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }

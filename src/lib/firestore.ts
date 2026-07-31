@@ -10,11 +10,20 @@ import {
   serverTimestamp,
   setDoc,
   updateDoc,
+  where,
   type Unsubscribe
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
+import { normalizeDailyLog } from "@/lib/daily-log";
 import { getFirebaseDb } from "@/lib/firebase";
-import { defaultSettings, type DailyMetric, type UserSettings } from "@/lib/types";
+import { defaultSettings, type DailyLog, type UserSettings } from "@/lib/types";
+
+export type DailyLogSnapshot = {
+  exists: boolean;
+  log: DailyLog;
+  hasPendingWrites: boolean;
+  fromCache: boolean;
+};
 
 export async function ensureUserDocuments(user: User) {
   const db = getFirebaseDb();
@@ -64,43 +73,55 @@ export function subscribeToSettings(
   );
 }
 
-export function subscribeToDailyMetric(
+export function subscribeToDailyLog(
   uid: string,
   date: string,
-  onNext: (metric: Partial<DailyMetric> | null) => void,
+  onNext: (snapshot: DailyLogSnapshot) => void,
   onError: (error: Error) => void
 ): Unsubscribe {
   const ref = doc(getFirebaseDb(), "users", uid, "dailyMetrics", date);
 
-  return onSnapshot(ref, (snap) => onNext(snap.exists() ? (snap.data() as DailyMetric) : null), onError);
+  return onSnapshot(
+    ref,
+    (snap) =>
+      onNext({
+        exists: snap.exists(),
+        log: normalizeDailyLog(date, snap.data()),
+        hasPendingWrites: snap.metadata.hasPendingWrites,
+        fromCache: snap.metadata.fromCache
+      }),
+    onError
+  );
 }
 
-export function subscribeToRecentMetrics(
+export function subscribeToRecentDailyLogs(
   uid: string,
-  onNext: (metrics: DailyMetric[]) => void,
+  startDate: string,
+  onNext: (logs: DailyLog[]) => void,
   onError: (error: Error) => void
 ): Unsubscribe {
-  const metricsQuery = query(collection(getFirebaseDb(), "users", uid, "dailyMetrics"), orderBy("date", "asc"));
+  const logsQuery = query(
+    collection(getFirebaseDb(), "users", uid, "dailyMetrics"),
+    where("date", ">=", startDate),
+    orderBy("date", "asc")
+  );
 
   return onSnapshot(
-    metricsQuery,
+    logsQuery,
     (snap) => {
-      onNext(snap.docs.map((metricDoc) => metricDoc.data() as DailyMetric));
+      onNext(snap.docs.map((logDoc) => normalizeDailyLog(logDoc.id, logDoc.data())));
     },
     onError
   );
 }
 
-export async function saveDailyMetric(uid: string, metric: DailyMetric) {
-  const ref = doc(getFirebaseDb(), "users", uid, "dailyMetrics", metric.date);
-  await setDoc(
-    ref,
-    {
-      ...metric,
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+export async function saveDailyLog(uid: string, log: DailyLog, existingLog: DailyLog | null) {
+  const ref = doc(getFirebaseDb(), "users", uid, "dailyMetrics", log.date);
+  await setDoc(ref, {
+    ...log,
+    createdAt: existingLog?.createdAt ?? serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
 }
 
 export async function saveSettings(uid: string, settings: UserSettings) {
