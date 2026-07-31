@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  background: #050508;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: #050508;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(52, 211, 153, 0.12), transparent 30rem),
+    radial-gradient(circle at 90% 10%, rgba(167, 139, 250, 0.13), transparent 28rem),
+    #050508;
+  color: #f4f4f5;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}

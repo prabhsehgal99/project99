@@ -1,0 +1,21 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+run_mode = "concurrent"
+
+[scripts.run."Dev Server"]
+command = "npm run dev -- --port ${CONDUCTOR_PORT:-3000}"
+default = true
+icon = "play"
+
+[scripts.run."Build"]
+command = "npm run build"
+icon = "hammer"
+
+[scripts.run."Lint"]
+command = "npm run lint"
+icon = "list-checks"
+
+[scripts.run."Type Check"]
+command = "npm run typecheck"
+icon = "badge-check"
