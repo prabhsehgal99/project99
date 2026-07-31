@@ -40,6 +40,11 @@ flow.
   `NEXT_PUBLIC_FIREBASE_*` values, confirming `firebaseReady === true` during
   server prerendering does not initialize browser-only Auth persistence. The
   configured-env build prerenders `/`, `/dashboard`, and `/_not-found`.
+- Static Firestore Security Rules review confirms cross-user reads and writes are
+  denied: all `users/{userId}` document access, including nested documents, is
+  allowed only when `request.auth.uid == userId`; unmatched paths default to
+  denial. Application Firestore helpers use the signed-in `user.uid` for profile,
+  settings, and daily metric paths.
 
 ## Reported complete
 
@@ -63,8 +68,8 @@ with real project values.
 3. Verify an authenticated user can create or update
    `users/{uid}/dailyMetrics/{yyyy-mm-dd}` through the dashboard.
 4. Confirm the same user can read the saved dashboard state after refresh.
-5. Confirm Firebase Security Rules prevent cross-user access, preferably with the
-   Firestore emulator or rules tests.
+5. Add emulator-backed Firestore Security Rules tests for same-user allow and
+   cross-user deny cases once Java and rules-test tooling are available.
 6. Validate mobile and desktop UX against the authenticated dashboard, then run
    lint, typecheck, and build again.
 
@@ -92,3 +97,5 @@ with real project values.
 - This also blocks local confirmation that Safari no longer reports
   "Database is closing/hidden", Chrome authentication still works, sign-out
   still works, and auth-state restoration survives browser restarts.
+- Firestore emulator verification is blocked in this workspace because no Java
+  runtime is installed and no rules test harness is currently configured.
