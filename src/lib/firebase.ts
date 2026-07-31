@@ -25,8 +25,9 @@ export const firebaseReady = Object.values(firebaseConfig).every(Boolean);
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
 let db: Firestore | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
 
-if (firebaseReady) {
+if (firebaseReady && typeof window !== "undefined") {
   app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
   try {
     auth = initializeAuth(app, {
@@ -41,10 +42,10 @@ if (firebaseReady) {
     }
   }
   db = getFirestore(app);
-}
 
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: "select_account" });
+  googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: "select_account" });
+}
 
 export function getFirebaseAuth() {
   if (!auth) {
@@ -60,4 +61,12 @@ export function getFirebaseDb() {
   }
 
   return db;
+}
+
+export function getGoogleProvider() {
+  if (!googleProvider) {
+    throw new Error("Firebase is not configured. Add NEXT_PUBLIC_FIREBASE_* values to .env.local.");
+  }
+
+  return googleProvider;
 }

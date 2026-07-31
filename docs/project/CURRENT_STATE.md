@@ -31,10 +31,15 @@ flow.
 - Safari Firebase Authentication persistence fix is implemented on branch
   `fix/firebase-safari-auth-persistence`: Auth now initializes with
   `initializeAuth`, `browserLocalPersistence`, and
-  `browserPopupRedirectResolver` while keeping Google popup sign-in and
-  persistent sessions.
-- For the Safari auth persistence fix, `npm run lint`, `npm run typecheck`, and
-  `npm run build` pass in this workspace after `npm ci`.
+  `browserPopupRedirectResolver` only in the browser while keeping Google popup
+  sign-in and persistent sessions.
+- For the Safari auth persistence fix, the no-env path passes `npm run lint`,
+  `npm run typecheck`, and `npm run build` in this workspace after `npm ci`.
+  The no-env build prerenders `/`, `/dashboard`, and `/_not-found`.
+- The configured-env build path also passes with safe placeholder
+  `NEXT_PUBLIC_FIREBASE_*` values, confirming `firebaseReady === true` during
+  server prerendering does not initialize browser-only Auth persistence. The
+  configured-env build prerenders `/`, `/dashboard`, and `/_not-found`.
 
 ## Reported complete
 
