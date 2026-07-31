@@ -2,11 +2,8 @@
 
 import {
   collection,
-  deleteField,
   doc,
-  type DocumentData,
   getDoc,
-  limitToLast,
   onSnapshot,
   orderBy,
   query,
@@ -17,46 +14,7 @@ import {
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { getFirebaseDb } from "@/lib/firebase";
-import { defaultDailyMetric, defaultSettings, type DailyMetric, type UserSettings } from "@/lib/types";
-
-type StoredDailyMetric = Partial<Omit<DailyMetric, "waterLitres">> & {
-  waterLitres?: number;
-  waterMl?: number;
-};
-
-type StoredUserSettings = Partial<Omit<UserSettings, "waterGoalLitres">> & {
-  waterGoalLitres?: number;
-  waterGoalMl?: number;
-};
-
-function storedLitres(litres?: number, millilitres?: number) {
-  if (typeof litres === "number") {
-    return litres;
-  }
-
-  return typeof millilitres === "number" ? millilitres / 1000 : undefined;
-}
-
-function normalizeSettings(data: DocumentData | undefined): UserSettings {
-  const stored = data as StoredUserSettings | undefined;
-
-  return {
-    ...defaultSettings,
-    ...stored,
-    waterGoalLitres: storedLitres(stored?.waterGoalLitres, stored?.waterGoalMl) ?? defaultSettings.waterGoalLitres
-  };
-}
-
-function normalizeDailyMetric(date: string, data: DocumentData | undefined): DailyMetric {
-  const stored = data as StoredDailyMetric | undefined;
-
-  return {
-    ...defaultDailyMetric(date),
-    ...stored,
-    date,
-    waterLitres: storedLitres(stored?.waterLitres, stored?.waterMl) ?? defaultDailyMetric(date).waterLitres
-  };
-}
+import { defaultSettings, type DailyMetric, type UserSettings } from "@/lib/types";
 
 export async function ensureUserDocuments(user: User) {
   const db = getFirebaseDb();
@@ -100,7 +58,7 @@ export function subscribeToSettings(
   return onSnapshot(
     ref,
     (snap) => {
-      onNext(normalizeSettings(snap.data()));
+      onNext({ ...defaultSettings, ...(snap.data() as Partial<UserSettings> | undefined) });
     },
     onError
   );
@@ -114,7 +72,7 @@ export function subscribeToDailyMetric(
 ): Unsubscribe {
   const ref = doc(getFirebaseDb(), "users", uid, "dailyMetrics", date);
 
-  return onSnapshot(ref, (snap) => onNext(snap.exists() ? normalizeDailyMetric(date, snap.data()) : null), onError);
+  return onSnapshot(ref, (snap) => onNext(snap.exists() ? (snap.data() as DailyMetric) : null), onError);
 }
 
 export function subscribeToRecentMetrics(
@@ -122,12 +80,12 @@ export function subscribeToRecentMetrics(
   onNext: (metrics: DailyMetric[]) => void,
   onError: (error: Error) => void
 ): Unsubscribe {
-  const metricsQuery = query(collection(getFirebaseDb(), "users", uid, "dailyMetrics"), orderBy("date", "asc"), limitToLast(7));
+  const metricsQuery = query(collection(getFirebaseDb(), "users", uid, "dailyMetrics"), orderBy("date", "asc"));
 
   return onSnapshot(
     metricsQuery,
     (snap) => {
-      onNext(snap.docs.map((metricDoc) => normalizeDailyMetric(metricDoc.id, metricDoc.data())));
+      onNext(snap.docs.map((metricDoc) => metricDoc.data() as DailyMetric));
     },
     onError
   );
@@ -139,7 +97,6 @@ export async function saveDailyMetric(uid: string, metric: DailyMetric) {
     ref,
     {
       ...metric,
-      waterMl: deleteField(),
       updatedAt: serverTimestamp()
     },
     { merge: true }
@@ -152,7 +109,6 @@ export async function saveSettings(uid: string, settings: UserSettings) {
     ref,
     {
       ...settings,
-      waterGoalMl: deleteField(),
       updatedAt: serverTimestamp()
     },
     { merge: true }
