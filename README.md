@@ -6,7 +6,7 @@ The first milestone includes Google sign-in, protected dashboard pages, Firestor
 
 ## Requirements
 
-- Node.js 20 or newer
+- Node.js 22
 - npm
 - Firebase project on the free Spark plan
 - Vercel account on the free tier
@@ -58,7 +58,7 @@ The first milestone includes Google sign-in, protected dashboard pages, Firestor
 - `users/{uid}/settings/preferences` stores dashboard goals and preferences.
 - `users/{uid}/dailyMetrics/{yyyy-mm-dd}` stores daily dashboard metrics.
 
-Body weight is stored and displayed in kilograms. Training loads should be stored and displayed in pounds as workout tracking expands beyond this milestone.
+Body weight is stored and displayed in kilograms. Water is stored and displayed in litres. Training loads should be stored and displayed in pounds as workout tracking expands beyond this milestone.
 
 ## Firebase Security Rules
 
@@ -89,5 +89,6 @@ No paid infrastructure is required for this milestone.
 
 ```bash
 npm run lint
+npm run typecheck
 npm run build
 ```

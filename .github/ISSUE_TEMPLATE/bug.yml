@@ -1,0 +1,45 @@
+name: Bug
+description: Report incorrect or broken Project99 behavior.
+title: "[Bug]: "
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Describe the incorrect behavior and any visible error.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include device, browser, route, branch or deployment, and account state. Do not include secrets.
+      placeholder: iPhone / Safari / Vercel preview / signed in
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or logs
+      description: Remove personal data, tokens, environment values, and secrets first.
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Explain how this affects daily use or blocks other work.
