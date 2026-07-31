@@ -48,8 +48,8 @@ entry as superseded instead of deleting history.
 
 - **Status:** Accepted
 - **Decision:** Body mass uses kilograms, gym load uses pounds, height is stored in
-  centimetres and may display as feet/inches, water uses litres, and energy uses
-  kcal.
+  centimetres and may display as feet/inches, water is displayed and entered in
+  litres while persisted as integer millilitres, and energy uses kcal.
 - **Reason:** These match the owner's real-world usage.
 
 ### D-007 - GitHub is the cross-tool source of truth
