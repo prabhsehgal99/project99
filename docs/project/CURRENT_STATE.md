@@ -28,6 +28,13 @@ flow.
 - `npm run lint`, `npm run typecheck`, and `npm run build` pass.
 - Local no-env rendering returns `200` for `/` and `/dashboard` and shows the
   expected Firebase configuration messaging.
+- Safari Firebase Authentication persistence fix is implemented on branch
+  `fix/firebase-safari-auth-persistence`: Auth now initializes with
+  `initializeAuth`, `browserLocalPersistence`, and
+  `browserPopupRedirectResolver` while keeping Google popup sign-in and
+  persistent sessions.
+- For the Safari auth persistence fix, `npm run lint`, `npm run typecheck`, and
+  `npm run build` pass in this workspace after `npm ci`.
 
 ## Reported complete
 
@@ -68,9 +75,15 @@ with real project values.
 ### In progress
 
 - Firebase integration milestone; authenticated runtime verification remains.
+- Manual Safari and Chrome Google sign-in verification for
+  `fix/firebase-safari-auth-persistence` remains pending until Firebase public
+  web app values are available locally or the Vercel preview can be tested.
 
 ### Known blockers
 
 - `.env.local` is absent in this workspace, so Google sign-in and real Firestore
   read/write behavior cannot be exercised here without local Firebase web app
   values.
+- This also blocks local confirmation that Safari no longer reports
+  "Database is closing/hidden", Chrome authentication still works, sign-out
+  still works, and auth-state restoration survives browser restarts.

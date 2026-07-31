@@ -1,7 +1,14 @@
 "use client";
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  browserPopupRedirectResolver,
+  getAuth,
+  GoogleAuthProvider,
+  initializeAuth,
+  type Auth
+} from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -21,7 +28,18 @@ let db: Firestore | null = null;
 
 if (firebaseReady) {
   app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-  auth = getAuth(app);
+  try {
+    auth = initializeAuth(app, {
+      persistence: browserLocalPersistence,
+      popupRedirectResolver: browserPopupRedirectResolver
+    });
+  } catch (err) {
+    if (err instanceof Error && "code" in err && err.code === "auth/already-initialized") {
+      auth = getAuth(app);
+    } else {
+      throw err;
+    }
+  }
   db = getFirestore(app);
 }
 
