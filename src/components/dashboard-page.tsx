@@ -373,6 +373,7 @@ export function DashboardPage() {
                   min={25}
                   max={300}
                   step={0.1}
+                  decimalPlaces={1}
                   suffix="kg"
                   onChange={(value) => setMetric((current) => ({ ...current, weightKg: value === "" ? null : value }))}
                 />
@@ -381,6 +382,8 @@ export function DashboardPage() {
                   value={metric.caloriesConsumed}
                   min={0}
                   max={20000}
+                  step={50}
+                  decimalPlaces={0}
                   suffix="kcal"
                   onChange={(value) => setMetric((current) => ({ ...current, caloriesConsumed: value === "" ? 0 : value }))}
                 />
@@ -389,6 +392,8 @@ export function DashboardPage() {
                   value={metric.proteinConsumed}
                   min={0}
                   max={1000}
+                  step={5}
+                  decimalPlaces={0}
                   suffix="g"
                   onChange={(value) => setMetric((current) => ({ ...current, proteinConsumed: value === "" ? 0 : value }))}
                 />
@@ -398,6 +403,7 @@ export function DashboardPage() {
                   min={0}
                   max={15000}
                   step={250}
+                  decimalPlaces={0}
                   suffix="ml"
                   onChange={(value) => setMetric((current) => ({ ...current, waterMl: value === "" ? 0 : value }))}
                 />
@@ -407,6 +413,7 @@ export function DashboardPage() {
                   min={0}
                   max={24}
                   step={0.25}
+                  decimalPlaces={2}
                   suffix="hours"
                   onChange={(value) => setMetric((current) => ({ ...current, sleepHours: value === "" ? null : value }))}
                 />
@@ -490,6 +497,7 @@ export function DashboardPage() {
                   min={25}
                   max={300}
                   step={0.1}
+                  decimalPlaces={1}
                   suffix="kg"
                   onChange={(value) => setSettings((current) => ({ ...current, goalWeightKg: value === "" ? current.goalWeightKg : value }))}
                 />
@@ -498,6 +506,8 @@ export function DashboardPage() {
                   value={settings.calorieGoal}
                   min={500}
                   max={20000}
+                  step={50}
+                  decimalPlaces={0}
                   suffix="kcal"
                   onChange={(value) => setSettings((current) => ({ ...current, calorieGoal: value === "" ? current.calorieGoal : value }))}
                 />
@@ -506,6 +516,8 @@ export function DashboardPage() {
                   value={settings.proteinGoal}
                   min={20}
                   max={1000}
+                  step={5}
+                  decimalPlaces={0}
                   suffix="g"
                   onChange={(value) => setSettings((current) => ({ ...current, proteinGoal: value === "" ? current.proteinGoal : value }))}
                 />
@@ -515,6 +527,7 @@ export function DashboardPage() {
                   min={500}
                   max={15000}
                   step={250}
+                  decimalPlaces={0}
                   suffix="ml"
                   onChange={(value) => setSettings((current) => ({ ...current, waterGoalMl: value === "" ? current.waterGoalMl : value }))}
                 />
