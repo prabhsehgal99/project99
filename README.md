@@ -58,7 +58,7 @@ The first milestone includes Google sign-in, protected dashboard pages, Firestor
 - `users/{uid}/settings/preferences` stores dashboard goals and preferences.
 - `users/{uid}/dailyMetrics/{yyyy-mm-dd}` stores daily dashboard metrics.
 
-Body weight is stored and displayed in kilograms. Training loads should be stored and displayed in pounds as workout tracking expands beyond this milestone.
+Body weight is stored and displayed in kilograms. Water is displayed and entered in litres, then stored internally in Firestore as integer millilitres for precision and compatibility. Training loads should be stored and displayed in pounds as workout tracking expands beyond this milestone.
 
 ## Firebase Security Rules
 

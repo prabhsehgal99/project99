@@ -37,6 +37,7 @@ import {
   subscribeToSettings
 } from "@/lib/firestore";
 import { defaultDailyMetric, defaultSettings, type DailyMetric, type UserSettings } from "@/lib/types";
+import { litresToIntegerMillilitres, millilitresToLitres } from "@/lib/units";
 
 const statusOptions: DailyMetric["workoutStatus"][] = ["planned", "complete", "rest", "missed"];
 
@@ -67,6 +68,8 @@ function habitStreak(metrics: DailyMetric[]) {
 
 function validateMetric(metric: DailyMetric, settings: UserSettings) {
   const errors: string[] = [];
+  const waterLitres = millilitresToLitres(metric.waterMl);
+  const waterGoalLitres = millilitresToLitres(settings.waterGoalMl);
 
   if (metric.weightKg !== null && (metric.weightKg < 25 || metric.weightKg > 300)) {
     errors.push("Weight must be between 25 and 300 kg.");
@@ -80,8 +83,8 @@ function validateMetric(metric: DailyMetric, settings: UserSettings) {
     errors.push("Protein must be between 0 and 1,000 g.");
   }
 
-  if (metric.waterMl < 0 || metric.waterMl > 15000) {
-    errors.push("Water must be between 0 and 15,000 ml.");
+  if (waterLitres < 0 || waterLitres > 15) {
+    errors.push("Water must be between 0 and 15 litres.");
   }
 
   if (metric.sleepHours !== null && (metric.sleepHours < 0 || metric.sleepHours > 24)) {
@@ -100,8 +103,8 @@ function validateMetric(metric: DailyMetric, settings: UserSettings) {
     errors.push("Protein goal must be between 20 and 1,000 g.");
   }
 
-  if (settings.waterGoalMl < 500 || settings.waterGoalMl > 15000) {
-    errors.push("Water goal must be between 500 and 15,000 ml.");
+  if (waterGoalLitres < 0.5 || waterGoalLitres > 15) {
+    errors.push("Water goal must be between 0.5 and 15 litres.");
   }
 
   return errors;
@@ -198,7 +201,9 @@ export function DashboardPage() {
   const streak = habitStreak(recentMetrics);
   const calorieRemaining = remaining(metric.caloriesConsumed, settings.calorieGoal);
   const proteinRemaining = remaining(metric.proteinConsumed, settings.proteinGoal);
-  const waterPercent = settings.waterGoalMl ? (metric.waterMl / settings.waterGoalMl) * 100 : 0;
+  const waterLitres = millilitresToLitres(metric.waterMl);
+  const waterGoalLitres = millilitresToLitres(settings.waterGoalMl);
+  const waterPercent = waterGoalLitres ? (waterLitres / waterGoalLitres) * 100 : 0;
   const caloriePercent = settings.calorieGoal ? (metric.caloriesConsumed / settings.calorieGoal) * 100 : 0;
   const proteinPercent = settings.proteinGoal ? (metric.proteinConsumed / settings.proteinGoal) * 100 : 0;
   const goalDelta = weight === null ? null : weight - settings.goalWeightKg;
@@ -399,13 +404,13 @@ export function DashboardPage() {
                 />
                 <NumberInput
                   label="Water intake"
-                  value={metric.waterMl}
+                  value={waterLitres}
                   min={0}
-                  max={15000}
-                  step={250}
-                  decimalPlaces={0}
-                  suffix="ml"
-                  onChange={(value) => setMetric((current) => ({ ...current, waterMl: value === "" ? 0 : value }))}
+                  max={15}
+                  step={0.25}
+                  decimalPlaces={2}
+                  suffix="L"
+                  onChange={(value) => setMetric((current) => ({ ...current, waterMl: value === "" ? 0 : litresToIntegerMillilitres(value) }))}
                 />
                 <NumberInput
                   label="Sleep duration"
@@ -483,7 +488,7 @@ export function DashboardPage() {
             </Panel>
 
             <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <StatCard title="Water intake" value={`${(metric.waterMl / 1000).toFixed(2)} L`} detail={`${settings.waterGoalMl} ml target`} icon={Droplets} tone="emerald" />
+              <StatCard title="Water intake" value={`${waterLitres.toFixed(2)} L`} detail={`${waterGoalLitres.toFixed(2)} L target`} icon={Droplets} tone="emerald" />
               <StatCard title="Workout status" value={formatStatus(metric.workoutStatus)} detail="Loads tracked in lbs when workouts expand" icon={Dumbbell} tone="purple" />
               <StatCard title="Cardio status" value={formatStatus(metric.cardioStatus)} detail="Daily conditioning marker" icon={Bike} tone="neutral" />
               <StatCard title="Sleep duration" value={metric.sleepHours === null ? "No entry" : `${metric.sleepHours} h`} detail="Recovery input" icon={Moon} tone="emerald" />
@@ -523,13 +528,13 @@ export function DashboardPage() {
                 />
                 <NumberInput
                   label="Water goal"
-                  value={settings.waterGoalMl}
-                  min={500}
-                  max={15000}
-                  step={250}
-                  decimalPlaces={0}
-                  suffix="ml"
-                  onChange={(value) => setSettings((current) => ({ ...current, waterGoalMl: value === "" ? current.waterGoalMl : value }))}
+                  value={waterGoalLitres}
+                  min={0.5}
+                  max={15}
+                  step={0.25}
+                  decimalPlaces={2}
+                  suffix="L"
+                  onChange={(value) => setSettings((current) => ({ ...current, waterGoalMl: value === "" ? current.waterGoalMl : litresToIntegerMillilitres(value) }))}
                 />
               </div>
             </Panel>
