@@ -15,6 +15,7 @@
 
 - [ ] `npm run lint`
 - [ ] `npm run typecheck`
+- [ ] `npm test`
 - [ ] `npm run build`
 - [ ] Mobile layout checked
 - [ ] Desktop layout checked

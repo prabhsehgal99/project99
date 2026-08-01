@@ -1,131 +1,78 @@
 # Current state
 
-Last updated: 2026-07-31
+Last updated: 2026-07-31 (Phase 0.5 setup hardening, issue #11)
 
 ## Current milestone
 
-Finish Firebase integration and complete the first authenticated end-to-end user
-flow.
+Phase 0 (roadmap): verify the authenticated foundation against real Firebase
+data, then finish Phase 0.5 setup hardening before starting Phase 1A.
 
-## Verified in this workspace
+## What is on `main`
 
-- Project99 application repository is present in this workspace.
-- Next.js app builds with App Router, TypeScript, Tailwind CSS, Firebase,
-  Recharts, and Lucide.
-- Firebase client initialization is guarded by required
-  `NEXT_PUBLIC_FIREBASE_*` values and fails with user-facing configuration
-  messaging when missing.
-- Google sign-in, sign-out, auth-state loading, protected dashboard routing, and
-  user-owned Firestore profile/settings/daily metric paths are implemented.
-- Firestore Security Rules restrict `users/{uid}` document trees to the signed-in
-  owner.
-- Cross-device workflow docs, GitHub issue templates, pull request template, and
-  GitHub Actions quality workflow are being added on branch
-  `chore/cross-device-workflow-clean`.
-- Node.js 22 is pinned in repository configuration and `npm ci` was verified with
-  Node 22. The production build currently completes without Firebase environment
-  variables.
-- `npm run lint`, `npm run typecheck`, and `npm run build` pass.
-- Local no-env rendering returns `200` for `/` and `/dashboard` and shows the
-  expected Firebase configuration messaging.
-- Safari Firebase Authentication persistence fix is implemented on branch
-  `fix/firebase-safari-auth-persistence`: Auth now initializes with
-  `initializeAuth`, `browserLocalPersistence`, and
-  `browserPopupRedirectResolver` only in the browser while keeping Google popup
-  sign-in and persistent sessions.
-- For the Safari auth persistence fix, the no-env path passes `npm run lint`,
-  `npm run typecheck`, and `npm run build` in this workspace after `npm ci`.
-  The no-env build prerenders `/`, `/dashboard`, and `/_not-found`.
-- The configured-env build path also passes with safe placeholder
-  `NEXT_PUBLIC_FIREBASE_*` values, confirming `firebaseReady === true` during
-  server prerendering does not initialize browser-only Auth persistence. The
-  configured-env build prerenders `/`, `/dashboard`, and `/_not-found`.
-- Static Firestore Security Rules review confirms cross-user reads and writes are
-  denied: all `users/{userId}` document access, including nested documents, is
-  allowed only when `request.auth.uid == userId`; unmatched paths default to
-  denial. Application Firestore helpers use the signed-in `user.uid` for profile,
-  settings, and daily metric paths.
-- Daily Log vertical slice is implemented on branch
-  `feature/daily-log-vertical-slice`: `/log` resolves to today's local date,
-  `/log/{yyyy-mm-dd}` opens a date-addressed editor, the dashboard summarizes
-  today's normalized Daily Log instead of duplicating the full editor, settings
-  save independently, and the authenticated app shell exposes Dashboard and Daily
-  Log navigation on mobile and desktop.
-- Daily Log data continues to use
-  `users/{uid}/dailyMetrics/{yyyy-mm-dd}` while application code uses the
-  `DailyLog` domain name. Legacy daily metric documents are normalized in the
-  Firestore boundary and are additively upgraded on the next editor save.
-- Firestore rules now use a specific `dailyMetrics/{date}` match for Daily Log
-  owner-scoped read/write access and field validation, with the prior recursive
-  nested owner catch-all removed so the specific validator cannot be bypassed.
-- For the Daily Log branch, `npm run lint`, `npm run typecheck`, and
-  `npm run build` pass locally after `npm ci`. The local Node runtime is
-  `v26.3.1`, so npm reports the repository's `node: 22.x` engine warning during
-  install; CI/Vercel remain pinned to Node.js 22.
-- Production Safari Daily Log smoke verification passed against
-  `https://project99-ten.vercel.app` on 2026-07-31: the authenticated dashboard
-  loaded saved Daily Log summary data, `/log/2026-07-31` loaded a saved Daily
-  Log, and the "Showing cached data" warning was not visible after load.
+- Next.js App Router PWA with strict TypeScript, Tailwind CSS, Firebase Auth
+  (Google popup sign-in, Safari-safe persistence), Cloud Firestore, Recharts,
+  and Lucide.
+- Authenticated shell with dashboard and Daily Log navigation (mobile bottom
+  nav, desktop sidebar).
+- Date-addressed Daily Log editor at `/log/{yyyy-mm-dd}` with validation,
+  unsaved-change prompts on date navigation, remote-conflict banner, and
+  cached-data warning.
+- Dashboard summarizing today's log, 7-day weight chart, goals, and settings.
+- Firestore Security Rules: owner-only access to `users/{uid}` trees with full
+  field validation for `dailyMetrics/{date}` documents.
+- GitHub issue/PR templates and a Quality workflow (lint, typecheck, test,
+  build) on Node 22.
+- All previous feature/fix branches (PRs #1–#10) are squash-merged; remaining
+  remote branches are stale leftovers scheduled for deletion.
 
-## Reported complete
+## Phase 0.5 hardening (this branch)
 
-- Private Git repository and Next.js application setup
-- TypeScript, Tailwind CSS, and shadcn/ui
-- Firebase project and Cloud Firestore database
-- Google Authentication enabled in Firebase
-- Vercel configuration
-- Build, lint, typecheck, and local development scripts
-- `.env.local` created from `.env.example`
+- Product roadmap committed as `docs/project/ROADMAP.md` and added to required
+  reading.
+- Dependencies pinned to caret ranges (were all `"latest"`); see D-008.
+- Service worker rewritten: network-first for navigations so deploys are picked
+  up, cache-first only for immutable `/_next/static` assets, versioned cache
+  name, only successful responses cached.
+- Vitest unit-test harness added for `src/lib` (28 tests); `npm test` wired
+  into CI; see D-009.
+- Fixed: pinch-zoom no longer disabled (`maximumScale` removed), dashboard no
+  longer resubscribes all Firestore listeners when settings are edited,
+  duplicate `ensureUserDocuments` call removed and profile writes skipped when
+  unchanged, habit streak no longer shows 0 before today's habit is logged.
+- PROJECT_CONTEXT stack list corrected to installed reality (shadcn/ui,
+  TanStack Query, React Hook Form, Zod, Framer Motion are approved-but-not-yet-
+  installed; Firebase Storage is planned, not configured).
+- WORKFLOW documents that GitHub branch protection is unavailable on the
+  current plan (private repo, Free tier); merge discipline is convention-only
+  until that changes.
 
-These items were reported from prior context. In this workspace, `.env.local` is
-not present, so authenticated Firebase runtime behavior has not been verified
-with real project values.
+## Known issues and deferred work (tracked as GitHub issues)
 
-## Next vertical slice
+- Unsaved Daily Log edits are silently lost when navigating via the app
+  sidebar/bottom nav (date navigation is guarded; app navigation is not).
+- No PNG `apple-touch-icon`; iOS home-screen installs get a degraded icon.
+- `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
+  evaluate redirect flow.
+- Firestore rules gaps: `users/{uid}` profile and settings documents have no
+  field validation; future-dated `dailyMetrics` are only blocked client-side;
+  date regex accepts impossible calendar dates; concurrent first-save of the
+  same day can fail with a raw permission error.
+- Emulator-backed rules tests still blocked locally (no Java runtime).
+- No error monitoring/reporting yet (Phase 1 release item).
 
-1. Add local Firebase public web app values to `.env.local` without committing
-   them.
-2. Run the app locally and complete Google sign-in.
-3. Verify an authenticated user can create or update
-   `users/{uid}/dailyMetrics/{yyyy-mm-dd}` through the dashboard.
-4. Confirm the same user can read the saved dashboard state after refresh.
-5. Add emulator-backed Firestore Security Rules tests for same-user allow and
-   cross-user deny cases once Java and rules-test tooling are available.
-6. Validate mobile and desktop UX against the authenticated dashboard, then run
-   lint, typecheck, and build again.
+## Known blockers
 
-## Handoff
+- `.env.local` is absent in this workspace, so authenticated runtime behavior
+  (sign-in, real Firestore reads/writes) cannot be exercised here. Production
+  smoke tests run against `https://project99-ten.vercel.app`.
+- Firestore emulator verification requires a Java runtime, which is not
+  installed in this workspace.
 
-### Last completed
+## Next steps
 
-- Project master context added to repository memory files.
-- Cross-device GitHub workflow bundle merged into repository memory and GitHub
-  templates.
-- Static validation checks and no-env route rendering verified.
-
-### In progress
-
-- Firebase integration milestone; authenticated runtime verification remains.
-- Manual Safari and Chrome Google sign-in verification for
-  `fix/firebase-safari-auth-persistence` remains pending until Firebase public
-  web app values are available locally or the Vercel preview can be tested.
-
-### Known blockers
-
-- `.env.local` is absent in this workspace, so Google sign-in and real Firestore
-  read/write behavior cannot be exercised here without local Firebase web app
-  values.
-- This also blocks local confirmation that Safari no longer reports
-  "Database is closing/hidden", Chrome authentication still works, sign-out
-  still works, and auth-state restoration survives browser restarts.
-- Firestore emulator verification is blocked in this workspace because no Java
-  runtime is installed and no rules test harness is currently configured.
-- Local Daily Log authenticated runtime QA, cross-device save/restore,
-  Chrome/Safari sign-in smoke testing, and Vercel preview smoke testing remain
-  pending until Firebase public web app values or a configured preview
-  environment are available. `firebase emulators:exec --only firestore "true"`
-  still fails because Java is not installed, so Daily Log rule validation is
-  limited to static review in this workspace.
-- Chrome browser-control testing for the Daily Log cache-status fix is blocked
-  in this Conductor session because the Chrome connector reports Chrome is not
-  available.
+1. Merge Phase 0.5 hardening (issue #11) after review.
+2. Delete the stale, already-merged remote branches.
+3. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
+   cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
+4. Add emulator-backed Firestore rules tests once Java tooling is available.
+5. Begin Phase 1A (settings area, history, PWA polish, Daily Log hardening).

@@ -71,26 +71,34 @@ reader support, and sufficient color contrast.
 - React
 - TypeScript with strict settings
 - Tailwind CSS
-- shadcn/ui
 
 ### Backend and hosting
 
 - Firebase Authentication
 - Cloud Firestore
-- Firebase Storage
 - Vercel
+- Firebase Storage (planned for progress photos in Phase 1D; not yet configured)
 
 ### Supporting libraries
 
+Installed today:
+
+- Recharts
+- Lucide Icons
+- Vitest (unit tests)
+
+Approved for adoption when a feature genuinely needs them (not yet installed):
+
+- shadcn/ui
 - TanStack Query
 - React Hook Form
 - Zod
 - Framer Motion
-- Recharts
-- Lucide Icons
 
 Use installed libraries only where they earn their place. Do not introduce a new
 dependency when the platform or existing stack handles the requirement cleanly.
+Dependencies are pinned to caret ranges with a committed lockfile; never use
+`"latest"` as a version specifier.
 
 ## Authentication and security
 

@@ -28,7 +28,13 @@ Never rely on chat history as the only record of a requirement or decision.
 
 ## Repository safeguards
 
-After the first successful GitHub Actions run, protect `main` and enable:
+> **Status (2026-07-31):** GitHub branch protection is not available for private
+> repositories on the GitHub Free plan, so the safeguards below cannot currently
+> be enforced by GitHub. Until the repository moves to GitHub Pro or becomes
+> public, "never push directly to `main`" is a convention that every agent and
+> tool must follow voluntarily. Revisit this when the plan changes.
+
+When branch protection becomes available, protect `main` and enable:
 
 - Require a pull request before merging.
 - Require the `Lint, typecheck, and build` status check.
@@ -106,6 +112,7 @@ Remaining:
 Checks run:
 - npm run lint
 - npm run typecheck
+- npm test
 - npm run build
 
 Risks or decisions:

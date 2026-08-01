@@ -65,6 +65,33 @@ entry as superseded instead of deleting history.
   before handoff. Only one agent may own a branch at a time, and `main` must be
   protected by review and automated checks.
 
+### D-008 - Dependencies are pinned; never `"latest"`
+
+- **Date:** 2026-07-31
+- **Status:** Accepted
+- **Context:** Every dependency was declared as `"latest"`, so any lockfile
+  regeneration could silently jump the entire stack across major versions.
+- **Decision:** Declare dependencies with caret ranges against known-good
+  versions and commit the lockfile. Upgrades are deliberate, reviewed changes.
+- **Reason:** Reproducible installs are a prerequisite for a production-quality
+  product and for trustworthy automated checks.
+- **Consequences:** Framework upgrades become explicit tasks instead of
+  side effects of an install.
+
+### D-009 - Pure logic requires unit tests
+
+- **Date:** 2026-07-31
+- **Status:** Accepted
+- **Context:** Date, validation, serialization, and streak logic had no tests,
+  and future workout/nutrition formulas raise the stakes.
+- **Decision:** Keep domain logic in pure functions under `src/lib` and cover it
+  with Vitest unit tests (`npm test`, enforced in CI). Firestore rules tests via
+  the emulator remain a separate Phase 0 requirement.
+- **Reason:** Pure-function tests are cheap, fast, and catch exactly the class
+  of bugs already found in the streak and date logic.
+- **Consequences:** New `src/lib` logic ships with tests; the definition of done
+  includes `npm test`.
+
 ## Decision entry template
 
 ### D-XXX - Short title

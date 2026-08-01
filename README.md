@@ -6,7 +6,7 @@ The first milestone includes Google sign-in, protected dashboard pages, Firestor
 
 ## Requirements
 
-- Node.js 20 or newer
+- Node.js 22 (see `.nvmrc` and the `engines` field)
 - npm
 - Firebase project on the free Spark plan
 - Vercel account on the free tier
@@ -89,5 +89,7 @@ No paid infrastructure is required for this milestone.
 
 ```bash
 npm run lint
+npm run typecheck
+npm test
 npm run build
 ```
