@@ -51,8 +51,7 @@ their values into documentation.
 
 The agent must:
 
-1. Read `AGENTS.md` or `CLAUDE.md`, `PROJECT_CONTEXT.md`, `CURRENT_STATE.md`, and
-   `DECISIONS.md`.
+1. Read `AGENTS.md`, `PROJECT_CONTEXT.md`, `CURRENT_STATE.md`, and `DECISIONS.md`.
 2. Read the issue or feature brief and confirm its acceptance criteria are
    testable.
 3. Inspect the existing code before choosing an implementation.

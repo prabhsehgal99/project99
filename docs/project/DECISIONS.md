@@ -130,6 +130,30 @@ entry as superseded instead of deleting history.
   stable, and removed once upstream carries the patched versions itself.
   Overrides silently apply to the whole tree, so each entry needs a reason.
 
+### D-012 - `AGENTS.md` is the only rulebook; the project stays model-agnostic
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** `CLAUDE.md` and `AGENTS.md` were near-duplicates and had already
+  drifted. `CLAUDE.md` alone carried "never push directly to `main`" and the
+  pull-request handoff step; `AGENTS.md` alone carried "preserve existing user
+  changes and do not use destructive Git operations". Claude and Codex were
+  therefore working from different rules on the same repository, and each new
+  tool would have added another copy to drift.
+- **Decision:** `AGENTS.md` is the single source of truth, and it now holds the
+  union of both rule sets. `CLAUDE.md` is reduced to a pointer, and any future
+  vendor file must be a pointer too. Quality gates and routine tasks must exist
+  as `package.json` scripts; instruction files reference them rather than
+  describing commands. Tool configuration may only wrap those scripts.
+- **Reason:** The project is developed with several AI tools at once and must not
+  depend on any of them. Interchangeability is only real if the rules, the
+  quality gates, and the environment contract live in vendor-neutral files.
+- **Consequences:** Adding a tool means adding a pointer file, not a rulebook.
+  Any new gate has to become an npm script before it can be required, which also
+  makes it enforceable in CI. Reviewers should reject vendor files that contain
+  project rules, and `.conductor/settings.toml` stays the reference example of a
+  wrapper that encodes no project knowledge.
+
 ## Decision entry template
 
 ### D-XXX - Short title
