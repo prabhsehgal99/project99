@@ -44,6 +44,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
   const [savedMessage, setSavedMessage] = useState("");
   const [conflictLog, setConflictLog] = useState<DailyLog | null>(null);
   const [pendingDate, setPendingDate] = useState<string | null>(null);
+  const [cachedWarningDate, setCachedWarningDate] = useState<string | null>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
   const loadedSignatureRef = useRef<string | null>(null);
@@ -68,6 +69,9 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
         const loadedSignature = loadedSignatureRef.current;
 
         setSnapshot(nextSnapshot);
+        if (!nextSnapshot.fromCache) {
+          setCachedWarningDate(null);
+        }
 
         if (!dirtyRef.current || loadedSignature === null) {
           setDraft(toDailyLogDraft(nextSnapshot.log, { emptyTotals: !nextSnapshot.exists }));
@@ -98,6 +102,18 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
       errorSummaryRef.current?.focus();
     }
   }, [errorSummary]);
+
+  useEffect(() => {
+    if (!snapshot?.fromCache) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCachedWarningDate(dateKey);
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  }, [dateKey, snapshot?.fromCache]);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -264,7 +280,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
         <span className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-zinc-300">
           {dirty ? "Unsaved changes" : snapshot.exists ? "Saved log loaded" : "No log for this day yet"}
         </span>
-        {snapshot.fromCache ? (
+        {cachedWarningDate === dateKey ? (
           <span className="rounded-md border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-amber-100">
             Showing cached data; retry when the connection is available.
           </span>
