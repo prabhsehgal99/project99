@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "env:setup": "node scripts/setup-env.mjs",
     "rules:deploy:dev": "npx --yes firebase-tools@15 deploy --only firestore:rules --project dev",
     "rules:deploy:prod": "npx --yes firebase-tools@15 deploy --only firestore:rules --project prod"
   },

@@ -120,6 +120,15 @@ correct and the console is wrong.
 
 ## Secrets and environments
 
+`.env.example` is the contract and `.env.local` is what the app reads. How each
+environment fills it is that environment's business: a file on a development
+machine, the hosting provider's settings in production, or environment variables
+plus `npm run env:setup` in CI and ephemeral agent workspaces. No AI tool or
+hosting provider is a dependency of this design.
+
+Development machines and agent sessions use `project99-dev`. Production values
+belong only in the hosting provider's environment settings.
+
 - Never place `.env.local`, API keys, service-account credentials, or production
   secrets in chat, issues, commits, or pull-request text.
 - Configure cloud tools and CI with their protected environment or secret stores.
