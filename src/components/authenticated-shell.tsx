@@ -4,8 +4,9 @@ import type { User } from "firebase/auth";
 import { Activity, CalendarDays, LayoutDashboard, Loader2, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, type MouseEvent, type ReactNode } from "react";
 import { useAuth } from "@/components/auth-provider";
+import { NavigationGuardProvider, useNavigationInterceptor } from "@/components/navigation-guard";
 import { Panel } from "@/components/ui";
 
 const navItems = [
@@ -14,6 +15,14 @@ const navItems = [
 ];
 
 export function AuthenticatedShell({ children }: { children: (user: User) => ReactNode }) {
+  return (
+    <NavigationGuardProvider>
+      <AuthenticatedShellContent>{children}</AuthenticatedShellContent>
+    </NavigationGuardProvider>
+  );
+}
+
+function AuthenticatedShellContent({ children }: { children: (user: User) => ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading, error: authError, configured, signOutUser } = useAuth();
@@ -73,17 +82,17 @@ export function AuthenticatedShell({ children }: { children: (user: User) => Rea
           {navItems.map(({ href, label, icon: Icon }) => {
             const active = href === "/log" ? pathname.startsWith("/log") : pathname === href;
             return (
-              <Link
+              <GuardedNavLink
                 key={href}
                 className={`flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition ${
                   active ? "bg-emerald-400/10 text-emerald-100" : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
                 }`}
                 href={href}
-                aria-current={active ? "page" : undefined}
+                active={active}
               >
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {label}
-              </Link>
+              </GuardedNavLink>
             );
           })}
         </nav>
@@ -128,20 +137,54 @@ export function AuthenticatedShell({ children }: { children: (user: User) => Rea
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = href === "/log" ? pathname.startsWith("/log") : pathname === href;
           return (
-            <Link
+            <GuardedNavLink
               key={href}
               className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-xs font-medium ${
                 active ? "bg-emerald-400/10 text-emerald-100" : "text-zinc-400"
               }`}
               href={href}
-              aria-current={active ? "page" : undefined}
+              active={active}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />
               {label}
-            </Link>
+            </GuardedNavLink>
           );
         })}
       </nav>
     </div>
+  );
+}
+
+function GuardedNavLink({
+  href,
+  className,
+  active,
+  children
+}: {
+  href: string;
+  className: string;
+  active: boolean;
+  children: ReactNode;
+}) {
+  const intercept = useNavigationInterceptor();
+
+  return (
+    <Link
+      className={className}
+      href={href}
+      aria-current={active ? "page" : undefined}
+      onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+        // Modified clicks open a new tab and cannot lose in-page edits.
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+
+        if (intercept(href)) {
+          event.preventDefault();
+        }
+      }}
+    >
+      {children}
+    </Link>
   );
 }
