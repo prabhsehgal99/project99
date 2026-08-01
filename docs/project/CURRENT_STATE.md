@@ -62,6 +62,10 @@ flow.
   `npm run build` pass locally after `npm ci`. The local Node runtime is
   `v26.3.1`, so npm reports the repository's `node: 22.x` engine warning during
   install; CI/Vercel remain pinned to Node.js 22.
+- Production Safari Daily Log smoke verification passed against
+  `https://project99-ten.vercel.app` on 2026-07-31: the authenticated dashboard
+  loaded saved Daily Log summary data, `/log/2026-07-31` loaded a saved Daily
+  Log, and the "Showing cached data" warning was not visible after load.
 
 ## Reported complete
 
@@ -116,9 +120,12 @@ with real project values.
   still works, and auth-state restoration survives browser restarts.
 - Firestore emulator verification is blocked in this workspace because no Java
   runtime is installed and no rules test harness is currently configured.
-- Daily Log authenticated runtime QA, cross-device save/restore, Chrome/Safari
-  sign-in smoke testing, and Vercel preview smoke testing remain pending until
-  Firebase public web app values or a configured preview environment are
-  available. `firebase emulators:exec --only firestore "true"` still fails
-  because Java is not installed, so Daily Log rule validation is limited to
-  static review in this workspace.
+- Local Daily Log authenticated runtime QA, cross-device save/restore,
+  Chrome/Safari sign-in smoke testing, and Vercel preview smoke testing remain
+  pending until Firebase public web app values or a configured preview
+  environment are available. `firebase emulators:exec --only firestore "true"`
+  still fails because Java is not installed, so Daily Log rule validation is
+  limited to static review in this workspace.
+- Chrome browser-control testing for the Daily Log cache-status fix is blocked
+  in this Conductor session because the Chrome connector reports Chrome is not
+  available.

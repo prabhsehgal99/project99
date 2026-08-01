@@ -83,6 +83,7 @@ export function subscribeToDailyLog(
 
   return onSnapshot(
     ref,
+    { includeMetadataChanges: true },
     (snap) =>
       onNext({
         exists: snap.exists(),
