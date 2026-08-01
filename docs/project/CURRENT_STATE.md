@@ -1,11 +1,12 @@
 # Current state
 
-Last updated: 2026-07-31 (Phase 0.5 setup hardening, issue #11)
+Last updated: 2026-08-01 (app-navigation unsaved-changes guard, issue #12)
 
 ## Current milestone
 
-Phase 0 (roadmap): verify the authenticated foundation against real Firebase
-data, then finish Phase 0.5 setup hardening before starting Phase 1A.
+Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
+(Daily Log hardening, settings, history, PWA polish) has started with the
+app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
 
 ## What is on `main`
 
@@ -25,7 +26,7 @@ data, then finish Phase 0.5 setup hardening before starting Phase 1A.
 - All previous feature/fix branches (PRs #1–#10) are squash-merged; remaining
   remote branches are stale leftovers scheduled for deletion.
 
-## Phase 0.5 hardening (this branch)
+## Phase 0.5 hardening (merged 2026-08-01 as PR #18)
 
 - Product roadmap committed as `docs/project/ROADMAP.md` and added to required
   reading.
@@ -47,10 +48,18 @@ data, then finish Phase 0.5 setup hardening before starting Phase 1A.
   required, conversation resolution required, force pushes and deletion
   blocked). See WORKFLOW for details.
 
+## App-navigation unsaved-changes guard (this branch)
+
+- Sidebar and bottom-nav links now route through a navigation-guard context
+  (`src/components/navigation-guard.tsx`); the Daily Log registers a guard so
+  dirty edits get the existing save/discard/cancel prompt instead of being
+  silently lost on app-shell navigation (issue #12). Modified clicks that open
+  a new tab are not intercepted.
+- Not covered (unchanged behavior): browser back/forward through client-side
+  history and sign-out with dirty edits.
+
 ## Known issues and deferred work (tracked as GitHub issues)
 
-- Unsaved Daily Log edits are silently lost when navigating via the app
-  sidebar/bottom nav (date navigation is guarded; app navigation is not).
 - No PNG `apple-touch-icon`; iOS home-screen installs get a degraded icon.
 - `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
   evaluate redirect flow.
@@ -71,9 +80,12 @@ data, then finish Phase 0.5 setup hardening before starting Phase 1A.
 
 ## Next steps
 
-1. Merge Phase 0.5 hardening (issue #11) after review.
-2. Delete the stale, already-merged remote branches.
+1. Merge the app-navigation guard (issue #12) after review.
+2. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
+   (fully merged as PR #18; deletion from a remote session was blocked by
+   branch-scoped push credentials, so delete it from GitHub or a laptop).
 3. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
    cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
 4. Add emulator-backed Firestore rules tests once Java tooling is available.
-5. Begin Phase 1A (settings area, history, PWA polish, Daily Log hardening).
+5. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+   hardening).

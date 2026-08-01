@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AuthenticatedShell } from "@/components/authenticated-shell";
+import { useNavigationGuard } from "@/components/navigation-guard";
 import { DailyLogActivitySection } from "@/components/daily-log/daily-log-activity-section";
 import { DailyLogDateNav } from "@/components/daily-log/daily-log-date-nav";
 import { DailyLogMorningSection } from "@/components/daily-log/daily-log-morning-section";
@@ -43,7 +44,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
   const [saving, setSaving] = useState(false);
   const [savedMessage, setSavedMessage] = useState("");
   const [conflictLog, setConflictLog] = useState<DailyLog | null>(null);
-  const [pendingDate, setPendingDate] = useState<string | null>(null);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [cachedWarningDate, setCachedWarningDate] = useState<string | null>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
@@ -81,7 +82,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
           setFieldErrors({});
           setErrorSummary([]);
           setSavedMessage("");
-          setPendingDate(null);
+          setPendingHref(null);
           loadedSignatureRef.current = nextSignature;
           setConflictLog(null);
           return;
@@ -177,39 +178,52 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
     }
   }, [draft, snapshot, user.uid]);
 
+  const guardAppNavigation = useCallback((href: string) => {
+    if (!dirtyRef.current) {
+      return false;
+    }
+
+    setPendingHref(href);
+    return true;
+  }, []);
+
+  useNavigationGuard(guardAppNavigation);
+
   function requestNavigate(next: string) {
     if (!isValidDateKey(next) || isFutureDateKey(next, today)) {
       return;
     }
 
+    const href = `/log/${next}`;
+
     if (dirty) {
-      setPendingDate(next);
+      setPendingHref(href);
       return;
     }
 
-    router.push(`/log/${next}`);
+    router.push(href);
   }
 
   async function saveAndNavigate() {
-    if (!pendingDate) {
+    if (!pendingHref) {
       return;
     }
 
     const saved = await runSave();
 
     if (saved) {
-      router.push(`/log/${pendingDate}`);
+      router.push(pendingHref);
     }
   }
 
   function discardAndNavigate() {
-    if (!pendingDate) {
+    if (!pendingHref) {
       return;
     }
 
     setDirty(false);
     dirtyRef.current = false;
-    router.push(`/log/${pendingDate}`);
+    router.push(pendingHref);
   }
 
   function reloadConflict() {
@@ -340,9 +354,11 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
         </section>
       ) : null}
 
-      {pendingDate ? (
+      {pendingHref ? (
         <section className="mt-4 rounded-lg border border-purple-400/30 bg-purple-400/10 p-4 text-sm text-purple-50">
-          <p className="font-medium">Save changes before changing dates?</p>
+          <p className="font-medium">
+            {pendingHref.startsWith("/log/") ? "Save changes before changing dates?" : "Save changes before leaving this log?"}
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               className="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-zinc-950 disabled:opacity-60"
@@ -362,7 +378,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
             <button
               className="inline-flex min-h-11 items-center justify-center rounded-md border border-zinc-700 px-4 text-sm font-medium text-zinc-100"
               type="button"
-              onClick={() => setPendingDate(null)}
+              onClick={() => setPendingHref(null)}
             >
               Cancel
             </button>
