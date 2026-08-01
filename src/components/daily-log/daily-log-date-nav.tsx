@@ -41,7 +41,7 @@ export function DailyLogDateNav({
             <span className="sr-only">Select date</span>
             <CalendarDays className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-zinc-500" aria-hidden="true" />
             <input
-              className="min-h-11 w-full rounded-md border border-zinc-700 bg-zinc-900 pl-10 pr-2 text-sm text-zinc-100 outline-none focus:border-emerald-400"
+              className="min-h-11 w-full rounded-md border border-zinc-700 bg-zinc-900 pl-10 pr-2 text-sm text-zinc-100 outline-hidden focus:border-emerald-400"
               type="date"
               value={dateKey}
               max={today}

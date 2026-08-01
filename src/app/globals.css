@@ -1,6 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --color-ink: #050508;
+  --color-panel: #101014;
+  --color-muted: #a1a1aa;
+
+  --color-emerald-glow: #34d399;
+
+  --color-purple-glow: #a78bfa;
+
+  --shadow-glow: 0 0 40px rgba(52, 211, 153, 0.16);
+}
 
 :root {
   color-scheme: dark;

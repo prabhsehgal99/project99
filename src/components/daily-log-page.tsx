@@ -309,7 +309,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
       {errorSummary.length > 0 || saveError ? (
         <div
           ref={errorSummaryRef}
-          className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100 outline-none"
+          className="mt-4 rounded-lg border border-red-400/30 bg-red-400/10 p-4 text-sm text-red-100 outline-hidden"
           role="alert"
           tabIndex={-1}
         >
@@ -401,7 +401,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
           <DailyLogNotesSection draft={draft} errors={fieldErrors} onChange={updateDraft} />
         </div>
 
-        <div className="sticky bottom-[72px] z-20 -mx-4 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur md:static md:col-span-2 md:mx-0 md:border-0 md:bg-transparent md:p-0">
+        <div className="sticky bottom-[72px] z-20 -mx-4 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur-sm md:static md:col-span-2 md:mx-0 md:border-0 md:bg-transparent md:p-0">
           <button
             className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-emerald-400 px-5 text-base font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
             type="submit"

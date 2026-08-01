@@ -131,7 +131,7 @@ function AuthenticatedShellContent({ children }: { children: (user: User) => Rea
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-2 border-t border-zinc-800 bg-zinc-950/95 px-3 py-2 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-2 border-t border-zinc-800 bg-zinc-950/95 px-3 py-2 backdrop-blur-sm md:hidden"
         aria-label="Primary"
       >
         {navItems.map(({ href, label, icon: Icon }) => {
