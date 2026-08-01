@@ -12,6 +12,7 @@ Before planning, reviewing, or implementing work, read:
 2. `docs/project/CURRENT_STATE.md`
 3. `docs/project/DECISIONS.md`
 4. `docs/project/WORKFLOW.md`
+5. `docs/project/ROADMAP.md`
 
 For significant features, create or read a feature brief based on
 `docs/project/FEATURE_BRIEF_TEMPLATE.md`.
@@ -45,10 +46,11 @@ Before declaring implementation complete:
 3. Review security and user-data isolation when persisted data is involved.
 4. Run `npm run lint`.
 5. Run `npm run typecheck`.
-6. Run `npm run build`.
-7. Fix failures caused by the work.
-8. Open or update a pull request with a complete handoff summary.
-9. Update project memory when the milestone or a durable decision changes.
+6. Run `npm test`.
+7. Run `npm run build`.
+8. Fix failures caused by the work.
+9. Open or update a pull request with a complete handoff summary.
+10. Update project memory when the milestone or a durable decision changes.
 
 Do not merge significant feature work without review. The user controls the final
 merge unless they explicitly delegate it.

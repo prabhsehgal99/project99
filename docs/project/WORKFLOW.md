@@ -28,7 +28,13 @@ Never rely on chat history as the only record of a requirement or decision.
 
 ## Repository safeguards
 
-After the first successful GitHub Actions run, protect `main` and enable:
+> **Status (2026-07-31):** The repository is public and branch protection is
+> enabled on `main`: a pull request is required, the `Lint, typecheck, and
+> build` status check must pass, conversations must be resolved, and force
+> pushes and deletion are blocked. Approval count is 0 so the owner can merge
+> their own reviewed PRs; admin enforcement is off as an owner escape hatch.
+
+`main` protection enables:
 
 - Require a pull request before merging.
 - Require the `Lint, typecheck, and build` status check.
@@ -106,6 +112,7 @@ Remaining:
 Checks run:
 - npm run lint
 - npm run typecheck
+- npm test
 - npm run build
 
 Risks or decisions:

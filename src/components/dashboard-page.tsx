@@ -14,7 +14,7 @@ import {
   Utensils
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -59,6 +59,9 @@ function DashboardContent({ user }: { user: User }) {
   const [settingsDirty, setSettingsDirty] = useState(false);
   const [settingsSaving, setSettingsSaving] = useState(false);
   const [settingsSaved, setSettingsSaved] = useState(false);
+  // Mirrors settingsDirty so the subscription effect does not tear down and
+  // re-subscribe all listeners every time the user edits or saves settings.
+  const settingsDirtyRef = useRef(false);
 
   useEffect(() => {
     let settingsReady = false;
@@ -81,7 +84,7 @@ function DashboardContent({ user }: { user: User }) {
       (nextSettings) => {
         settingsReady = true;
         setSettings(nextSettings);
-        setSettingsDraft((current) => (settingsDirty ? current : nextSettings));
+        setSettingsDraft((current) => (settingsDirtyRef.current ? current : nextSettings));
         markReady();
       },
       handleError
@@ -116,7 +119,7 @@ function DashboardContent({ user }: { user: User }) {
       unsubToday();
       unsubRecent();
     };
-  }, [settingsDirty, today, user.uid]);
+  }, [today, user.uid]);
 
   const chartData = useMemo(() => {
     const byDate = new Map(recentLogs.map((item) => [item.date, item]));
@@ -173,6 +176,7 @@ function DashboardContent({ user }: { user: User }) {
     try {
       await saveSettings(user.uid, settingsDraft);
       setSettingsDirty(false);
+      settingsDirtyRef.current = false;
       setSettingsSaved(true);
     } catch (error) {
       setDataError(error instanceof Error ? error.message : "Could not save settings.");
@@ -184,6 +188,7 @@ function DashboardContent({ user }: { user: User }) {
   function updateSettings(patch: Partial<UserSettings>) {
     setSettingsDraft((current) => ({ ...current, ...patch }));
     setSettingsDirty(true);
+    settingsDirtyRef.current = true;
     setSettingsSaved(false);
     setSettingsErrors([]);
   }

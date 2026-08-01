@@ -257,16 +257,22 @@ export function currentWeight(logs: DailyLog[]) {
   return [...logs].reverse().find((log) => typeof log.weightKg === "number")?.weightKg ?? null;
 }
 
+function previousDateKey(dateKey: string) {
+  const parts = dateKey.split("-").map(Number);
+  const date = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0, 0);
+  date.setDate(date.getDate() - 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 export function habitStreak(logs: DailyLog[], today: string) {
   const byDate = new Map(logs.map((log) => [log.date, log]));
+  // A streak is not broken until the day is actually missed, so an unlogged
+  // today falls back to counting from yesterday.
+  let cursor = byDate.get(today)?.habitDone ? today : previousDateKey(today);
   let streak = 0;
-  let cursor = today;
 
   while (byDate.get(cursor)?.habitDone) {
-    const parts = cursor.split("-").map(Number);
-    const date = new Date(parts[0], parts[1] - 1, parts[2], 12, 0, 0, 0);
-    date.setDate(date.getDate() - 1);
-    cursor = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    cursor = previousDateKey(cursor);
     streak += 1;
   }
 

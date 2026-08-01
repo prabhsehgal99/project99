@@ -41,12 +41,23 @@ export async function ensureUserDocuments(user: User) {
       updatedAt: serverTimestamp()
     });
   } else {
-    await updateDoc(userRef, {
-      displayName: user.displayName ?? userSnap.data().displayName ?? "Project 99 Athlete",
-      email: user.email ?? userSnap.data().email ?? "",
-      photoURL: user.photoURL ?? userSnap.data().photoURL ?? "",
-      updatedAt: serverTimestamp()
-    });
+    const existing = userSnap.data();
+    const nextProfile = {
+      displayName: user.displayName ?? existing.displayName ?? "Project 99 Athlete",
+      email: user.email ?? existing.email ?? "",
+      photoURL: user.photoURL ?? existing.photoURL ?? ""
+    };
+    const changed =
+      nextProfile.displayName !== existing.displayName ||
+      nextProfile.email !== existing.email ||
+      nextProfile.photoURL !== existing.photoURL;
+
+    if (changed) {
+      await updateDoc(userRef, {
+        ...nextProfile,
+        updatedAt: serverTimestamp()
+      });
+    }
   }
 
   if (!settingsSnap.exists()) {
