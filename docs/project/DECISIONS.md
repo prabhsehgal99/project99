@@ -154,6 +154,30 @@ entry as superseded instead of deleting history.
   project rules, and `.conductor/settings.toml` stays the reference example of a
   wrapper that encodes no project knowledge.
 
+### D-013 - Separate dev and prod Firebase projects; rules deploy from the repo
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** A single Firebase project served everything, so any local session
+  or AI agent given working credentials had a live connection to production
+  data. Separately, `firestore.rules` lived in the repository but nothing
+  deployed it - rules were pushed by hand, with no guarantee that the deployed
+  rules matched the committed ones.
+- **Decision:** Two projects, `project99-dev` and `project99live`, mapped to the
+  aliases `dev` and `prod` in `.firebaserc`. Rules deploy through
+  `npm run rules:deploy:dev` and `npm run rules:deploy:prod`. No `default` alias
+  is defined, so a bare `firebase deploy` fails rather than guessing a target.
+- **Reason:** Development and agent sessions must not be able to reach real user
+  data, and a security-critical file that is deployed by hand will eventually
+  drift from the version under review.
+- **Consequences:** Rules changes must be deployed to both projects, dev first.
+  The projects must stay structurally identical so dev remains a faithful
+  rehearsal. `firebase-tools` is intentionally **not** a devDependency: adding it
+  cost 225 MB of install and introduced 5 moderate advisories into a tree that
+  was at zero, for tooling that never ships to users. The npm scripts invoke it
+  through `npx` with a pinned range instead, keeping it out of the application's
+  dependency graph and out of CI installs.
+
 ## Decision entry template
 
 ### D-XXX - Short title
