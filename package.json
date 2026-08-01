@@ -12,8 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "rules:deploy:dev": "npx --yes firebase-tools@^15.25.1 deploy --only firestore:rules --project dev",
-    "rules:deploy:prod": "npx --yes firebase-tools@^15.25.1 deploy --only firestore:rules --project prod"
+    "rules:deploy:dev": "npx --yes firebase-tools@15 deploy --only firestore:rules --project dev",
+    "rules:deploy:prod": "npx --yes firebase-tools@15 deploy --only firestore:rules --project prod"
   },
   "dependencies": {
     "firebase": "^12.17.0",
