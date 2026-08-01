@@ -28,13 +28,13 @@ Never rely on chat history as the only record of a requirement or decision.
 
 ## Repository safeguards
 
-> **Status (2026-07-31):** GitHub branch protection is not available for private
-> repositories on the GitHub Free plan, so the safeguards below cannot currently
-> be enforced by GitHub. Until the repository moves to GitHub Pro or becomes
-> public, "never push directly to `main`" is a convention that every agent and
-> tool must follow voluntarily. Revisit this when the plan changes.
+> **Status (2026-07-31):** The repository is public and branch protection is
+> enabled on `main`: a pull request is required, the `Lint, typecheck, and
+> build` status check must pass, conversations must be resolved, and force
+> pushes and deletion are blocked. Approval count is 0 so the owner can merge
+> their own reviewed PRs; admin enforcement is off as an owner escape hatch.
 
-When branch protection becomes available, protect `main` and enable:
+`main` protection enables:
 
 - Require a pull request before merging.
 - Require the `Lint, typecheck, and build` status check.

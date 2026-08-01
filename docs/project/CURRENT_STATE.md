@@ -42,9 +42,10 @@ data, then finish Phase 0.5 setup hardening before starting Phase 1A.
 - PROJECT_CONTEXT stack list corrected to installed reality (shadcn/ui,
   TanStack Query, React Hook Form, Zod, Framer Motion are approved-but-not-yet-
   installed; Firebase Storage is planned, not configured).
-- WORKFLOW documents that GitHub branch protection is unavailable on the
-  current plan (private repo, Free tier); merge discipline is convention-only
-  until that changes.
+- Repository made public on 2026-07-31 after a clean full-history secret scan;
+  branch protection is now enabled on `main` (PR required, quality check
+  required, conversation resolution required, force pushes and deletion
+  blocked). See WORKFLOW for details.
 
 ## Known issues and deferred work (tracked as GitHub issues)
 
