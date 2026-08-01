@@ -92,6 +92,44 @@ entry as superseded instead of deleting history.
 - **Consequences:** New `src/lib` logic ships with tests; the definition of done
   includes `npm test`.
 
+### D-010 - Tailwind v4 with CSS-first configuration
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** Tailwind 3.4 was two majors behind, and the roadmap expects a
+  long-lived styling foundation as the workout, nutrition, and measurement
+  systems arrive.
+- **Decision:** Upgrade to Tailwind v4 and keep theme configuration in
+  `src/app/globals.css` via `@theme` and `@plugin`. `tailwind.config.ts` is
+  removed and `autoprefixer` is dropped, because v4 prefixes internally.
+- **Reason:** The codebase is small enough that the migration is contained to
+  one stylesheet and four renamed utilities, so the cost is far lower now than
+  after several more feature systems are built on v3 conventions.
+- **Consequences:** Theme tokens are CSS custom properties, not TypeScript.
+  The default palette now emits in `lab()`/OKLCH, so solid brand fills render
+  slightly more saturated on wide-gamut displays; the hand-written hex values
+  in `globals.css` stay sRGB and are no longer pixel-identical to their palette
+  equivalents. Both are used only in low-alpha gradients and the glow shadow,
+  so the difference is not perceptible. Plugins must be registered with
+  `@plugin` — losing that directive silently removes their styles.
+
+### D-011 - Transitive advisories are fixed with `overrides`, not downgrades
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** Three high-severity advisories (postcss XSS/path traversal,
+  sharp libvips CVEs) arrived through dependencies nested under `next`.
+  `npm audit fix --force` proposed downgrading Next.js from 16 to 9, and the
+  advisories are only fixed in Next 16.3 preview builds.
+- **Decision:** Pin vulnerable transitive dependencies forward with an
+  `overrides` block, and keep Next.js on the newest stable release.
+- **Reason:** A framework downgrade of seven majors is far more dangerous than
+  forcing a patch-level bump of two leaf packages, and waiting for a preview
+  release to go stable would leave known-exploitable code in the tree.
+- **Consequences:** `overrides` must be revisited when Next.js 16.3 ships
+  stable, and removed once upstream carries the patched versions itself.
+  Overrides silently apply to the whole tree, so each entry needs a reason.
+
 ## Decision entry template
 
 ### D-XXX - Short title
