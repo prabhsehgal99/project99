@@ -66,8 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
 
     try {
-      const credential = await signInWithPopup(getFirebaseAuth(), getGoogleProvider());
-      await ensureUserDocuments(credential.user);
+      // onAuthStateChanged fires after the popup resolves and runs
+      // ensureUserDocuments there, so it is not repeated here.
+      await signInWithPopup(getFirebaseAuth(), getGoogleProvider());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed.");
     }
