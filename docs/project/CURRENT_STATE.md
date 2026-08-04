@@ -81,6 +81,11 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
   mobile geometry is unchanged, and the one desktop difference is the landing
   `h1` line-height, where v4 now correctly honours the `leading-tight` that v3
   silently overrode above 640px.
+- Authenticated runtime verified on 2026-08-01 against `project99-dev`: Google
+  sign-in, a Daily Log write reaching `users/{uid}/dailyMetrics/{date}`, and the
+  Tailwind v4 form controls (inputs, selects, habit checkbox, sticky save bar,
+  focus rings) on narrow and wide layouts. This closes the one gap the v4
+  upgrade could not be checked against from an unauthenticated workspace.
 
 ## Known issues and deferred work (tracked as GitHub issues)
 
@@ -95,9 +100,13 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
 
 ## Known blockers
 
-- `.env.local` is absent in this workspace, so authenticated runtime behavior
-  (sign-in, real Firestore reads/writes) cannot be exercised here. Production
-  smoke tests run against `https://project99-ten.vercel.app`.
+- `.env.local` is absent in *agent* workspaces, so authenticated runtime
+  behavior cannot be exercised there; it is configured on the development
+  machine against `project99-dev`. Agent workspaces that need it can supply the
+  variables and run `npm run env:setup`.
+- Production still points at the retired `project99-f7e3c` project. Vercel must
+  be repointed to `project99live` and verified before `project99-f7e3c` is
+  deleted.
 - Firestore emulator verification requires a Java runtime, which is not
   installed in this workspace.
 
