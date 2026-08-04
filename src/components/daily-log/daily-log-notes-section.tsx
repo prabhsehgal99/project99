@@ -21,7 +21,7 @@ export function DailyLogNotesSection({
         <span className="text-sm font-medium text-zinc-300">Notes</span>
         <textarea
           id="journalNotes"
-          className="mt-2 min-h-36 w-full resize-y rounded-md border border-zinc-700 bg-zinc-900/80 px-3 py-3 text-base text-zinc-50 outline-none focus:border-emerald-400"
+          className="mt-2 min-h-36 w-full resize-y rounded-md border border-zinc-700 bg-zinc-900/80 px-3 py-3 text-base text-zinc-50 outline-hidden focus:border-emerald-400"
           value={draft.journalNotes}
           maxLength={2200}
           aria-invalid={errors.journalNotes ? "true" : undefined}

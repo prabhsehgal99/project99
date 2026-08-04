@@ -19,7 +19,7 @@ export function StatCard({ title, value, detail, icon: Icon, tone = "neutral" }:
   }[tone];
 
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4 shadow-sm">
+    <section className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4 shadow-xs">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{title}</p>
@@ -156,7 +156,7 @@ export function NumberInput({
         </button>
         <input
           id={id}
-          className="min-h-11 w-full min-w-0 border-0 bg-transparent px-3 text-center text-base text-zinc-50 outline-none placeholder:text-zinc-600 focus:ring-0"
+          className="min-h-11 w-full min-w-0 border-0 bg-transparent px-3 text-center text-base text-zinc-50 outline-hidden placeholder:text-zinc-600 focus:ring-0"
           type="number"
           inputMode="decimal"
           min={min}

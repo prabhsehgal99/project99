@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-08-01 (app-navigation unsaved-changes guard, issue #12)
+Last updated: 2026-08-01 (dependency currency and security pass)
 
 ## Current milestone
 
@@ -58,9 +58,54 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
 - Not covered (unchanged behavior): browser back/forward through client-side
   history and sign-out with dirty edits.
 
+## Dependency currency and security pass (this branch)
+
+- `npm audit` went from 3 high-severity advisories to 0. The vulnerable
+  `postcss` and `sharp` copies were nested under `next` and are now pinned
+  forward with `overrides`; Next.js stays on the newest stable release. See
+  D-011.
+- Tailwind CSS upgraded 3.4 -> 4.3 with CSS-first configuration; see D-010.
+  `tailwind.config.ts` and `autoprefixer` are gone.
+- App icons: generated PNG `apple-touch-icon` (180x180), 192 and 512 icons
+  from `icon.svg`, declared them in root metadata, and added them to the
+  manifest. This clears the `/favicon.ico` 404 and the missing iOS
+  home-screen icon.
+- Deliberately **not** upgraded, both blocked by `eslint-config-next@16.2.12`:
+  - ESLint 10 — its bundled `eslint-plugin-react` calls the ESLint 9 context
+    API that v10 removed, so `npm run lint` crashes.
+  - TypeScript 7 — bundled `typescript-eslint` refuses TS 7.0 outright, so
+    `npm run lint` crashes. `tsc --noEmit` itself passes on TS 7.
+  Both are ready to revisit when `eslint-config-next` supports them; the
+  caret ranges stay on ESLint 9 and TypeScript 6 until then.
+- Verified by building the previous commit side by side and comparing renders:
+  mobile geometry is unchanged, and the one desktop difference is the landing
+  `h1` line-height, where v4 now correctly honours the `leading-tight` that v3
+  silently overrode above 640px.
+- Authenticated runtime verified on 2026-08-01 against `project99-dev`: Google
+  sign-in, a Daily Log write reaching `users/{uid}/dailyMetrics/{date}`, and the
+  Tailwind v4 form controls (inputs, selects, habit checkbox, sticky save bar,
+  focus rings) on narrow and wide layouts. This closes the one gap the v4
+  upgrade could not be checked against from an unauthenticated workspace.
+
+## Firebase environment split (this branch)
+
+- Two projects replace the single shared one: `project99-dev` for local
+  development, agent sessions, and Vercel preview builds; `project99live` for
+  production. See D-013.
+- Firestore rules deployed to both from the repository via
+  `npm run rules:deploy:dev` and `npm run rules:deploy:prod`.
+- Vercel production repointed to `project99live` and verified: sign-in works on
+  `project99-ten.vercel.app`, which is registered in that project's authorised
+  domains. Preview and Development scopes use `project99-dev`.
+- Two gotchas worth remembering, both hit during the cutover. Vercel's
+  "Use existing Build Cache" can reuse compiled output with the previous
+  `NEXT_PUBLIC_*` values still inlined, so untick it whenever configuration
+  changes. And Firebase authorised domains must list the assigned production
+  domain; per-deployment Vercel URLs are different hosts and are regenerated on
+  every build, so always test on the assigned domain.
+
 ## Known issues and deferred work (tracked as GitHub issues)
 
-- No PNG `apple-touch-icon`; iOS home-screen installs get a degraded icon.
 - `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
   evaluate redirect flow.
 - Firestore rules gaps: `users/{uid}` profile and settings documents have no
@@ -72,9 +117,13 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
 
 ## Known blockers
 
-- `.env.local` is absent in this workspace, so authenticated runtime behavior
-  (sign-in, real Firestore reads/writes) cannot be exercised here. Production
-  smoke tests run against `https://project99-ten.vercel.app`.
+- `.env.local` is absent in *agent* workspaces, so authenticated runtime
+  behavior cannot be exercised there; it is configured on the development
+  machine against `project99-dev`. Agent workspaces that need it can supply the
+  variables and run `npm run env:setup`.
+- `project99-f7e3c` (the previous production project) is superseded but not yet
+  deleted. Nothing points at it; retire it only after production has run on
+  `project99live` for a few days.
 - Firestore emulator verification requires a Java runtime, which is not
   installed in this workspace.
 

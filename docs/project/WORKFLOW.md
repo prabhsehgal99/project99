@@ -51,8 +51,7 @@ their values into documentation.
 
 The agent must:
 
-1. Read `AGENTS.md` or `CLAUDE.md`, `PROJECT_CONTEXT.md`, `CURRENT_STATE.md`, and
-   `DECISIONS.md`.
+1. Read `AGENTS.md`, `PROJECT_CONTEXT.md`, `CURRENT_STATE.md`, and `DECISIONS.md`.
 2. Read the issue or feature brief and confirm its acceptance criteria are
    testable.
 3. Inspect the existing code before choosing an implementation.
@@ -90,7 +89,45 @@ Before another tool takes over, the current agent must:
 4. Review the pull request and preview from the phone.
 5. Request a second-agent review before merging significant work.
 
+## Firebase environments
+
+Two Firebase projects, mapped to aliases in `.firebaserc` so no one types a raw
+project ID:
+
+| Alias  | Project ID      | Use                                          |
+| ------ | --------------- | -------------------------------------------- |
+| `dev`  | `project99-dev` | Local development, agent sessions, all testing |
+| `prod` | `project99live` | Production, served by Vercel                 |
+
+Agent sessions and local development must point at `dev`. Production credentials
+belong only in the hosting provider's environment settings.
+
+There is deliberately **no `default` alias**. A bare `firebase deploy` fails with
+"no project active" instead of silently targeting whichever project was last
+used, so every deployment names its target.
+
+Security rules live in `firestore.rules` and ship from the repository, never by
+hand from a console or a laptop:
+
+```bash
+npm run rules:deploy:dev     # deploy firestore.rules to project99-dev
+npm run rules:deploy:prod    # deploy firestore.rules to project99live
+```
+
+Deploy to `dev` first and confirm the change behaves, then to `prod`. Both
+projects run the same rules file; if they ever diverge, the repository is
+correct and the console is wrong.
+
 ## Secrets and environments
+
+`.env.example` is the contract and `.env.local` is what the app reads. How each
+environment fills it is that environment's business: a file on a development
+machine, the hosting provider's settings in production, or environment variables
+plus `npm run env:setup` in CI and ephemeral agent workspaces. No AI tool or
+hosting provider is a dependency of this design.
+
+Development machines and agent sessions use `project99-dev`. Production values
+belong only in the hosting provider's environment settings.
 
 - Never place `.env.local`, API keys, service-account credentials, or production
   secrets in chat, issues, commits, or pull-request text.

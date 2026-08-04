@@ -92,6 +92,92 @@ entry as superseded instead of deleting history.
 - **Consequences:** New `src/lib` logic ships with tests; the definition of done
   includes `npm test`.
 
+### D-010 - Tailwind v4 with CSS-first configuration
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** Tailwind 3.4 was two majors behind, and the roadmap expects a
+  long-lived styling foundation as the workout, nutrition, and measurement
+  systems arrive.
+- **Decision:** Upgrade to Tailwind v4 and keep theme configuration in
+  `src/app/globals.css` via `@theme` and `@plugin`. `tailwind.config.ts` is
+  removed and `autoprefixer` is dropped, because v4 prefixes internally.
+- **Reason:** The codebase is small enough that the migration is contained to
+  one stylesheet and four renamed utilities, so the cost is far lower now than
+  after several more feature systems are built on v3 conventions.
+- **Consequences:** Theme tokens are CSS custom properties, not TypeScript.
+  The default palette now emits in `lab()`/OKLCH, so solid brand fills render
+  slightly more saturated on wide-gamut displays; the hand-written hex values
+  in `globals.css` stay sRGB and are no longer pixel-identical to their palette
+  equivalents. Both are used only in low-alpha gradients and the glow shadow,
+  so the difference is not perceptible. Plugins must be registered with
+  `@plugin` — losing that directive silently removes their styles.
+
+### D-011 - Transitive advisories are fixed with `overrides`, not downgrades
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** Three high-severity advisories (postcss XSS/path traversal,
+  sharp libvips CVEs) arrived through dependencies nested under `next`.
+  `npm audit fix --force` proposed downgrading Next.js from 16 to 9, and the
+  advisories are only fixed in Next 16.3 preview builds.
+- **Decision:** Pin vulnerable transitive dependencies forward with an
+  `overrides` block, and keep Next.js on the newest stable release.
+- **Reason:** A framework downgrade of seven majors is far more dangerous than
+  forcing a patch-level bump of two leaf packages, and waiting for a preview
+  release to go stable would leave known-exploitable code in the tree.
+- **Consequences:** `overrides` must be revisited when Next.js 16.3 ships
+  stable, and removed once upstream carries the patched versions itself.
+  Overrides silently apply to the whole tree, so each entry needs a reason.
+
+### D-012 - `AGENTS.md` is the only rulebook; the project stays model-agnostic
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** `CLAUDE.md` and `AGENTS.md` were near-duplicates and had already
+  drifted. `CLAUDE.md` alone carried "never push directly to `main`" and the
+  pull-request handoff step; `AGENTS.md` alone carried "preserve existing user
+  changes and do not use destructive Git operations". Claude and Codex were
+  therefore working from different rules on the same repository, and each new
+  tool would have added another copy to drift.
+- **Decision:** `AGENTS.md` is the single source of truth, and it now holds the
+  union of both rule sets. `CLAUDE.md` is reduced to a pointer, and any future
+  vendor file must be a pointer too. Quality gates and routine tasks must exist
+  as `package.json` scripts; instruction files reference them rather than
+  describing commands. Tool configuration may only wrap those scripts.
+- **Reason:** The project is developed with several AI tools at once and must not
+  depend on any of them. Interchangeability is only real if the rules, the
+  quality gates, and the environment contract live in vendor-neutral files.
+- **Consequences:** Adding a tool means adding a pointer file, not a rulebook.
+  Any new gate has to become an npm script before it can be required, which also
+  makes it enforceable in CI. Reviewers should reject vendor files that contain
+  project rules, and `.conductor/settings.toml` stays the reference example of a
+  wrapper that encodes no project knowledge.
+
+### D-013 - Separate dev and prod Firebase projects; rules deploy from the repo
+
+- **Date:** 2026-08-01
+- **Status:** Accepted
+- **Context:** A single Firebase project served everything, so any local session
+  or AI agent given working credentials had a live connection to production
+  data. Separately, `firestore.rules` lived in the repository but nothing
+  deployed it - rules were pushed by hand, with no guarantee that the deployed
+  rules matched the committed ones.
+- **Decision:** Two projects, `project99-dev` and `project99live`, mapped to the
+  aliases `dev` and `prod` in `.firebaserc`. Rules deploy through
+  `npm run rules:deploy:dev` and `npm run rules:deploy:prod`. No `default` alias
+  is defined, so a bare `firebase deploy` fails rather than guessing a target.
+- **Reason:** Development and agent sessions must not be able to reach real user
+  data, and a security-critical file that is deployed by hand will eventually
+  drift from the version under review.
+- **Consequences:** Rules changes must be deployed to both projects, dev first.
+  The projects must stay structurally identical so dev remains a faithful
+  rehearsal. `firebase-tools` is intentionally **not** a devDependency: adding it
+  cost 225 MB of install and introduced 5 moderate advisories into a tree that
+  was at zero, for tooling that never ships to users. The npm scripts invoke it
+  through `npx` with a pinned range instead, keeping it out of the application's
+  dependency graph and out of CI installs.
+
 ## Decision entry template
 
 ### D-XXX - Short title

@@ -34,7 +34,7 @@ export function DailyLogActivitySection({
             <span className="block text-xs text-zinc-500">Counts toward streak</span>
           </span>
           <input
-            className="h-5 w-5 rounded border-zinc-700 bg-zinc-950 text-emerald-400 focus:ring-emerald-400"
+            className="h-5 w-5 rounded-sm border-zinc-700 bg-zinc-950 text-emerald-400 focus:ring-emerald-400"
             type="checkbox"
             checked={draft.habitDone}
             onChange={(event) => onChange({ habitDone: event.target.checked })}
@@ -63,7 +63,7 @@ function StatusSelect({
         {label}
       </span>
       <select
-        className="mt-2 min-h-11 w-full rounded-md border border-zinc-700 bg-zinc-900/80 px-3 text-base text-zinc-50 outline-none focus:border-emerald-400 focus:ring-0"
+        className="mt-2 min-h-11 w-full rounded-md border border-zinc-700 bg-zinc-900/80 px-3 text-base text-zinc-50 outline-hidden focus:border-emerald-400 focus:ring-0"
         value={value}
         onChange={(event) => onChange(event.target.value as ActivityStatus)}
       >
