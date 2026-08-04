@@ -87,6 +87,23 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
   focus rings) on narrow and wide layouts. This closes the one gap the v4
   upgrade could not be checked against from an unauthenticated workspace.
 
+## Firebase environment split (this branch)
+
+- Two projects replace the single shared one: `project99-dev` for local
+  development, agent sessions, and Vercel preview builds; `project99live` for
+  production. See D-013.
+- Firestore rules deployed to both from the repository via
+  `npm run rules:deploy:dev` and `npm run rules:deploy:prod`.
+- Vercel production repointed to `project99live` and verified: sign-in works on
+  `project99-ten.vercel.app`, which is registered in that project's authorised
+  domains. Preview and Development scopes use `project99-dev`.
+- Two gotchas worth remembering, both hit during the cutover. Vercel's
+  "Use existing Build Cache" can reuse compiled output with the previous
+  `NEXT_PUBLIC_*` values still inlined, so untick it whenever configuration
+  changes. And Firebase authorised domains must list the assigned production
+  domain; per-deployment Vercel URLs are different hosts and are regenerated on
+  every build, so always test on the assigned domain.
+
 ## Known issues and deferred work (tracked as GitHub issues)
 
 - `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
@@ -104,9 +121,9 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
   behavior cannot be exercised there; it is configured on the development
   machine against `project99-dev`. Agent workspaces that need it can supply the
   variables and run `npm run env:setup`.
-- Production still points at the retired `project99-f7e3c` project. Vercel must
-  be repointed to `project99live` and verified before `project99-f7e3c` is
-  deleted.
+- `project99-f7e3c` (the previous production project) is superseded but not yet
+  deleted. Nothing points at it; retire it only after production has run on
+  `project99live` for a few days.
 - Firestore emulator verification requires a Java runtime, which is not
   installed in this workspace.
 
