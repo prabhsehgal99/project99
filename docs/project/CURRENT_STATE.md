@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-08-01 (dependency currency and security pass)
+Last updated: 2026-08-05 (Firebase environment identity enforcement)
 
 ## Current milestone
 
@@ -88,7 +88,7 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
   focus rings) on narrow and wide layouts. This closes the one gap the v4
   upgrade could not be checked against from an unauthenticated workspace.
 
-## Firebase environment split (this branch)
+## Firebase environment split (merged 2026-08-04 as PR #20)
 
 - Two projects replace the single shared one: `project99-dev` for local
   development, agent sessions, and Vercel preview builds; `project99live` for
@@ -105,7 +105,16 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
   domain; per-deployment Vercel URLs are different hosts and are regenerated on
   every build, so always test on the assigned domain.
 
-## Workout engine foundation (this branch)
+## Firebase environment identity enforcement (this branch)
+
+- Issue #23 tracks the fail-closed environment guard discovered during the Firebase cutover audit.
+- Every configured app now requires `NEXT_PUBLIC_APP_ENV=dev|prod`.
+- Runtime validation maps `dev` to `project99-dev` and `prod` to `project99live`, and rejects mixed auth-domain, storage-bucket, messaging-sender, and app-ID values.
+- `next.config.ts` fails Vercel Production builds unless they use prod, and fails Preview/Development builds unless they use dev. Unconfigured non-Vercel quality CI remains supported.
+- `npm run env:setup` rejects production configuration so local and agent sessions cannot generate a production-backed environment file.
+- The production bundle was redeployed without the stale build cache and verified against `project99live`; Google sign-in and a persisted Firestore Daily Log write both passed on the assigned production domain.
+
+## Workout engine foundation (merged 2026-08-05 as PR #22)
 
 - Issue #21 and `docs/features/workout-engine/brief.md` define the first Phase
   1B vertical slice.

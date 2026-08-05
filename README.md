@@ -1,89 +1,120 @@
 # Project 99
 
-Project 99 is a mobile-first personal fitness and health tracking PWA built with Next.js App Router, TypeScript, Tailwind CSS, Firebase Authentication, Cloud Firestore, Recharts, and Lucide icons.
+Project 99 is a mobile-first personal fitness and health tracking PWA built with
+Next.js App Router, TypeScript, Tailwind CSS, Firebase Authentication, Cloud
+Firestore, Recharts, and Lucide icons.
 
-The first milestone includes Google sign-in, protected dashboard pages, Firestore-backed user profiles/settings, daily health metrics, weekly weight trend charts, validation, loading/empty/error states, and PWA install support.
+The current product includes Google sign-in, protected dashboard pages,
+Firestore-backed profiles and settings, Daily Logs, weekly weight trends, and a
+phone-first workout logger.
 
 ## Requirements
 
-- Node.js 22 (see `.nvmrc` and the `engines` field)
+- Node.js 22 (see `.nvmrc` and `package.json`)
 - npm
-- Firebase project on the free Spark plan
-- Vercel account on the free tier
+- Access to the Project99 development Firebase project
+- Vercel access for preview and production deployments
 
-## Local Setup
+## Firebase environments
 
-1. Install dependencies:
+Project99 deliberately uses separate Firebase projects:
 
-   ```bash
-   npm install
-   ```
+| App environment | Firebase project | Used by |
+| --- | --- | --- |
+| `dev` | `project99-dev` | Development, agent sessions, and Vercel previews |
+| `prod` | `project99live` | Vercel production only |
 
-2. Create a Firebase project:
+Every configured environment supplies the keys in `.env.example`, including
+`NEXT_PUBLIC_APP_ENV`. Runtime validation rejects mixed Firebase project
+values. Vercel builds additionally fail unless Production uses `prod` and
+Preview/Development use `dev`.
 
-   - Use the Firebase Spark plan.
-   - Enable Authentication.
-   - Add Google as a sign-in provider.
-   - Create a Cloud Firestore database.
-   - Register a Web App in Firebase project settings.
+Firebase web configuration is public client metadata, not a server credential.
+Authorization is enforced by Firebase Authentication and Firestore Security
+Rules. Never commit environment files, service-account credentials, or other
+privileged values.
 
-3. Copy the environment example:
+## Development
 
-   ```bash
-   cp .env.example .env.local
-   ```
+Install dependencies:
 
-4. Fill `.env.local` with the Firebase Web App config values:
+```bash
+npm install
+```
 
-   ```bash
-   NEXT_PUBLIC_FIREBASE_API_KEY=
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-   NEXT_PUBLIC_FIREBASE_APP_ID=
-   ```
+Create the ignored development environment file:
 
-5. Run the app:
+```bash
+cp .env.example .env.development.local
+```
 
-   ```bash
-   npm run dev
-   ```
+Set `NEXT_PUBLIC_APP_ENV=dev` and fill the remaining values from the
+`project99-dev` Firebase web app configuration. Production values belong
+only in Vercel.
 
-6. Open `http://localhost:3000`.
+For ephemeral development or agent environments, protected environment
+variables can generate an ignored `.env.local` file:
 
-## Firestore Data Model
+```bash
+npm run env:setup
+```
+
+The setup command rejects any environment other than
+`dev` / `project99-dev`.
+
+Run the app:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Firestore data model
 
 - `users/{uid}` stores the signed-in user's profile.
-- `users/{uid}/settings/preferences` stores dashboard goals and preferences.
-- `users/{uid}/dailyMetrics/{yyyy-mm-dd}` stores daily dashboard metrics.
+- `users/{uid}/settings/preferences` stores goals and preferences.
+- `users/{uid}/dailyMetrics/{yyyy-mm-dd}` stores Daily Logs.
+- `users/{uid}/workoutSessions/{sessionId}` stores workout sessions.
 
-Body weight is stored and displayed in kilograms. Water is displayed and entered in litres, then stored internally in Firestore as integer millilitres for precision and compatibility. Training loads should be stored and displayed in pounds as workout tracking expands beyond this milestone.
+Body weight uses kilograms. Water is displayed in litres and stored as integer
+millilitres. Training loads use pounds.
 
 ## Firebase Security Rules
 
-The repository includes `firestore.rules`, which restricts each user to their own `users/{uid}` document tree.
+`firestore.rules` restricts each user to their own `users/{uid}`
+document tree. Project aliases are committed in `.firebaserc`; there is no
+default alias.
 
-Deploy rules with the Firebase CLI:
+Deploy and test development first:
 
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase use <your-project-id>
-firebase deploy --only firestore:rules
+npm run rules:deploy:dev
 ```
 
-## Vercel Deployment
+After validation, review, and merge, deploy the same committed rules to
+production:
 
-1. Import this repository into Vercel.
-2. Keep the default Next.js build settings:
-   - Build command: `npm run build`
-   - Output: Next.js default
-3. Add all `NEXT_PUBLIC_FIREBASE_*` variables from `.env.example` to Vercel project environment variables.
-4. In Firebase Authentication settings, add the Vercel production domain to Authorized domains.
-5. Deploy.
+```bash
+npm run rules:deploy:prod
+```
 
-No paid infrastructure is required for this milestone.
+Do not use a raw project ID or a bare `firebase deploy`.
+
+## Vercel deployment
+
+Configure project-level environment variables using the `.env.example`
+contract:
+
+- Development and Preview scopes: `NEXT_PUBLIC_APP_ENV=dev` and
+  `project99-dev` values.
+- Production scope: `NEXT_PUBLIC_APP_ENV=prod` and `project99live`
+  values.
+
+Firebase Authentication must authorize the assigned domain used for testing.
+Environment changes affect only new deployments. Redeploy without reusing the
+build cache after changing `NEXT_PUBLIC_*` values because Next.js inlines
+them during the build.
 
 ## Verification
 
