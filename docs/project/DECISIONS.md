@@ -198,6 +198,34 @@ entry as superseded instead of deleting history.
   IDs, but historical sessions retain their own labels. Custom exercise
   authoring, alternative 1RM formulas, and PR definitions remain future slices.
 
+## D-015 - Builds enforce Firebase environment identity
+
+**Date:** 2026-08-05  
+**Status:** Accepted
+
+**Context:** The Firebase split was configured in Vercel, but the live production
+bundle continued to target the retired `project99-f7e3c` project. The
+application checked only that Firebase values were present, so a complete but
+wrong configuration could build and deploy successfully.
+
+**Decision:** Every configured client environment must set
+`NEXT_PUBLIC_APP_ENV` to `dev` or `prod`. Development, agent, and
+Vercel Preview/Development environments must resolve to `project99-dev`;
+Vercel Production must resolve to `project99live`. The Firebase project ID,
+auth domain, storage bucket, messaging sender, and app ID must be internally
+coherent. Vercel mismatches fail from `next.config.ts` before the application
+builds. Non-Vercel quality CI may remain unconfigured so it continues to verify
+the application's configuration-error state.
+
+**Reason:** Environment separation is not reliable if it depends on operators
+copying the correct values. The deployment itself must reject the wrong target.
+
+**Consequences:** All Vercel scopes require `NEXT_PUBLIC_APP_ENV`. Changes to
+`NEXT_PUBLIC_*` values require a fresh deployment without reused build
+output. Local and agent `env:setup` runs reject production configuration.
+The environment contract and mapping are covered by unit tests.
+
+
 ## Decision entry template
 
 ### D-XXX - Short title
