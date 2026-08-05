@@ -85,6 +85,7 @@ export function normalizeDailyLog(date: string, raw: unknown): DailyLog {
     fibreConsumed: numberOrDefault(raw.fibreConsumed, fallback.fibreConsumed),
     waterMl: numberOrDefault(raw.waterMl, fallback.waterMl),
     workoutStatus: activityStatusOrDefault(raw.workoutStatus, fallback.workoutStatus),
+    workoutSessionId: typeof raw.workoutSessionId === "string" ? raw.workoutSessionId : null,
     cardioStatus: activityStatusOrDefault(raw.cardioStatus, fallback.cardioStatus),
     habitDone: booleanOrDefault(raw.habitDone, fallback.habitDone),
     moodLevel: scaleOrNull(raw.moodLevel),
@@ -112,6 +113,7 @@ export function toDailyLogDraft(log: DailyLog, options: { emptyTotals?: boolean 
     fibreConsumed: emptyTotal && log.fibreConsumed === 0 ? "" : log.fibreConsumed,
     waterLitres: emptyTotal && log.waterMl === 0 ? "" : millilitresToLitres(log.waterMl),
     workoutStatus: log.workoutStatus,
+    workoutSessionId: log.workoutSessionId,
     cardioStatus: log.cardioStatus,
     habitDone: log.habitDone,
     moodLevel: log.moodLevel,
@@ -211,6 +213,7 @@ export function serializeDailyLog(draft: DailyLogDraft): DailyLog {
     fibreConsumed: Math.round(numberFromDraft(draft.fibreConsumed)),
     waterMl: litresToIntegerMillilitres(numberFromDraft(draft.waterLitres)),
     workoutStatus: draft.workoutStatus,
+    workoutSessionId: draft.workoutSessionId,
     cardioStatus: draft.cardioStatus,
     habitDone: draft.habitDone,
     moodLevel: draft.moodLevel,
@@ -235,6 +238,7 @@ export function dailyLogDataSignature(log: DailyLog) {
     fibreConsumed: log.fibreConsumed,
     waterMl: log.waterMl,
     workoutStatus: log.workoutStatus,
+    workoutSessionId: log.workoutSessionId,
     cardioStatus: log.cardioStatus,
     habitDone: log.habitDone,
     moodLevel: log.moodLevel,
@@ -302,6 +306,7 @@ export function dailyLogSummary(log: DailyLog, settings: UserSettings) {
       log.waterMl > 0 ||
       log.habitDone ||
       log.workoutStatus !== "planned" ||
+      log.workoutSessionId !== null ||
       log.cardioStatus !== "planned" ||
       log.moodLevel !== null ||
       log.energyLevel !== null ||

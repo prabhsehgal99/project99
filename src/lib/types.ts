@@ -17,6 +17,7 @@ export type DailyLog = {
   fibreConsumed: number;
   waterMl: number;
   workoutStatus: ActivityStatus;
+  workoutSessionId: string | null;
   cardioStatus: ActivityStatus;
   habitDone: boolean;
   moodLevel: ScaleLevel | null;
@@ -40,6 +41,7 @@ export type DailyLogDraft = {
   fibreConsumed: number | "";
   waterLitres: number | "";
   workoutStatus: ActivityStatus;
+  workoutSessionId: string | null;
   cardioStatus: ActivityStatus;
   habitDone: boolean;
   moodLevel: ScaleLevel | null;
@@ -66,6 +68,50 @@ export type UserSettings = {
   updatedAt?: Timestamp;
 };
 
+export type MuscleGroup = "chest" | "back" | "shoulders" | "arms" | "legs" | "core" | "full-body";
+
+export type WorkoutSetKind = "warmup" | "working";
+
+export type WorkoutSet = {
+  id: string;
+  kind: WorkoutSetKind;
+  weightLb: number | null;
+  reps: number | null;
+  rpe: number | null;
+  notes: string;
+};
+
+export type WorkoutExercise = {
+  id: string;
+  exerciseId: string;
+  name: string;
+  primaryMuscleGroup: MuscleGroup;
+  notes: string;
+  sets: WorkoutSet[];
+};
+
+export type WorkoutSessionStatus = "active" | "completed";
+
+export type WorkoutSession = {
+  id: string;
+  schemaVersion: 1;
+  date: string;
+  title: string;
+  status: WorkoutSessionStatus;
+  exercises: WorkoutExercise[];
+  notes: string;
+  startedAt?: Timestamp;
+  completedAt?: Timestamp | null;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type ExerciseDefinition = {
+  id: string;
+  name: string;
+  primaryMuscleGroup: MuscleGroup;
+};
+
 export const defaultDailyLog = (date: string, timezone = "UTC"): DailyLog => ({
   schemaVersion: 1,
   date,
@@ -79,6 +125,7 @@ export const defaultDailyLog = (date: string, timezone = "UTC"): DailyLog => ({
   fibreConsumed: 0,
   waterMl: 0,
   workoutStatus: "planned",
+  workoutSessionId: null,
   cardioStatus: "planned",
   habitDone: false,
   moodLevel: null,

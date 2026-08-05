@@ -22,6 +22,7 @@ function draft(overrides: Partial<DailyLogDraft> = {}): DailyLogDraft {
     fibreConsumed: 30,
     waterLitres: 2.5,
     workoutStatus: "complete",
+    workoutSessionId: null,
     cardioStatus: "rest",
     habitDone: true,
     moodLevel: 4,
@@ -81,6 +82,11 @@ describe("serializeDailyLog", () => {
     expect(serialized.caloriesConsumed).toBe(0);
     expect(serialized.waterMl).toBe(0);
     expect(serialized.steps).toBeNull();
+  });
+
+  it("preserves a completed workout reference while other log fields are edited", () => {
+    const serialized = serializeDailyLog(draft({ workoutSessionId: "workout-123" }));
+    expect(serialized.workoutSessionId).toBe("workout-123");
   });
 });
 
