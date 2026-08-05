@@ -198,7 +198,7 @@ entry as superseded instead of deleting history.
   IDs, but historical sessions retain their own labels. Custom exercise
   authoring, alternative 1RM formulas, and PR definitions remain future slices.
 
-## D-015 - Builds enforce Firebase environment identity
+### D-015 - Builds enforce Firebase environment identity
 
 **Date:** 2026-08-05  
 **Status:** Accepted
