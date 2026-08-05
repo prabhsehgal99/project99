@@ -1,9 +1,11 @@
 "use client";
 
 import {
+  addDoc,
   collection,
   doc,
   getDoc,
+  limit,
   onSnapshot,
   orderBy,
   query,
@@ -11,12 +13,14 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
   type Unsubscribe
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
 import { normalizeDailyLog } from "@/lib/daily-log";
 import { getFirebaseDb } from "@/lib/firebase";
-import { defaultSettings, type DailyLog, type UserSettings } from "@/lib/types";
+import { normalizeWorkoutSession } from "@/lib/workout";
+import { defaultDailyLog, defaultSettings, type DailyLog, type UserSettings, type WorkoutSession } from "@/lib/types";
 
 export type DailyLogSnapshot = {
   exists: boolean;
@@ -146,4 +150,102 @@ export async function saveSettings(uid: string, settings: UserSettings) {
     },
     { merge: true }
   );
+}
+
+export function subscribeToActiveWorkout(
+  uid: string,
+  onNext: (session: WorkoutSession | null) => void,
+  onError: (error: Error) => void
+): Unsubscribe {
+  const sessionsQuery = query(
+    collection(getFirebaseDb(), "users", uid, "workoutSessions"),
+    where("status", "==", "active"),
+    limit(1)
+  );
+
+  return onSnapshot(
+    sessionsQuery,
+    (snap) => onNext(snap.empty ? null : normalizeWorkoutSession(snap.docs[0].id, snap.docs[0].data())),
+    onError
+  );
+}
+
+export function subscribeToRecentWorkoutSessions(
+  uid: string,
+  onNext: (sessions: WorkoutSession[]) => void,
+  onError: (error: Error) => void
+): Unsubscribe {
+  const sessionsQuery = query(
+    collection(getFirebaseDb(), "users", uid, "workoutSessions"),
+    orderBy("date", "desc"),
+    limit(50)
+  );
+
+  return onSnapshot(
+    sessionsQuery,
+    (snap) => onNext(snap.docs.flatMap((sessionDoc) => {
+      const session = normalizeWorkoutSession(sessionDoc.id, sessionDoc.data());
+      return session ? [session] : [];
+    })),
+    onError
+  );
+}
+
+export async function startWorkoutSession(uid: string, date: string) {
+  const ref = await addDoc(collection(getFirebaseDb(), "users", uid, "workoutSessions"), {
+    schemaVersion: 1,
+    date,
+    title: "Workout",
+    status: "active",
+    exercises: [],
+    notes: "",
+    startedAt: serverTimestamp(),
+    completedAt: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return ref.id;
+}
+
+export async function saveActiveWorkoutSession(uid: string, session: WorkoutSession) {
+  const ref = doc(getFirebaseDb(), "users", uid, "workoutSessions", session.id);
+  await updateDoc(ref, {
+    schemaVersion: 1,
+    date: session.date,
+    title: session.title.trim(),
+    status: "active",
+    exercises: session.exercises,
+    notes: session.notes.trim(),
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function finishWorkoutSession(uid: string, session: WorkoutSession) {
+  const db = getFirebaseDb();
+  const dailyLogRef = doc(db, "users", uid, "dailyMetrics", session.date);
+  const dailyLogSnapshot = await getDoc(dailyLogRef);
+  const existingLog = dailyLogSnapshot.exists() ? normalizeDailyLog(session.date, dailyLogSnapshot.data()) : null;
+  const completedSessionRef = doc(db, "users", uid, "workoutSessions", session.id);
+  const dailyLog = {
+    ...(existingLog ?? defaultDailyLog(session.date)),
+    workoutStatus: "complete" as const,
+    workoutSessionId: session.id
+  };
+  const batch = writeBatch(db);
+  batch.update(completedSessionRef, {
+    schemaVersion: 1,
+    date: session.date,
+    title: session.title.trim(),
+    status: "completed",
+    exercises: session.exercises,
+    notes: session.notes.trim(),
+    completedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  batch.set(dailyLogRef, {
+    ...dailyLog,
+    createdAt: existingLog?.createdAt ?? serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  await batch.commit();
 }

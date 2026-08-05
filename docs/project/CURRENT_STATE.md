@@ -6,7 +6,8 @@ Last updated: 2026-08-01 (dependency currency and security pass)
 
 Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
 (Daily Log hardening, settings, history, PWA polish) has started with the
-app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
+app-navigation unsaved-changes guard. Phase 1B workout-engine foundation is now
+in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 
 ## What is on `main`
 
@@ -104,6 +105,20 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
   domain; per-deployment Vercel URLs are different hosts and are regenerated on
   every build, so always test on the assigned domain.
 
+## Workout engine foundation (this branch)
+
+- Issue #21 and `docs/features/workout-engine/brief.md` define the first Phase
+  1B vertical slice.
+- `/workouts` provides a phone-first active workout logger: start/resume, a
+  built-in initial exercise catalogue, warm-up and working sets, pounds, reps,
+  optional RPE, notes, save protection, prior completed-set context, working
+  volume, and Epley estimated 1RM.
+- Completed sessions live at `users/{uid}/workoutSessions/{sessionId}` and are
+  linked atomically to the session date's Daily Log. The Daily Log now retains a
+  nullable `workoutSessionId` so later edits cannot break that link.
+- Workout-session ownership and document shape are validated in Firestore Rules;
+  nested set integrity is also validated in tested client domain logic.
+
 ## Known issues and deferred work (tracked as GitHub issues)
 
 - `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
@@ -129,7 +144,9 @@ app-navigation unsaved-changes guard. Phase 0.5 setup hardening is merged.
 
 ## Next steps
 
-1. Merge the app-navigation guard (issue #12) after review.
+1. Review and merge the workout engine foundation (issue #21), then extend it
+   with custom exercises, templates, timer, history, and PR workflows in small
+   vertical slices.
 2. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
    (fully merged as PR #18; deletion from a remote session was blocked by
    branch-scoped push credentials, so delete it from GitHub or a laptop).

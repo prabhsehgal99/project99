@@ -178,6 +178,26 @@ entry as superseded instead of deleting history.
   through `npx` with a pinned range instead, keeping it out of the application's
   dependency graph and out of CI installs.
 
+### D-014 - Workout sessions are immutable exercise snapshots with Epley estimates
+
+- **Date:** 2026-08-04
+- **Status:** Accepted
+- **Context:** The workout engine needs reusable exercises without allowing a
+  future exercise-library edit to rewrite the name or muscle group visible in a
+  completed historical session. It also needs one transparent strength estimate
+  before richer PR and progression rules exist.
+- **Decision:** Persist each session at
+  `users/{uid}/workoutSessions/{sessionId}` with its exercises embedded as
+  immutable snapshots. Store gym load in pounds; calculate working-set volume as
+  load × repetitions, excluding warm-ups and incomplete sets. Use the Epley
+  formula, `weight × (1 + reps / 30)`, for the initial estimated 1RM.
+- **Reason:** Embedded completed-session snapshots keep history stable and make
+  the active logger a single atomic document. Epley is simple, familiar, and
+  testable; it can be displayed as an estimate rather than a record.
+- **Consequences:** A future exercise library and templates can reference stable
+  IDs, but historical sessions retain their own labels. Custom exercise
+  authoring, alternative 1RM formulas, and PR definitions remain future slices.
+
 ## Decision entry template
 
 ### D-XXX - Short title

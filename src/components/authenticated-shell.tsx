@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "firebase/auth";
-import { Activity, CalendarDays, LayoutDashboard, Loader2, LogOut } from "lucide-react";
+import { Activity, CalendarDays, Dumbbell, LayoutDashboard, Loader2, LogOut } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type MouseEvent, type ReactNode } from "react";
@@ -11,7 +11,8 @@ import { Panel } from "@/components/ui";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/log", label: "Daily Log", icon: CalendarDays }
+  { href: "/log", label: "Daily Log", icon: CalendarDays },
+  { href: "/workouts", label: "Workout", icon: Dumbbell }
 ];
 
 export function AuthenticatedShell({ children }: { children: (user: User) => ReactNode }) {
@@ -131,7 +132,7 @@ function AuthenticatedShellContent({ children }: { children: (user: User) => Rea
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-2 border-t border-zinc-800 bg-zinc-950/95 px-3 py-2 backdrop-blur-sm md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-zinc-800 bg-zinc-950/95 px-3 py-2 backdrop-blur-sm md:hidden"
         aria-label="Primary"
       >
         {navItems.map(({ href, label, icon: Icon }) => {
