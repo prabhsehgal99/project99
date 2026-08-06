@@ -62,15 +62,21 @@ Body weight is stored and displayed in kilograms. Water is displayed and entered
 
 ## Firebase Security Rules
 
-The repository includes `firestore.rules`, which restricts each user to their own `users/{uid}` document tree.
+The repository includes `firestore.rules`, which restricts each user to their own
+`users/{uid}` document tree and validates Daily Log and workout-session writes.
 
-Deploy rules with the Firebase CLI:
+Run the emulator-backed Security Rules suite without connecting to a deployed
+Firebase project:
 
 ```bash
-npm install -g firebase-tools
-firebase login
-firebase use <your-project-id>
-firebase deploy --only firestore:rules
+npm run test:rules
+```
+
+Rules deployments are explicit and environment-specific:
+
+```bash
+npm run rules:deploy:dev
+npm run rules:deploy:prod
 ```
 
 ## Vercel Deployment

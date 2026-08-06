@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-08-01 (dependency currency and security pass)
+Last updated: 2026-08-06 (Firestore Security Rules test suite)
 
 ## Current milestone
 
@@ -119,6 +119,18 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 - Workout-session ownership and document shape are validated in Firestore Rules;
   nested set integrity is also validated in tested client domain logic.
 
+## Firestore Security Rules test suite (this branch)
+
+- Issue #16 adds emulator-backed tests for authenticated ownership, cross-user
+  and unauthenticated denial, Daily Log schemas, date/path consistency,
+  timestamp types and immutability, and workout-session schemas and status
+  transitions.
+- `npm run test:rules` starts only the local Firestore emulator against a demo
+  project ID and runs the dedicated Vitest rules suite. It never deploys rules
+  or connects to the dev or production Firebase projects.
+- The Quality workflow provisions Java 21 and runs the rules suite alongside
+  lint, typecheck, unit tests, and the production build.
+
 ## Known issues and deferred work (tracked as GitHub issues)
 
 - `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
@@ -127,7 +139,6 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
   field validation; future-dated `dailyMetrics` are only blocked client-side;
   date regex accepts impossible calendar dates; concurrent first-save of the
   same day can fail with a raw permission error.
-- Emulator-backed rules tests still blocked locally (no Java runtime).
 - No error monitoring/reporting yet (Phase 1 release item).
 
 ## Known blockers
@@ -139,8 +150,6 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 - `project99-f7e3c` (the previous production project) is superseded but not yet
   deleted. Nothing points at it; retire it only after production has run on
   `project99live` for a few days.
-- Firestore emulator verification requires a Java runtime, which is not
-  installed in this workspace.
 
 ## Next steps
 
@@ -152,6 +161,6 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
    branch-scoped push credentials, so delete it from GitHub or a laptop).
 3. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
    cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
-4. Add emulator-backed Firestore rules tests once Java tooling is available.
+4. Review and merge the emulator-backed Firestore rules suite for issue #16.
 5. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).
