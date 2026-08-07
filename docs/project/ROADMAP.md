@@ -34,8 +34,8 @@ The Daily Log is the dated source of truth connecting these systems. Workout ses
 
 | Stage | Product outcome | Main capabilities |
 |---|---|---|
-| Now: Foundation verification | The existing authenticated flow works reliably with real Firebase data | Auth QA, Daily Log QA, security tests, deployment verification |
-| Phase 1A: Daily operating system | The user can manage a complete day from one coherent experience | Daily Log, dashboard, goals, navigation, PWA polish |
+| Complete: Foundation verification | The existing authenticated flow works reliably with real Firebase data | Auth QA, Daily Log QA, security tests, deployment verification |
+| Now: Phase 1A Daily operating system | The user can manage a complete day from one coherent experience | Daily Log, dashboard, goals, navigation, PWA polish |
 | Phase 1B: Workout engine | The app becomes excellent for recording real gym sessions | Exercises, templates, sets, RPE, history, PRs, timers |
 | Phase 1C: Nutrition system | Food intake can be logged without another tracking app | Food database, meals, servings, favourites, daily totals |
 | Phase 1D: Measurements and progress | Physical progress becomes visible beyond scale weight | Measurements, photos, comparisons, trend views |
@@ -54,6 +54,14 @@ The Daily Log is the dated source of truth connecting these systems. Workout ses
 ## Objective
 
 Turn the existing implementation into a verified, production-ready baseline before adding another major system.
+
+## Status as of 2026-08-07
+
+Phase 0 is complete. Implementation, automated verification, Firestore Security
+Rules verification, production build verification, public production
+reachability, owner runtime QA, installed iOS PWA behavior, production Firestore
+writes, and Sentry delivery have all passed. See
+`docs/project/PHASE_0_VERIFICATION.md` for the verification record.
 
 ## Current baseline
 
@@ -74,22 +82,7 @@ All prior feature and fix branches were reviewed and squash-merged to `main` as 
 
 ## Remaining work
 
-- Configure local Firebase public values without committing them.
-- Test Google sign-in in Chrome and Safari.
-- Verify session restoration after closing and reopening the browser.
-- Verify sign-out and authentication-loss behavior.
-- Create, edit, refresh, and restore Daily Logs using real Firestore.
-- Verify cross-device synchronization.
-- Test failed saves and remote-update conflicts.
-- Add emulator-backed Firestore rules tests:
-  - owner read allowed;
-  - owner write allowed;
-  - cross-user read denied;
-  - cross-user write denied;
-  - invalid document shape denied.
-- Test the deployed Vercel preview.
-- Complete phone and desktop acceptance testing.
-- Delete stale, already-merged remote branches (review and merge is complete).
+None. Phase 0 is closed.
 
 ## Why this comes first
 

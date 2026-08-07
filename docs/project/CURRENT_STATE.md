@@ -1,14 +1,17 @@
 # Current state
 
-Last updated: 2026-08-07 (post-merge issue closure)
+Last updated: 2026-08-07 (Phase 0 closed)
 
 ## Current milestone
 
-Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
-(Daily Log hardening, settings, history, PWA polish) is active. The Phase 1B
-workout-engine foundation is merged. The four previously open foundation issues
-were implemented in PR #28, merged to `main`, and closed. The remaining device
-and monitoring checks are operational follow-up, not open implementation work.
+Phase 1A (Daily Log hardening, settings, history, PWA polish) is active. Phase
+0 is formally closed as of 2026-08-07. Implementation, automated verification,
+Security Rules verification, build verification, public production reachability,
+owner runtime QA, installed iOS PWA behavior, production Firestore writes, and
+Sentry delivery have all passed.
+
+The Phase 1B workout-engine foundation is merged. The four previously open
+foundation issues were implemented in PR #28, merged to `main`, and closed.
 
 ## What is on `main`
 
@@ -157,16 +160,28 @@ and monitoring checks are operational follow-up, not open implementation work.
   error-boundary failures, authentication failures, and Firestore operation
   failures without sending default PII or health-record payloads.
 
-## Operational follow-up
+## Phase 0 verification pass (issue #32)
 
-- Rules are deployed to `project99-dev` and `project99live`; verify a normal
-  production write path during the next authenticated runtime QA pass.
-- Test Google sign-in and session restoration in an installed iOS standalone
-  PWA. The code path is covered by unit tests, but this workspace cannot
-  reproduce iOS standalone behavior.
-- Verify the installed-device icon rendering.
-- Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider and trigger a
-  controlled test event before relying on production alerts.
+- Verification record: `docs/project/PHASE_0_VERIFICATION.md`.
+- `npm ci` completed successfully and reported 0 vulnerabilities.
+- `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:rules`, and
+  `npm run build` passed from the Conductor `seoul` workspace on 2026-08-07.
+- The production site at `https://project99-ten.vercel.app` responded with HTTP
+  200.
+- Production `/manifest.webmanifest`, `/sw.js`, `/icon-192.png`, and
+  `/apple-touch-icon.png` responded with HTTP 200.
+- The production manifest declares standalone display mode and any/maskable icon
+  assets.
+- `next.config.ts` now sets an explicit Turbopack root so builds do not infer a
+  parent workspace root when multiple lockfiles exist on the development
+  machine.
+- The stale merged remote branch `chore/11-phase-0-5-setup-hardening` was
+  deleted from GitHub.
+- Owner runtime QA passed on 2026-08-07: Chrome and Safari auth, session
+  restoration, sign-out/auth-loss behavior, cross-device sync, remote-conflict
+  handling, failed-save behavior, phone and desktop acceptance, installed iOS PWA
+  sign-in/session restoration/icon rendering, Sentry delivery, and a production
+  Firestore write smoke test.
 
 ## Known blockers
 
@@ -180,12 +195,5 @@ and monitoring checks are operational follow-up, not open implementation work.
 
 ## Next steps
 
-1. Complete the installed-iOS, installed-icon, Sentry, and authenticated
-   production write checks above.
-2. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
-   cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
-3. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
-   (fully merged as PR #18; deletion from a remote session was blocked by
-   branch-scoped push credentials, so delete it from GitHub or a laptop).
-4. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+1. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).
