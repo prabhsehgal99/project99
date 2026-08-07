@@ -1,8 +1,10 @@
 "use client";
 
 import {
+  getRedirectResult,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut,
   type User
 } from "firebase/auth";
@@ -17,6 +19,7 @@ import {
 } from "react";
 import { firebaseReady, getFirebaseAuth, getGoogleProvider } from "@/lib/firebase";
 import { ensureUserDocuments } from "@/lib/firestore";
+import { googleSignInMode } from "@/lib/auth-mode";
 
 type AuthContextValue = {
   user: User | null;
@@ -41,7 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const auth = getFirebaseAuth();
-    return onAuthStateChanged(
+    let active = true;
+    const unsubscribe = onAuthStateChanged(
       auth,
       async (nextUser) => {
         setUser(nextUser);
@@ -60,15 +64,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     );
+
+    void getRedirectResult(auth).catch((err) => {
+      if (active) {
+        setError(err instanceof Error ? err.message : "Google sign-in failed.");
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   const signIn = useCallback(async () => {
     setError(null);
 
     try {
+      const auth = getFirebaseAuth();
+      const provider = getGoogleProvider();
+
+      if (googleSignInMode(window) === "redirect") {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
       // onAuthStateChanged fires after the popup resolves and runs
       // ensureUserDocuments there, so it is not repeated here.
-      await signInWithPopup(getFirebaseAuth(), getGoogleProvider());
+      await signInWithPopup(auth, provider);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed.");
     }
