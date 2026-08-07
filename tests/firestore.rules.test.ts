@@ -75,6 +75,29 @@ function workoutSession(overrides: RuleDocument = {}): RuleDocument {
   };
 }
 
+function userProfile(overrides: RuleDocument = {}): RuleDocument {
+  return {
+    uid: OWNER_UID,
+    displayName: "Owner",
+    email: "owner@example.com",
+    photoURL: "",
+    createdAt: FIXED_TIMESTAMP,
+    updatedAt: FIXED_TIMESTAMP,
+    ...overrides
+  };
+}
+
+function userSettings(overrides: RuleDocument = {}): RuleDocument {
+  return {
+    goalWeightKg: 75,
+    calorieGoal: 2_200,
+    proteinGoal: 160,
+    waterGoalMl: 3_000,
+    updatedAt: FIXED_TIMESTAMP,
+    ...overrides
+  };
+}
+
 function withoutField(document: RuleDocument, field: string): RuleDocument {
   const copy = { ...document };
   delete copy[field];
@@ -211,14 +234,7 @@ describe("ownership", () => {
     const ownerReference = userProfileRef(ownerDb);
     const existingOtherReference = userProfileRef(otherDb);
     const existingUnauthenticatedReference = userProfileRef(unauthenticated);
-    const profile = {
-      uid: OWNER_UID,
-      displayName: "Owner",
-      email: "owner@example.com",
-      photoURL: "",
-      createdAt: FIXED_TIMESTAMP,
-      updatedAt: FIXED_TIMESTAMP
-    };
+    const profile = userProfile();
 
     await assertSucceeds(ownerReference.set(profile));
     await assertSucceeds(ownerReference.get());
@@ -241,13 +257,7 @@ describe("ownership", () => {
     const ownerReference = userSettingsRef(ownerDb);
     const existingOtherReference = userSettingsRef(otherDb);
     const existingUnauthenticatedReference = userSettingsRef(unauthenticated);
-    const settings = {
-      goalWeightKg: 75,
-      calorieGoal: 2_200,
-      proteinGoal: 160,
-      waterGoalMl: 3_000,
-      updatedAt: FIXED_TIMESTAMP
-    };
+    const settings = userSettings();
 
     await assertSucceeds(ownerReference.set(settings));
     await assertSucceeds(ownerReference.get());
@@ -330,6 +340,23 @@ describe("Daily Log schema", () => {
     }
   );
 
+  it.each(["2026-02-29", "2026-02-31", "2026-04-31", "0000-01-01"])(
+    "denies the impossible calendar date %s",
+    async (date) => {
+      const db = authenticatedDb(OWNER_UID);
+
+      await assertFails(dailyLogRef(db, OWNER_UID, date).set(dailyLog({ date })));
+    }
+  );
+
+  it("denies future Daily Logs server-side", async () => {
+    const db = authenticatedDb(OWNER_UID);
+
+    await assertFails(
+      dailyLogRef(db, OWNER_UID, "2999-01-01").set(dailyLog({ date: "2999-01-01" }))
+    );
+  });
+
   it("denies a body date that differs from the document key", async () => {
     const db = authenticatedDb(OWNER_UID);
 
@@ -342,10 +369,50 @@ describe("Daily Log schema", () => {
     const reference = dailyLogRef(db);
 
     await assertSucceeds(reference.update({ updatedAt: firebase.firestore.FieldValue.serverTimestamp() }));
+    await assertSucceeds(reference.update({
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }));
     await assertFails(reference.update({
       createdAt: LATER_TIMESTAMP,
       updatedAt: LATER_TIMESTAMP
     }));
+  });
+});
+
+describe("profile and settings schema", () => {
+  it("accepts valid profile and settings documents with server timestamps", async () => {
+    const db = authenticatedDb(OWNER_UID);
+
+    await assertSucceeds(userProfileRef(db).set(userProfile({
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    })));
+    await assertSucceeds(userSettingsRef(db).set(userSettings({
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    })));
+  });
+
+  it("denies profile documents with missing, additional, or mismatched fields", async () => {
+    const db = authenticatedDb(OWNER_UID);
+
+    await assertFails(userProfileRef(db).set(withoutField(userProfile(), "email")));
+    await assertFails(userProfileRef(db).set(userProfile({ unexpected: true })));
+    await assertFails(userProfileRef(db).set(userProfile({ uid: OTHER_UID })));
+    await assertFails(userProfileRef(db).set(userProfile({ displayName: "x".repeat(201) })));
+    await assertFails(userProfileRef(db).set(userProfile({ email: "x".repeat(321) })));
+    await assertFails(userProfileRef(db).set(userProfile({ photoURL: "x".repeat(2049) })));
+  });
+
+  it("denies invalid settings values and additional fields", async () => {
+    const db = authenticatedDb(OWNER_UID);
+
+    await assertFails(userSettingsRef(db).set(withoutField(userSettings(), "proteinGoal")));
+    await assertFails(userSettingsRef(db).set(userSettings({ unexpected: true })));
+    await assertFails(userSettingsRef(db).set(userSettings({ goalWeightKg: 24.9 })));
+    await assertFails(userSettingsRef(db).set(userSettings({ calorieGoal: 499 })));
+    await assertFails(userSettingsRef(db).set(userSettings({ proteinGoal: 20.5 })));
+    await assertFails(userSettingsRef(db).set(userSettings({ waterGoalMl: 15_001 })));
   });
 });
 

@@ -41,7 +41,8 @@ function envExampleKeys(): string[] {
 
 describe("firebase config contract", () => {
   it("matches .env.example exactly", () => {
-    expect(envExampleKeys()).toEqual([...FIREBASE_ENV_KEYS]);
+    expect(envExampleKeys().filter((key) => key !== "NEXT_PUBLIC_SENTRY_DSN")).toEqual([...FIREBASE_ENV_KEYS]);
+    expect(envExampleKeys()).toContain("NEXT_PUBLIC_SENTRY_DSN");
   });
 });
 
