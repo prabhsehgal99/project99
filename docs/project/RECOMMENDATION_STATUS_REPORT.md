@@ -1,6 +1,6 @@
 # Project99 Recommendation Status Report
 
-**Report date:** 2026-08-05  
+**Report date:** 2026-08-07
 **Repository:** [prabhsehgal99/project99](https://github.com/prabhsehgal99/project99)  
 **Production:** [project99-ten.vercel.app](https://project99-ten.vercel.app)
 
@@ -11,10 +11,9 @@ configuration mix-ups are fully implemented on `main` and deployed to
 production. The broader foundation hardening, Daily Log navigation guard, PWA
 icons, and initial workout engine are also implemented.
 
-The highest-priority remaining recommendations are Firestore Security Rules
-hardening, emulator-backed rules tests, completion of runtime acceptance testing,
-and evaluation of installed-iOS-PWA authentication. Error monitoring and project
-tracking cleanup remain outstanding.
+The four previously open tracked issues now have implementation work on the
+current branch. Remaining work is deployment/device verification and a final
+tracking update, not an unimplemented code path.
 
 ## Completed recommendations
 
@@ -29,43 +28,32 @@ tracking cleanup remain outstanding.
 | Harden service-worker and dependency setup | Complete | Navigation uses network-first caching, immutable assets use cache-first behavior, dependencies are pinned, Tailwind CSS 4 is installed, and known high-severity dependency findings were cleared. |
 | Prevent loss of unsaved Daily Log edits during app navigation | Complete | [Issue #12](https://github.com/prabhsehgal99/project99/issues/12) is closed and the navigation guard is on `main`. |
 | Add the workout-engine foundation | Complete | [Issue #21](https://github.com/prabhsehgal99/project99/issues/21) and PR #22 are merged. |
-| Add production PWA icons | Implemented; tracking cleanup remains | Apple touch, 192px, and 512px PNG assets exist. The manifest declares the PNG icons as `any maskable`, but [issue #13](https://github.com/prabhsehgal99/project99/issues/13) remains open and an installed-device icon check should be recorded before closure. |
+| Add production PWA icons | Implemented; device verification pending | Apple touch, 192px, and 512px PNG assets exist, with explicit `any` and `maskable` manifest entries. [Issue #13](https://github.com/prabhsehgal99/project99/issues/13) can close after an installed-device check. |
 
-## Pending recommendations
+## Pending external verification
 
-### 1. Harden Firestore Security Rules — high priority
+### 1. Harden Firestore Security Rules — implementation complete
 
 Tracked by [issue #15](https://github.com/prabhsehgal99/project99/issues/15).
 
-Remaining work:
+Implemented on the current branch. The emulator suite passes 66 tests covering
+profile/settings validation, server-side date checks, and the timestamp race.
+Deploy to development and production, then close #15.
 
-- Validate fields, types, and sizes for user profile and settings documents.
-- Reject future-dated Daily Log documents server-side.
-- Reject impossible calendar dates such as `2026-02-31`.
-- Resolve the concurrent first-save `createdAt` permission race or provide a
-  friendly retry path.
-
-### 2. Add emulator-backed Firestore rules tests — high priority
+### 2. Add emulator-backed Firestore rules tests — complete
 
 Tracked by [issue #16](https://github.com/prabhsehgal99/project99/issues/16).
 
-Required coverage:
+Issue #16 is closed. The suite is on `main` and now includes the additional
+protections from #15.
 
-- Same-user reads and writes are allowed.
-- Cross-user reads and writes are denied.
-- Invalid document shapes are denied.
-- The additional protections from issue #15 are verified.
-
-These tests can run in GitHub Actions even if a local Java runtime is not
-available.
-
-### 3. Evaluate installed-iOS-PWA authentication — medium priority
+### 3. Evaluate installed-iOS-PWA authentication — implementation complete
 
 Tracked by [issue #14](https://github.com/prabhsehgal99/project99/issues/14).
 
-Test Google authentication in installed iOS standalone mode and decide between
-redirect authentication or a popup/redirect hybrid while preserving the existing
-Safari persistence behavior.
+Issue #14 now uses redirect authentication for installed standalone PWAs and
+popup authentication in browser tabs. Real installed-iOS sign-in and session
+restoration remain before closure.
 
 ### 4. Complete Phase 0 runtime acceptance testing — medium priority
 
@@ -83,12 +71,13 @@ Outstanding scenarios from the
 Production sign-in, one persisted Daily Log flow, the assigned production
 domain, and the latest production deployment have already been verified.
 
-### 5. Add actionable error monitoring — medium priority
+### 5. Add actionable error monitoring — implementation complete
 
 Tracked by [issue #17](https://github.com/prabhsehgal99/project99/issues/17).
 
-Select a free-tier-friendly monitoring service and capture client failures and
-failed Firestore writes before the Phase 1 release.
+Issue #17 now uses optional Sentry monitoring for client, auth, error-boundary,
+and Firestore operation failures. Configure a DSN and verify one controlled
+event before closure.
 
 ## Operational and tracking cleanup
 
@@ -117,13 +106,11 @@ after the agreed production stabilization and backup/safety review period.
 
 ## Recommended execution order
 
-1. Harden Firestore Security Rules — issue #15.
-2. Add emulator-backed rules tests — issue #16.
-3. Complete authentication and synchronization acceptance testing, including
-   issue #14.
-4. Reconcile stale documentation, issues, and remote branches.
-5. Add error monitoring — issue #17.
-6. Continue Phase 1A and expand the workout engine through small vertical
+1. Review and merge the current issue-closure branch.
+2. Deploy and verify Rules, installed iOS auth/icons, and the Sentry DSN.
+3. Close issues #13, #14, #15, and #17 after those checks.
+4. Complete Phase 0 runtime acceptance testing and reconcile stale branches.
+5. Continue Phase 1A and expand the workout engine through small vertical
    slices: custom exercises, templates, timers, history, and personal-record
    workflows.
 

@@ -1,13 +1,14 @@
 # Current state
 
-Last updated: 2026-08-06 (Firestore Security Rules test suite)
+Last updated: 2026-08-07 (pending issue closure work)
 
 ## Current milestone
 
 Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
-(Daily Log hardening, settings, history, PWA polish) has started with the
-app-navigation unsaved-changes guard. Phase 1B workout-engine foundation is now
-in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
+(Daily Log hardening, settings, history, PWA polish) is active. The Phase 1B
+workout-engine foundation is merged. The four previously open foundation issues
+have implementation work on the current branch and are awaiting the external
+deployment/device checks described below.
 
 ## What is on `main`
 
@@ -141,15 +142,31 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 - The Quality workflow provisions Java 21 and runs the rules suite alongside
   lint, typecheck, unit tests, and the production build.
 
-## Known issues and deferred work (tracked as GitHub issues)
+## Pending issue implementation (this branch)
 
-- `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
-  evaluate redirect flow.
-- Firestore rules gaps: `users/{uid}` profile and settings documents have no
-  field validation; future-dated `dailyMetrics` are only blocked client-side;
-  date regex accepts impossible calendar dates; concurrent first-save of the
-  same day can fail with a raw permission error.
-- No error monitoring/reporting yet (Phase 1 release item).
+- Issue #15: profile and settings documents now have exact field, type, and
+  size validation; Daily Logs reject impossible and future dates in Rules; and
+  concurrent first-save updates may use only the server-generated request time
+  for `createdAt`. The emulator suite covers all of these cases.
+- Issue #14: installed standalone PWAs use Firebase redirect authentication;
+  regular browser tabs retain popup authentication. Redirect-result failures are
+  surfaced and the existing local persistence configuration is unchanged.
+- Issue #13: the manifest and root metadata publish explicit 180px Apple,
+  192px, and 512px PNG assets, including separate maskable entries.
+- Issue #17: optional Sentry monitoring captures uncaught client failures,
+  error-boundary failures, authentication failures, and Firestore operation
+  failures without sending default PII or health-record payloads.
+
+## External verification still required
+
+- Deploy the committed Rules to `project99-dev` first, then
+  `project99live`, and verify the production write paths before closing #15.
+- Test Google sign-in and session restoration in an installed iOS standalone
+  PWA before closing #14. The code path is covered by unit tests, but this
+  workspace cannot reproduce iOS standalone behavior.
+- Verify the installed-device icon rendering before closing #13.
+- Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider and trigger a
+  controlled test event before closing #17.
 
 ## Known blockers
 
@@ -163,14 +180,14 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 
 ## Next steps
 
-1. Review and merge the workout engine foundation (issue #21), then extend it
-   with custom exercises, templates, timer, history, and PR workflows in small
-   vertical slices.
-2. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
-   (fully merged as PR #18; deletion from a remote session was blocked by
-   branch-scoped push credentials, so delete it from GitHub or a laptop).
+1. Review and merge this pending-issue implementation branch, then deploy the
+   Rules to development and production.
+2. Complete the installed-iOS, installed-icon, and Sentry verification checks
+   above and close issues #13, #14, #15, and #17.
 3. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
    cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
-4. Review and merge the emulator-backed Firestore rules suite for issue #16.
+4. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
+   (fully merged as PR #18; deletion from a remote session was blocked by
+   branch-scoped push credentials, so delete it from GitHub or a laptop).
 5. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).
