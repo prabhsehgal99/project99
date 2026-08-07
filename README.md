@@ -82,9 +82,16 @@ millilitres. Training loads use pounds.
 
 ## Firebase Security Rules
 
-`firestore.rules` restricts each user to their own `users/{uid}`
-document tree. Project aliases are committed in `.firebaserc`; there is no
-default alias.
+`firestore.rules` restricts each user to their own `users/{uid}` document tree
+and validates Daily Log and workout-session writes. Project aliases are committed
+in `.firebaserc`; there is no default alias.
+
+Run the emulator-backed Security Rules suite without connecting to a deployed
+Firebase project:
+
+```bash
+npm run test:rules
+```
 
 Deploy and test development first:
 

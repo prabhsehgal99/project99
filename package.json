@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:rules": "npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-project99-rules \"vitest run --config vitest.rules.config.mts\"",
     "env:setup": "node scripts/setup-env.mjs",
     "rules:deploy:dev": "npx --yes firebase-tools@15 deploy --only firestore:rules --project dev",
     "rules:deploy:prod": "npx --yes firebase-tools@15 deploy --only firestore:rules --project prod"
@@ -25,6 +26,7 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.1.2",
