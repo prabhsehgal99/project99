@@ -1,14 +1,14 @@
 # Current state
 
-Last updated: 2026-08-07 (pending issue closure work)
+Last updated: 2026-08-07 (post-merge issue closure)
 
 ## Current milestone
 
 Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
 (Daily Log hardening, settings, history, PWA polish) is active. The Phase 1B
 workout-engine foundation is merged. The four previously open foundation issues
-have implementation work on the current branch and are awaiting the external
-deployment/device checks described below.
+were implemented in PR #28, merged to `main`, and closed. The remaining device
+and monitoring checks are operational follow-up, not open implementation work.
 
 ## What is on `main`
 
@@ -22,7 +22,7 @@ deployment/device checks described below.
   cached-data warning.
 - Dashboard summarizing today's log, 7-day weight chart, goals, and settings.
 - Firestore Security Rules: owner-only access to `users/{uid}` trees with full
-  field validation for `dailyMetrics/{date}` documents.
+  field validation for profiles, settings, Daily Logs, and workout sessions.
 - GitHub issue/PR templates and a Quality workflow (lint, typecheck, test,
   build) on Node 22.
 - All previous feature/fix branches (PRs #1–#10) are squash-merged; remaining
@@ -50,7 +50,7 @@ deployment/device checks described below.
   required, conversation resolution required, force pushes and deletion
   blocked). See WORKFLOW for details.
 
-## App-navigation unsaved-changes guard (this branch)
+## App-navigation unsaved-changes guard (merged)
 
 - Sidebar and bottom-nav links now route through a navigation-guard context
   (`src/components/navigation-guard.tsx`); the Daily Log registers a guard so
@@ -60,7 +60,7 @@ deployment/device checks described below.
 - Not covered (unchanged behavior): browser back/forward through client-side
   history and sign-out with dirty edits.
 
-## Dependency currency and security pass (this branch)
+## Dependency currency and security pass (merged)
 
 - `npm audit` went from 3 high-severity advisories to 0. The vulnerable
   `postcss` and `sharp` copies were nested under `next` and are now pinned
@@ -106,7 +106,7 @@ deployment/device checks described below.
   domain; per-deployment Vercel URLs are different hosts and are regenerated on
   every build, so always test on the assigned domain.
 
-## Firebase environment identity enforcement (this branch)
+## Firebase environment identity enforcement (merged PR #24)
 
 - Issue #23 tracks the fail-closed environment guard discovered during the Firebase cutover audit.
 - Every configured app now requires `NEXT_PUBLIC_APP_ENV=dev|prod`.
@@ -129,7 +129,7 @@ deployment/device checks described below.
 - Workout-session ownership and document shape are validated in Firestore Rules;
   nested set integrity is also validated in tested client domain logic.
 
-## Firestore Security Rules test suite (this branch)
+## Firestore Security Rules test suite (merged PR #27)
 
 - Issue #16 adds emulator-backed tests for authenticated ownership, true
   cross-user and unauthenticated create/update/read/delete denial across
@@ -142,7 +142,7 @@ deployment/device checks described below.
 - The Quality workflow provisions Java 21 and runs the rules suite alongside
   lint, typecheck, unit tests, and the production build.
 
-## Pending issue implementation (this branch)
+## Issue closure work (merged PR #28)
 
 - Issue #15: profile and settings documents now have exact field, type, and
   size validation; Daily Logs reject impossible and future dates in Rules; and
@@ -157,16 +157,16 @@ deployment/device checks described below.
   error-boundary failures, authentication failures, and Firestore operation
   failures without sending default PII or health-record payloads.
 
-## External verification still required
+## Operational follow-up
 
-- Deploy the committed Rules to `project99-dev` first, then
-  `project99live`, and verify the production write paths before closing #15.
+- Rules are deployed to `project99-dev` and `project99live`; verify a normal
+  production write path during the next authenticated runtime QA pass.
 - Test Google sign-in and session restoration in an installed iOS standalone
-  PWA before closing #14. The code path is covered by unit tests, but this
-  workspace cannot reproduce iOS standalone behavior.
-- Verify the installed-device icon rendering before closing #13.
+  PWA. The code path is covered by unit tests, but this workspace cannot
+  reproduce iOS standalone behavior.
+- Verify the installed-device icon rendering.
 - Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider and trigger a
-  controlled test event before closing #17.
+  controlled test event before relying on production alerts.
 
 ## Known blockers
 
@@ -180,14 +180,12 @@ deployment/device checks described below.
 
 ## Next steps
 
-1. Review and merge this pending-issue implementation branch, then deploy the
-   Rules to development and production.
-2. Complete the installed-iOS, installed-icon, and Sentry verification checks
-   above and close issues #13, #14, #15, and #17.
-3. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
+1. Complete the installed-iOS, installed-icon, Sentry, and authenticated
+   production write checks above.
+2. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
    cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
-4. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
+3. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
    (fully merged as PR #18; deletion from a remote session was blocked by
    branch-scoped push credentials, so delete it from GitHub or a laptop).
-5. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+4. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).
