@@ -19,6 +19,7 @@ import {
 import type { User } from "firebase/auth";
 import { normalizeDailyLog } from "@/lib/daily-log";
 import { getFirebaseDb } from "@/lib/firebase";
+import { reportFirestoreError } from "@/lib/monitoring";
 import { normalizeWorkoutSession } from "@/lib/workout";
 import { defaultDailyLog, defaultSettings, type DailyLog, type UserSettings, type WorkoutSession } from "@/lib/types";
 
@@ -30,46 +31,48 @@ export type DailyLogSnapshot = {
 };
 
 export async function ensureUserDocuments(user: User) {
-  const db = getFirebaseDb();
-  const userRef = doc(db, "users", user.uid);
-  const settingsRef = doc(db, "users", user.uid, "settings", "preferences");
-  const [userSnap, settingsSnap] = await Promise.all([getDoc(userRef), getDoc(settingsRef)]);
+  return reportFirestoreError("ensure-user-documents", async () => {
+    const db = getFirebaseDb();
+    const userRef = doc(db, "users", user.uid);
+    const settingsRef = doc(db, "users", user.uid, "settings", "preferences");
+    const [userSnap, settingsSnap] = await Promise.all([getDoc(userRef), getDoc(settingsRef)]);
 
-  if (!userSnap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      displayName: user.displayName ?? "Project 99 Athlete",
-      email: user.email ?? "",
-      photoURL: user.photoURL ?? "",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-  } else {
-    const existing = userSnap.data();
-    const nextProfile = {
-      displayName: user.displayName ?? existing.displayName ?? "Project 99 Athlete",
-      email: user.email ?? existing.email ?? "",
-      photoURL: user.photoURL ?? existing.photoURL ?? ""
-    };
-    const changed =
-      nextProfile.displayName !== existing.displayName ||
-      nextProfile.email !== existing.email ||
-      nextProfile.photoURL !== existing.photoURL;
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        displayName: user.displayName ?? "Project 99 Athlete",
+        email: user.email ?? "",
+        photoURL: user.photoURL ?? "",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    } else {
+      const existing = userSnap.data();
+      const nextProfile = {
+        displayName: user.displayName ?? existing.displayName ?? "Project 99 Athlete",
+        email: user.email ?? existing.email ?? "",
+        photoURL: user.photoURL ?? existing.photoURL ?? ""
+      };
+      const changed =
+        nextProfile.displayName !== existing.displayName ||
+        nextProfile.email !== existing.email ||
+        nextProfile.photoURL !== existing.photoURL;
 
-    if (changed) {
-      await updateDoc(userRef, {
-        ...nextProfile,
+      if (changed) {
+        await updateDoc(userRef, {
+          ...nextProfile,
+          updatedAt: serverTimestamp()
+        });
+      }
+    }
+
+    if (!settingsSnap.exists()) {
+      await setDoc(settingsRef, {
+        ...defaultSettings,
         updatedAt: serverTimestamp()
       });
     }
-  }
-
-  if (!settingsSnap.exists()) {
-    await setDoc(settingsRef, {
-      ...defaultSettings,
-      updatedAt: serverTimestamp()
-    });
-  }
+  });
 }
 
 export function subscribeToSettings(
@@ -132,24 +135,28 @@ export function subscribeToRecentDailyLogs(
 }
 
 export async function saveDailyLog(uid: string, log: DailyLog, existingLog: DailyLog | null) {
-  const ref = doc(getFirebaseDb(), "users", uid, "dailyMetrics", log.date);
-  await setDoc(ref, {
-    ...log,
-    createdAt: existingLog?.createdAt ?? serverTimestamp(),
-    updatedAt: serverTimestamp()
+  return reportFirestoreError("save-daily-log", async () => {
+    const ref = doc(getFirebaseDb(), "users", uid, "dailyMetrics", log.date);
+    await setDoc(ref, {
+      ...log,
+      createdAt: existingLog?.createdAt ?? serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
   });
 }
 
 export async function saveSettings(uid: string, settings: UserSettings) {
-  const ref = doc(getFirebaseDb(), "users", uid, "settings", "preferences");
-  await setDoc(
-    ref,
-    {
-      ...settings,
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+  return reportFirestoreError("save-settings", async () => {
+    const ref = doc(getFirebaseDb(), "users", uid, "settings", "preferences");
+    await setDoc(
+      ref,
+      {
+        ...settings,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
+  });
 }
 
 export function subscribeToActiveWorkout(
@@ -192,60 +199,66 @@ export function subscribeToRecentWorkoutSessions(
 }
 
 export async function startWorkoutSession(uid: string, date: string) {
-  const ref = await addDoc(collection(getFirebaseDb(), "users", uid, "workoutSessions"), {
-    schemaVersion: 1,
-    date,
-    title: "Workout",
-    status: "active",
-    exercises: [],
-    notes: "",
-    startedAt: serverTimestamp(),
-    completedAt: null,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
+  return reportFirestoreError("start-workout-session", async () => {
+    const ref = await addDoc(collection(getFirebaseDb(), "users", uid, "workoutSessions"), {
+      schemaVersion: 1,
+      date,
+      title: "Workout",
+      status: "active",
+      exercises: [],
+      notes: "",
+      startedAt: serverTimestamp(),
+      completedAt: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return ref.id;
   });
-  return ref.id;
 }
 
 export async function saveActiveWorkoutSession(uid: string, session: WorkoutSession) {
-  const ref = doc(getFirebaseDb(), "users", uid, "workoutSessions", session.id);
-  await updateDoc(ref, {
-    schemaVersion: 1,
-    date: session.date,
-    title: session.title.trim(),
-    status: "active",
-    exercises: session.exercises,
-    notes: session.notes.trim(),
-    updatedAt: serverTimestamp()
+  return reportFirestoreError("save-active-workout-session", async () => {
+    const ref = doc(getFirebaseDb(), "users", uid, "workoutSessions", session.id);
+    await updateDoc(ref, {
+      schemaVersion: 1,
+      date: session.date,
+      title: session.title.trim(),
+      status: "active",
+      exercises: session.exercises,
+      notes: session.notes.trim(),
+      updatedAt: serverTimestamp()
+    });
   });
 }
 
 export async function finishWorkoutSession(uid: string, session: WorkoutSession) {
-  const db = getFirebaseDb();
-  const dailyLogRef = doc(db, "users", uid, "dailyMetrics", session.date);
-  const dailyLogSnapshot = await getDoc(dailyLogRef);
-  const existingLog = dailyLogSnapshot.exists() ? normalizeDailyLog(session.date, dailyLogSnapshot.data()) : null;
-  const completedSessionRef = doc(db, "users", uid, "workoutSessions", session.id);
-  const dailyLog = {
-    ...(existingLog ?? defaultDailyLog(session.date)),
-    workoutStatus: "complete" as const,
-    workoutSessionId: session.id
-  };
-  const batch = writeBatch(db);
-  batch.update(completedSessionRef, {
-    schemaVersion: 1,
-    date: session.date,
-    title: session.title.trim(),
-    status: "completed",
-    exercises: session.exercises,
-    notes: session.notes.trim(),
-    completedAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
+  return reportFirestoreError("finish-workout-session", async () => {
+    const db = getFirebaseDb();
+    const dailyLogRef = doc(db, "users", uid, "dailyMetrics", session.date);
+    const dailyLogSnapshot = await getDoc(dailyLogRef);
+    const existingLog = dailyLogSnapshot.exists() ? normalizeDailyLog(session.date, dailyLogSnapshot.data()) : null;
+    const completedSessionRef = doc(db, "users", uid, "workoutSessions", session.id);
+    const dailyLog = {
+      ...(existingLog ?? defaultDailyLog(session.date)),
+      workoutStatus: "complete" as const,
+      workoutSessionId: session.id
+    };
+    const batch = writeBatch(db);
+    batch.update(completedSessionRef, {
+      schemaVersion: 1,
+      date: session.date,
+      title: session.title.trim(),
+      status: "completed",
+      exercises: session.exercises,
+      notes: session.notes.trim(),
+      completedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    batch.set(dailyLogRef, {
+      ...dailyLog,
+      createdAt: existingLog?.createdAt ?? serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    await batch.commit();
   });
-  batch.set(dailyLogRef, {
-    ...dailyLog,
-    createdAt: existingLog?.createdAt ?? serverTimestamp(),
-    updatedAt: serverTimestamp()
-  });
-  await batch.commit();
 }

@@ -29,6 +29,11 @@ Every configured environment supplies the keys in `.env.example`, including
 values. Vercel builds additionally fail unless Production uses `prod` and
 Preview/Development use `dev`.
 
+Set `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider when a Sentry project is
+configured. The app captures uncaught client errors, route error-boundary
+failures, authentication failures, and failed Firestore operations without
+including user health data or default personally identifiable information.
+
 Firebase web configuration is public client metadata, not a server credential.
 Authorization is enforced by Firebase Authentication and Firestore Security
 Rules. Never commit environment files, service-account credentials, or other
