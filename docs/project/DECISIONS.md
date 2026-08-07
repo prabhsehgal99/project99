@@ -225,6 +225,41 @@ copying the correct values. The deployment itself must reject the wrong target.
 output. Local and agent `env:setup` runs reject production configuration.
 The environment contract and mapping are covered by unit tests.
 
+### D-016 - Optional Sentry monitoring without default PII
+
+- **Date:** 2026-08-07
+- **Status:** Accepted
+- **Context:** The app surfaced errors in the interface but had no durable
+  reporting for client failures or failed Firestore operations.
+- **Decision:** Use the optional `@sentry/nextjs` client integration, enabled
+  only when `NEXT_PUBLIC_SENTRY_DSN` is configured. Capture uncaught client and
+  error-boundary failures, authentication failures, and named Firestore
+  operations. Keep `sendDefaultPii` disabled and do not attach health data,
+  user IDs, dates, or document contents to events.
+- **Reason:** Sentry is free-tier friendly for the current foundation and gives
+  actionable stack traces without making monitoring credentials or service
+  availability a local development requirement.
+- **Consequences:** Production must configure and verify a Sentry DSN before
+  issue #17 is closed. Monitoring remains disabled in environments without a
+  DSN, and source-map upload is intentionally not required for local builds.
+
+### D-017 - Redirect authentication for installed PWAs
+
+- **Date:** 2026-08-07
+- **Status:** Accepted
+- **Context:** Firebase popup authentication can be unreliable when the app is
+  running as an installed iOS standalone PWA, while regular browser tabs have
+  a good popup flow.
+- **Decision:** Select the authentication method from the display environment:
+  use `signInWithRedirect` for standalone display mode and iOS's standalone
+  navigator flag, and keep `signInWithPopup` for ordinary browser tabs. Resolve
+  redirect results on app startup while preserving browser-local persistence.
+- **Reason:** The hybrid keeps the faster tab experience and uses the flow
+  supported by installed standalone contexts without introducing a second
+  authentication provider.
+- **Consequences:** Installed-device sign-in and session restoration still need
+  real iOS verification before issue #14 is closed.
+
 
 ## Decision entry template
 

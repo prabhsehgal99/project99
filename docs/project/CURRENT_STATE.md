@@ -1,13 +1,14 @@
 # Current state
 
-Last updated: 2026-08-06 (Firestore Security Rules test suite)
+Last updated: 2026-08-07 (post-merge issue closure)
 
 ## Current milestone
 
 Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
-(Daily Log hardening, settings, history, PWA polish) has started with the
-app-navigation unsaved-changes guard. Phase 1B workout-engine foundation is now
-in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
+(Daily Log hardening, settings, history, PWA polish) is active. The Phase 1B
+workout-engine foundation is merged. The four previously open foundation issues
+were implemented in PR #28, merged to `main`, and closed. The remaining device
+and monitoring checks are operational follow-up, not open implementation work.
 
 ## What is on `main`
 
@@ -21,7 +22,7 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
   cached-data warning.
 - Dashboard summarizing today's log, 7-day weight chart, goals, and settings.
 - Firestore Security Rules: owner-only access to `users/{uid}` trees with full
-  field validation for `dailyMetrics/{date}` documents.
+  field validation for profiles, settings, Daily Logs, and workout sessions.
 - GitHub issue/PR templates and a Quality workflow (lint, typecheck, test,
   build) on Node 22.
 - All previous feature/fix branches (PRs #1–#10) are squash-merged; remaining
@@ -49,7 +50,7 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
   required, conversation resolution required, force pushes and deletion
   blocked). See WORKFLOW for details.
 
-## App-navigation unsaved-changes guard (this branch)
+## App-navigation unsaved-changes guard (merged)
 
 - Sidebar and bottom-nav links now route through a navigation-guard context
   (`src/components/navigation-guard.tsx`); the Daily Log registers a guard so
@@ -59,7 +60,7 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 - Not covered (unchanged behavior): browser back/forward through client-side
   history and sign-out with dirty edits.
 
-## Dependency currency and security pass (this branch)
+## Dependency currency and security pass (merged)
 
 - `npm audit` went from 3 high-severity advisories to 0. The vulnerable
   `postcss` and `sharp` copies were nested under `next` and are now pinned
@@ -105,7 +106,7 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
   domain; per-deployment Vercel URLs are different hosts and are regenerated on
   every build, so always test on the assigned domain.
 
-## Firebase environment identity enforcement (this branch)
+## Firebase environment identity enforcement (merged PR #24)
 
 - Issue #23 tracks the fail-closed environment guard discovered during the Firebase cutover audit.
 - Every configured app now requires `NEXT_PUBLIC_APP_ENV=dev|prod`.
@@ -128,7 +129,7 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 - Workout-session ownership and document shape are validated in Firestore Rules;
   nested set integrity is also validated in tested client domain logic.
 
-## Firestore Security Rules test suite (this branch)
+## Firestore Security Rules test suite (merged PR #27)
 
 - Issue #16 adds emulator-backed tests for authenticated ownership, true
   cross-user and unauthenticated create/update/read/delete denial across
@@ -141,15 +142,31 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 - The Quality workflow provisions Java 21 and runs the rules suite alongside
   lint, typecheck, unit tests, and the production build.
 
-## Known issues and deferred work (tracked as GitHub issues)
+## Issue closure work (merged PR #28)
 
-- `signInWithPopup` may be unreliable in installed iOS standalone PWA mode;
-  evaluate redirect flow.
-- Firestore rules gaps: `users/{uid}` profile and settings documents have no
-  field validation; future-dated `dailyMetrics` are only blocked client-side;
-  date regex accepts impossible calendar dates; concurrent first-save of the
-  same day can fail with a raw permission error.
-- No error monitoring/reporting yet (Phase 1 release item).
+- Issue #15: profile and settings documents now have exact field, type, and
+  size validation; Daily Logs reject impossible and future dates in Rules; and
+  concurrent first-save updates may use only the server-generated request time
+  for `createdAt`. The emulator suite covers all of these cases.
+- Issue #14: installed standalone PWAs use Firebase redirect authentication;
+  regular browser tabs retain popup authentication. Redirect-result failures are
+  surfaced and the existing local persistence configuration is unchanged.
+- Issue #13: the manifest and root metadata publish explicit 180px Apple,
+  192px, and 512px PNG assets, including separate maskable entries.
+- Issue #17: optional Sentry monitoring captures uncaught client failures,
+  error-boundary failures, authentication failures, and Firestore operation
+  failures without sending default PII or health-record payloads.
+
+## Operational follow-up
+
+- Rules are deployed to `project99-dev` and `project99live`; verify a normal
+  production write path during the next authenticated runtime QA pass.
+- Test Google sign-in and session restoration in an installed iOS standalone
+  PWA. The code path is covered by unit tests, but this workspace cannot
+  reproduce iOS standalone behavior.
+- Verify the installed-device icon rendering.
+- Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider and trigger a
+  controlled test event before relying on production alerts.
 
 ## Known blockers
 
@@ -163,14 +180,12 @@ in progress by explicit owner direction. Phase 0.5 setup hardening is merged.
 
 ## Next steps
 
-1. Review and merge the workout engine foundation (issue #21), then extend it
-   with custom exercises, templates, timer, history, and PR workflows in small
-   vertical slices.
-2. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
+1. Complete the installed-iOS, installed-icon, Sentry, and authenticated
+   production write checks above.
+2. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
+   cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
+3. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
    (fully merged as PR #18; deletion from a remote session was blocked by
    branch-scoped push credentials, so delete it from GitHub or a laptop).
-3. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
-   cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
-4. Review and merge the emulator-backed Firestore rules suite for issue #16.
-5. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+4. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).
