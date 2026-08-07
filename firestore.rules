@@ -11,7 +11,24 @@ service cloud.firestore {
     }
 
     function validDateKey(date) {
-      return date.matches('^\\d{4}-\\d{2}-\\d{2}$');
+      return date.matches('^[1-9]\\d{3}-(01|03|05|07|08|10|12)-(0[1-9]|[12]\\d|3[01])$')
+        || date.matches('^[1-9]\\d{3}-(04|06|09|11)-(0[1-9]|[12]\\d|30)$')
+        || date.matches('^[1-9]\\d{3}-02-(0[1-9]|1\\d|2[0-8])$')
+        || date.matches('^(?:[1-9]\\d(?:0[48]|[2468][048]|[13579][26])|(?:[2468][048]|[13579][26])00)-02-29$');
+    }
+
+    function zeroPadded(value) {
+      return value < 10 ? '0' + string(value) : string(value);
+    }
+
+    function isFutureDateKey(date) {
+      let parts = date.split('-');
+      let currentYear = string(request.time.year());
+      let currentMonth = zeroPadded(request.time.month());
+      let currentDay = zeroPadded(request.time.day());
+      return parts[0] > currentYear
+        || (parts[0] == currentYear && parts[1] > currentMonth)
+        || (parts[0] == currentYear && parts[1] == currentMonth && parts[2] > currentDay);
     }
 
     function validActivityStatus(value) {
@@ -24,6 +41,66 @@ service cloud.firestore {
 
     function validScale(value) {
       return value == null || (value is int && value >= 1 && value <= 5);
+    }
+
+    function validUserProfile(userId) {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+        'uid',
+        'displayName',
+        'email',
+        'photoURL',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.keys().hasAll([
+        'uid',
+        'displayName',
+        'email',
+        'photoURL',
+        'createdAt',
+        'updatedAt'
+      ])
+      && data.uid == userId
+      && data.displayName is string
+      && data.displayName.size() <= 200
+      && data.email is string
+      && data.email.size() <= 320
+      && data.photoURL is string
+      && data.photoURL.size() <= 2048
+      && data.createdAt is timestamp
+      && data.updatedAt is timestamp;
+    }
+
+    function validUserSettings() {
+      let data = request.resource.data;
+      return data.keys().hasOnly([
+        'goalWeightKg',
+        'calorieGoal',
+        'proteinGoal',
+        'waterGoalMl',
+        'updatedAt'
+      ])
+      && data.keys().hasAll([
+        'goalWeightKg',
+        'calorieGoal',
+        'proteinGoal',
+        'waterGoalMl',
+        'updatedAt'
+      ])
+      && data.goalWeightKg is number
+      && data.goalWeightKg >= 25
+      && data.goalWeightKg <= 300
+      && data.calorieGoal is int
+      && data.calorieGoal >= 500
+      && data.calorieGoal <= 20000
+      && data.proteinGoal is int
+      && data.proteinGoal >= 20
+      && data.proteinGoal <= 1000
+      && data.waterGoalMl is int
+      && data.waterGoalMl >= 500
+      && data.waterGoalMl <= 15000
+      && data.updatedAt is timestamp;
     }
 
     function validDailyLog(date) {
@@ -77,6 +154,7 @@ service cloud.firestore {
         'updatedAt'
       ])
       && validDateKey(date)
+      && !isFutureDateKey(date)
       && data.schemaVersion == 1
       && data.date == date
       && data.timezone is string
@@ -139,10 +217,17 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, create, update, delete: if owns(userId);
+      allow read, delete: if owns(userId);
+      allow create: if owns(userId) && validUserProfile(userId);
+      allow update: if owns(userId)
+        && validUserProfile(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.createdAt == resource.data.createdAt;
 
       match /settings/{document} {
-        allow read, create, update, delete: if owns(userId);
+        allow read, delete: if owns(userId);
+        allow create: if owns(userId) && validUserSettings();
+        allow update: if owns(userId) && validUserSettings();
       }
 
       match /dailyMetrics/{date} {
@@ -153,6 +238,7 @@ service cloud.firestore {
           && (
             !resource.data.keys().hasAny(['createdAt'])
             || request.resource.data.createdAt == resource.data.createdAt
+            || request.resource.data.createdAt == request.time
           );
       }
 
