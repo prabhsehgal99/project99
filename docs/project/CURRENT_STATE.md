@@ -1,14 +1,21 @@
 # Current state
 
-Last updated: 2026-08-07 (post-merge issue closure)
+Last updated: 2026-08-07 (Phase 0 verification pass)
 
 ## Current milestone
 
-Phase 0 (roadmap) runtime verification remains outstanding, and Phase 1A
-(Daily Log hardening, settings, history, PWA polish) is active. The Phase 1B
-workout-engine foundation is merged. The four previously open foundation issues
-were implemented in PR #28, merged to `main`, and closed. The remaining device
-and monitoring checks are operational follow-up, not open implementation work.
+Phase 1A (Daily Log hardening, settings, history, PWA polish) is active. Phase
+0 implementation, automated verification, Security Rules verification, build
+verification, and public production reachability are complete as of the Phase 0
+verification pass in issue #32. Formal Phase 0 exit still needs owner-run
+runtime QA for authenticated browser flows, cross-device sync, installed iOS PWA
+behavior, production writes, and Sentry delivery because this agent workspace
+does not have credentials, hosting configuration, or a physical installed PWA.
+
+The Phase 1B workout-engine foundation is merged. The four previously open
+foundation issues were implemented in PR #28, merged to `main`, and closed. The
+remaining Phase 0 checks are operational verification, not open implementation
+work.
 
 ## What is on `main`
 
@@ -157,16 +164,34 @@ and monitoring checks are operational follow-up, not open implementation work.
   error-boundary failures, authentication failures, and Firestore operation
   failures without sending default PII or health-record payloads.
 
+## Phase 0 verification pass (issue #32)
+
+- Verification record: `docs/project/PHASE_0_VERIFICATION.md`.
+- `npm ci` completed successfully and reported 0 vulnerabilities.
+- `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:rules`, and
+  `npm run build` passed from the Conductor `seoul` workspace on 2026-08-07.
+- The production site at `https://project99-ten.vercel.app` responded with HTTP
+  200.
+- Production `/manifest.webmanifest`, `/sw.js`, `/icon-192.png`, and
+  `/apple-touch-icon.png` responded with HTTP 200.
+- The production manifest declares standalone display mode and any/maskable icon
+  assets.
+- `next.config.ts` now sets an explicit Turbopack root so builds do not infer a
+  parent workspace root when multiple lockfiles exist on the development
+  machine.
+
 ## Operational follow-up
 
-- Rules are deployed to `project99-dev` and `project99live`; verify a normal
-  production write path during the next authenticated runtime QA pass.
-- Test Google sign-in and session restoration in an installed iOS standalone
-  PWA. The code path is covered by unit tests, but this workspace cannot
-  reproduce iOS standalone behavior.
-- Verify the installed-device icon rendering.
-- Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider and trigger a
-  controlled test event before relying on production alerts.
+- Run the owner runtime QA checklist in
+  `docs/project/PHASE_0_VERIFICATION.md`: Chrome auth, Safari auth, session
+  restoration, sign-out/auth-loss behavior, cross-device sync, conflict handling,
+  installed iOS PWA sign-in/session restoration, installed icon rendering,
+  production Firestore write smoke test, and Sentry delivery.
+- Rules are deployed to `project99-dev` and `project99live`; verify one normal
+  production write path during the owner runtime QA pass.
+- Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider, redeploy without
+  reusing the previous build cache, and trigger a controlled test event before
+  relying on production alerts.
 
 ## Known blockers
 
@@ -174,18 +199,19 @@ and monitoring checks are operational follow-up, not open implementation work.
   behavior cannot be exercised there; it is configured on the development
   machine against `project99-dev`. Agent workspaces that need it can supply the
   variables and run `npm run env:setup`.
+- Chrome-control tooling, Vercel project linkage, Firebase environment values,
+  and Sentry configuration were not available in the Conductor `seoul`
+  workspace during issue #32, so authenticated runtime QA remains owner-run.
 - `project99-f7e3c` (the previous production project) is superseded but not yet
   deleted. Nothing points at it; retire it only after production has run on
   `project99live` for a few days.
 
 ## Next steps
 
-1. Complete the installed-iOS, installed-icon, Sentry, and authenticated
-   production write checks above.
-2. Complete Phase 0 runtime verification (real sign-in QA in Chrome/Safari,
-   cross-device sync, conflict testing) per `docs/project/ROADMAP.md`.
-3. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
+1. Run the remaining owner runtime QA checklist in
+   `docs/project/PHASE_0_VERIFICATION.md` and then mark Phase 0 formally closed.
+2. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
    (fully merged as PR #18; deletion from a remote session was blocked by
    branch-scoped push credentials, so delete it from GitHub or a laptop).
-4. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+3. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).

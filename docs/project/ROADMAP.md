@@ -55,6 +55,20 @@ The Daily Log is the dated source of truth connecting these systems. Workout ses
 
 Turn the existing implementation into a verified, production-ready baseline before adding another major system.
 
+## Status as of 2026-08-07
+
+Phase 0 implementation, automated verification, Firestore Security Rules
+verification, production build verification, and public production reachability
+are complete. See `docs/project/PHASE_0_VERIFICATION.md` for the verification
+record.
+
+Formal Phase 0 exit still requires owner-run runtime QA for authenticated Chrome
+and Safari flows, session restoration, cross-device sync, conflict handling,
+failed-save behavior, phone and desktop acceptance, installed iOS PWA behavior,
+production Firestore writes, and Sentry delivery. These checks require user
+credentials, hosting configuration, or a physical installed PWA and are not
+application-code blockers for continuing Phase 1A.
+
 ## Current baseline
 
 Already implemented or substantially implemented:
@@ -74,21 +88,19 @@ All prior feature and fix branches were reviewed and squash-merged to `main` as 
 
 ## Remaining work
 
-- Configure local Firebase public values without committing them.
-- Test Google sign-in in Chrome and Safari.
+- Test Google sign-in in Chrome and Safari on the assigned production domain.
 - Verify session restoration after closing and reopening the browser.
 - Verify sign-out and authentication-loss behavior.
-- Create, edit, refresh, and restore Daily Logs using real Firestore.
+- Create, edit, refresh, and restore Daily Logs using real Firestore in
+  production.
 - Verify cross-device synchronization.
-- Test failed saves and remote-update conflicts.
-- Add emulator-backed Firestore rules tests:
-  - owner read allowed;
-  - owner write allowed;
-  - cross-user read denied;
-  - cross-user write denied;
-  - invalid document shape denied.
-- Test the deployed Vercel preview.
+- Test remote-update conflicts.
+- Test failed-save behavior.
 - Complete phone and desktop acceptance testing.
+- Complete installed iOS PWA sign-in, session restoration, and icon rendering
+  checks.
+- Configure Sentry in production and confirm a controlled test event is
+  delivered.
 - Delete stale, already-merged remote branches (review and merge is complete).
 
 ## Why this comes first
