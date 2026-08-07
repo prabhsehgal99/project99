@@ -24,8 +24,10 @@ configured Firebase project.
 
 ## In scope
 
-- Same-user read, create, update, and delete behavior.
-- Cross-user and unauthenticated access denial.
+- Same-user read, create, update, and delete behavior for profiles, settings,
+  Daily Logs, and workout sessions.
+- Cross-user and unauthenticated read, create, update, and delete denial,
+  including creates against documents that do not already exist.
 - Exact Daily Log field, type, range, date, and timestamp validation.
 - Exact workout-session top-level field, type, size, timestamp, and status
   transition validation.
@@ -67,7 +69,8 @@ configured Firebase project.
 
 ## Acceptance criteria
 
-- [x] Owner access succeeds and cross-user/unauthenticated access fails.
+- [x] Owner access succeeds and cross-user/unauthenticated access fails across
+      profiles, settings, Daily Logs, and workout sessions.
 - [x] Invalid Daily Log fields, values, date keys, and timestamps fail.
 - [x] Invalid workout-session fields, values, timestamps, and status reversions
       fail.

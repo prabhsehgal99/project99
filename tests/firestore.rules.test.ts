@@ -97,6 +97,14 @@ function workoutSessionRef(db: Firestore, uid = OWNER_UID, sessionId = "session-
   return db.doc(`users/${uid}/workoutSessions/${sessionId}`);
 }
 
+function userProfileRef(db: Firestore, uid = OWNER_UID) {
+  return db.doc(`users/${uid}`);
+}
+
+function userSettingsRef(db: Firestore, uid = OWNER_UID, documentId = "preferences") {
+  return db.doc(`users/${uid}/settings/${documentId}`);
+}
+
 async function seedDailyLog(data: RuleDocument = dailyLog()): Promise<void> {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     await dailyLogRef(context.firestore()).set(data);
@@ -147,31 +155,114 @@ describe("ownership", () => {
   it("denies another user access to an owner's Daily Logs", async () => {
     await seedDailyLog();
     const db = authenticatedDb(OTHER_UID);
+    const existingReference = dailyLogRef(db);
+    const unseededReference = dailyLogRef(db, OWNER_UID, "2026-08-07");
 
-    await assertFails(dailyLogRef(db).get());
-    await assertFails(dailyLogRef(db).set(dailyLog({ journalNotes: "Tampered" })));
-    await assertFails(dailyLogRef(db).delete());
+    await assertFails(existingReference.get());
+    await assertFails(existingReference.update({
+      journalNotes: "Tampered",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }));
+    await assertFails(existingReference.delete());
+    await assertFails(unseededReference.set(dailyLog({ date: "2026-08-07" })));
     await assertFails(db.collection(`users/${OWNER_UID}/dailyMetrics`).get());
   });
 
   it("denies unauthenticated Daily Log access", async () => {
     await seedDailyLog();
     const db = unauthenticatedDb();
+    const existingReference = dailyLogRef(db);
+    const unseededReference = dailyLogRef(db, OWNER_UID, "2026-08-08");
 
-    await assertFails(dailyLogRef(db).get());
-    await assertFails(dailyLogRef(db).set(dailyLog()));
+    await assertFails(existingReference.get());
+    await assertFails(existingReference.update({
+      journalNotes: "Tampered",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }));
+    await assertFails(existingReference.delete());
+    await assertFails(unseededReference.set(dailyLog({ date: "2026-08-08" })));
   });
 
   it("enforces ownership for workout sessions", async () => {
     await seedWorkoutSession();
     const ownerDb = authenticatedDb(OWNER_UID);
     const otherDb = authenticatedDb(OTHER_UID);
+    const unauthenticated = unauthenticatedDb();
+    const existingOtherReference = workoutSessionRef(otherDb);
+    const existingUnauthenticatedReference = workoutSessionRef(unauthenticated);
 
     await assertSucceeds(workoutSessionRef(ownerDb).get());
-    await assertFails(workoutSessionRef(otherDb).get());
-    await assertFails(workoutSessionRef(otherDb).set(workoutSession()));
-    await assertFails(workoutSessionRef(otherDb).delete());
-    await assertFails(workoutSessionRef(unauthenticatedDb()).get());
+    await assertFails(existingOtherReference.get());
+    await assertFails(existingOtherReference.update({ notes: "Tampered" }));
+    await assertFails(existingOtherReference.delete());
+    await assertFails(workoutSessionRef(otherDb, OWNER_UID, "cross-user-create").set(workoutSession()));
+    await assertFails(existingUnauthenticatedReference.get());
+    await assertFails(existingUnauthenticatedReference.update({ notes: "Tampered" }));
+    await assertFails(existingUnauthenticatedReference.delete());
+    await assertFails(
+      workoutSessionRef(unauthenticated, OWNER_UID, "unauthenticated-create").set(workoutSession())
+    );
+  });
+
+  it("enforces ownership for user profiles, including creates", async () => {
+    const ownerDb = authenticatedDb(OWNER_UID);
+    const otherDb = authenticatedDb(OTHER_UID);
+    const unauthenticated = unauthenticatedDb();
+    const ownerReference = userProfileRef(ownerDb);
+    const existingOtherReference = userProfileRef(otherDb);
+    const existingUnauthenticatedReference = userProfileRef(unauthenticated);
+    const profile = {
+      uid: OWNER_UID,
+      displayName: "Owner",
+      email: "owner@example.com",
+      photoURL: "",
+      createdAt: FIXED_TIMESTAMP,
+      updatedAt: FIXED_TIMESTAMP
+    };
+
+    await assertSucceeds(ownerReference.set(profile));
+    await assertSucceeds(ownerReference.get());
+    await assertSucceeds(ownerReference.update({ displayName: "Updated owner" }));
+    await assertFails(existingOtherReference.get());
+    await assertFails(existingOtherReference.update({ displayName: "Tampered" }));
+    await assertFails(existingOtherReference.delete());
+    await assertFails(userProfileRef(otherDb, "cross-user-create").set(profile));
+    await assertFails(existingUnauthenticatedReference.get());
+    await assertFails(existingUnauthenticatedReference.update({ displayName: "Tampered" }));
+    await assertFails(existingUnauthenticatedReference.delete());
+    await assertFails(userProfileRef(unauthenticated, "unauthenticated-create").set(profile));
+    await assertSucceeds(ownerReference.delete());
+  });
+
+  it("enforces ownership for settings documents, including creates", async () => {
+    const ownerDb = authenticatedDb(OWNER_UID);
+    const otherDb = authenticatedDb(OTHER_UID);
+    const unauthenticated = unauthenticatedDb();
+    const ownerReference = userSettingsRef(ownerDb);
+    const existingOtherReference = userSettingsRef(otherDb);
+    const existingUnauthenticatedReference = userSettingsRef(unauthenticated);
+    const settings = {
+      goalWeightKg: 75,
+      calorieGoal: 2_200,
+      proteinGoal: 160,
+      waterGoalMl: 3_000,
+      updatedAt: FIXED_TIMESTAMP
+    };
+
+    await assertSucceeds(ownerReference.set(settings));
+    await assertSucceeds(ownerReference.get());
+    await assertSucceeds(ownerReference.update({ calorieGoal: 2_300 }));
+    await assertFails(existingOtherReference.get());
+    await assertFails(existingOtherReference.update({ calorieGoal: 1 }));
+    await assertFails(existingOtherReference.delete());
+    await assertFails(userSettingsRef(otherDb, OWNER_UID, "cross-user-create").set(settings));
+    await assertFails(existingUnauthenticatedReference.get());
+    await assertFails(existingUnauthenticatedReference.update({ calorieGoal: 1 }));
+    await assertFails(existingUnauthenticatedReference.delete());
+    await assertFails(
+      userSettingsRef(unauthenticated, OWNER_UID, "unauthenticated-create").set(settings)
+    );
+    await assertSucceeds(ownerReference.delete());
   });
 });
 
