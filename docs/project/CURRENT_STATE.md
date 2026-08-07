@@ -1,21 +1,17 @@
 # Current state
 
-Last updated: 2026-08-07 (Phase 0 verification pass)
+Last updated: 2026-08-07 (Phase 0 closed)
 
 ## Current milestone
 
 Phase 1A (Daily Log hardening, settings, history, PWA polish) is active. Phase
-0 implementation, automated verification, Security Rules verification, build
-verification, and public production reachability are complete as of the Phase 0
-verification pass in issue #32. Formal Phase 0 exit still needs owner-run
-runtime QA for authenticated browser flows, cross-device sync, installed iOS PWA
-behavior, production writes, and Sentry delivery because this agent workspace
-does not have credentials, hosting configuration, or a physical installed PWA.
+0 is formally closed as of 2026-08-07. Implementation, automated verification,
+Security Rules verification, build verification, public production reachability,
+owner runtime QA, installed iOS PWA behavior, production Firestore writes, and
+Sentry delivery have all passed.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
-foundation issues were implemented in PR #28, merged to `main`, and closed. The
-remaining Phase 0 checks are operational verification, not open implementation
-work.
+foundation issues were implemented in PR #28, merged to `main`, and closed.
 
 ## What is on `main`
 
@@ -181,19 +177,11 @@ work.
   machine.
 - The stale merged remote branch `chore/11-phase-0-5-setup-hardening` was
   deleted from GitHub.
-
-## Operational follow-up
-
-- Run the owner runtime QA checklist in
-  `docs/project/PHASE_0_VERIFICATION.md`: Chrome auth, Safari auth, session
-  restoration, sign-out/auth-loss behavior, cross-device sync, conflict handling,
-  installed iOS PWA sign-in/session restoration, installed icon rendering,
-  production Firestore write smoke test, and Sentry delivery.
-- Rules are deployed to `project99-dev` and `project99live`; verify one normal
-  production write path during the owner runtime QA pass.
-- Configure `NEXT_PUBLIC_SENTRY_DSN` in the hosting provider, redeploy without
-  reusing the previous build cache, and trigger a controlled test event before
-  relying on production alerts.
+- Owner runtime QA passed on 2026-08-07: Chrome and Safari auth, session
+  restoration, sign-out/auth-loss behavior, cross-device sync, remote-conflict
+  handling, failed-save behavior, phone and desktop acceptance, installed iOS PWA
+  sign-in/session restoration/icon rendering, Sentry delivery, and a production
+  Firestore write smoke test.
 
 ## Known blockers
 
@@ -201,16 +189,11 @@ work.
   behavior cannot be exercised there; it is configured on the development
   machine against `project99-dev`. Agent workspaces that need it can supply the
   variables and run `npm run env:setup`.
-- Chrome-control tooling, Vercel project linkage, Firebase environment values,
-  and Sentry configuration were not available in the Conductor `seoul`
-  workspace during issue #32, so authenticated runtime QA remains owner-run.
 - `project99-f7e3c` (the previous production project) is superseded but not yet
   deleted. Nothing points at it; retire it only after production has run on
   `project99live` for a few days.
 
 ## Next steps
 
-1. Run the remaining owner runtime QA checklist in
-   `docs/project/PHASE_0_VERIFICATION.md` and then mark Phase 0 formally closed.
-2. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+1. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).

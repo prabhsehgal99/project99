@@ -34,8 +34,8 @@ The Daily Log is the dated source of truth connecting these systems. Workout ses
 
 | Stage | Product outcome | Main capabilities |
 |---|---|---|
-| Now: Foundation verification | The existing authenticated flow works reliably with real Firebase data | Auth QA, Daily Log QA, security tests, deployment verification |
-| Phase 1A: Daily operating system | The user can manage a complete day from one coherent experience | Daily Log, dashboard, goals, navigation, PWA polish |
+| Complete: Foundation verification | The existing authenticated flow works reliably with real Firebase data | Auth QA, Daily Log QA, security tests, deployment verification |
+| Now: Phase 1A Daily operating system | The user can manage a complete day from one coherent experience | Daily Log, dashboard, goals, navigation, PWA polish |
 | Phase 1B: Workout engine | The app becomes excellent for recording real gym sessions | Exercises, templates, sets, RPE, history, PRs, timers |
 | Phase 1C: Nutrition system | Food intake can be logged without another tracking app | Food database, meals, servings, favourites, daily totals |
 | Phase 1D: Measurements and progress | Physical progress becomes visible beyond scale weight | Measurements, photos, comparisons, trend views |
@@ -57,17 +57,11 @@ Turn the existing implementation into a verified, production-ready baseline befo
 
 ## Status as of 2026-08-07
 
-Phase 0 implementation, automated verification, Firestore Security Rules
-verification, production build verification, and public production reachability
-are complete. See `docs/project/PHASE_0_VERIFICATION.md` for the verification
-record.
-
-Formal Phase 0 exit still requires owner-run runtime QA for authenticated Chrome
-and Safari flows, session restoration, cross-device sync, conflict handling,
-failed-save behavior, phone and desktop acceptance, installed iOS PWA behavior,
-production Firestore writes, and Sentry delivery. These checks require user
-credentials, hosting configuration, or a physical installed PWA and are not
-application-code blockers for continuing Phase 1A.
+Phase 0 is complete. Implementation, automated verification, Firestore Security
+Rules verification, production build verification, public production
+reachability, owner runtime QA, installed iOS PWA behavior, production Firestore
+writes, and Sentry delivery have all passed. See
+`docs/project/PHASE_0_VERIFICATION.md` for the verification record.
 
 ## Current baseline
 
@@ -88,19 +82,7 @@ All prior feature and fix branches were reviewed and squash-merged to `main` as 
 
 ## Remaining work
 
-- Test Google sign-in in Chrome and Safari on the assigned production domain.
-- Verify session restoration after closing and reopening the browser.
-- Verify sign-out and authentication-loss behavior.
-- Create, edit, refresh, and restore Daily Logs using real Firestore in
-  production.
-- Verify cross-device synchronization.
-- Test remote-update conflicts.
-- Test failed-save behavior.
-- Complete phone and desktop acceptance testing.
-- Complete installed iOS PWA sign-in, session restoration, and icon rendering
-  checks.
-- Configure Sentry in production and confirm a controlled test event is
-  delivered.
+None. Phase 0 is closed.
 
 ## Why this comes first
 

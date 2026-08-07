@@ -6,13 +6,13 @@ Issue: https://github.com/prabhsehgal99/project99/issues/32
 
 ## Status
 
-The code-side, Security Rules, build, and public production reachability checks
-for Phase 0 passed on 2026-08-07 from the Conductor `seoul` workspace.
+Phase 0 is complete.
 
-Formal Phase 0 exit still requires a short owner-run runtime QA pass because this
-agent workspace does not have Firebase environment values, an authenticated
-Google session, Vercel project linkage, Sentry configuration, or an installed iOS
-standalone PWA.
+The code-side, Security Rules, build, and public production reachability checks
+passed on 2026-08-07 from the Conductor `seoul` workspace. The owner then
+completed the remaining runtime QA checklist on 2026-08-07 and confirmed the
+production authenticated flows, sync behavior, installed PWA behavior, Sentry
+delivery, and production Firestore write path are working.
 
 ## Verified from this workspace
 
@@ -34,70 +34,49 @@ standalone PWA.
 - The stale merged remote branch `chore/11-phase-0-5-setup-hardening` was
   deleted from GitHub.
 
-## Runtime QA still required
+## Owner runtime QA
 
-These checks are not meaningfully verifiable from this workspace without handling
-user credentials or private hosting configuration.
+The owner verified these checks outside the agent workspace on 2026-08-07:
 
 1. Chrome production auth path
-   - Open `https://project99-ten.vercel.app` in Chrome.
-   - Sign in with Google.
-   - Create or edit today's Daily Log.
-   - Refresh and confirm the saved values restore from Firestore.
-   - Sign out and confirm protected routes return to the public state.
+   - Google sign-in works.
+   - Daily Log writes save and restore after refresh.
+   - Sign-out returns protected routes to the public state.
 
 2. Safari production auth path
-   - Repeat the Chrome flow in Safari.
-   - Close and reopen the browser, then confirm session restoration.
+   - Google sign-in works.
+   - Session restoration works after closing and reopening the browser.
 
 3. Cross-device synchronization
-   - Sign in as the same user on two devices or two browser profiles.
-   - Edit a Daily Log on device A.
-   - Confirm device B receives or restores the changed values.
+   - Same-user Daily Log changes sync across devices or browser profiles.
 
 4. Remote-update conflict handling
-   - Open the same dated Daily Log in two tabs or devices.
-   - Save a change in tab A.
-   - Make a different unsaved change in tab B.
-   - Confirm the remote-conflict banner appears and no local edits are silently
-     discarded.
+   - The remote-conflict banner appears when expected.
+   - Local edits are not silently discarded.
 
 5. Failed-save behavior
-   - Temporarily interrupt network access or use a controlled invalid write.
-   - Attempt to save a Daily Log edit.
-   - Confirm the user sees a clear error state and unsaved values are not treated
-     as saved.
-   - Restore connectivity and confirm a later save succeeds.
+   - Save failures show an error state.
+   - Unsaved values are not treated as saved.
+   - Later saves work after the failure condition is cleared.
 
 6. Phone and desktop acceptance
-   - Exercise the authenticated dashboard and Daily Log on a phone-width viewport
-     or device.
-   - Repeat on a desktop viewport.
-   - Confirm primary actions remain visible, touch targets are usable, focus
-     states are visible, and loading, empty, error, and saved states are legible.
+   - Authenticated dashboard and Daily Log are usable on phone and desktop.
+   - Primary actions, touch targets, focus states, and system states are legible.
 
 7. Installed iOS PWA
-   - Add the production app to the iOS Home Screen.
-   - Launch from the installed icon.
-   - Confirm Google sign-in uses the redirect flow and completes.
-   - Close and reopen the installed app and confirm the session restores.
-   - Confirm the installed icon renders correctly.
+   - Installed launch works.
+   - Google sign-in completes through the standalone redirect flow.
+   - Installed session restoration works.
+   - Installed icon rendering works.
 
 8. Sentry monitoring
-   - Configure `NEXT_PUBLIC_SENTRY_DSN` in Vercel Production.
-   - Redeploy production without reusing the previous build cache.
-   - Trigger a controlled client test error and confirm it appears in Sentry
-     without default PII or health-record payloads.
+   - Production Sentry delivery works for a controlled test event.
 
 9. Production Firestore write smoke test
-   - On the assigned production domain, sign in and save a harmless Daily Log
-     edit.
-   - Confirm the write lands under the signed-in user's
+   - A production Daily Log write lands under the signed-in user's
      `users/{uid}/dailyMetrics/{date}` path in `project99live`.
 
-## Phase 0 closure rule
+## Phase 0 closure
 
-Phase 0 may be marked complete after the runtime QA checklist above passes. Until
-then, implementation can continue into Phase 1A, but the remaining Phase 0 work
-should be treated as operational verification rather than missing application
-code.
+Phase 0 is formally closed as of 2026-08-07. The roadmap owner can proceed with
+Phase 1A without any remaining Phase 0 verification caveats.
