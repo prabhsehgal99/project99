@@ -102,6 +102,22 @@ project ID:
 Agent sessions and local development must point at `dev`. Production credentials
 belong only in the hosting provider's environment settings.
 
+Every configured environment also sets `NEXT_PUBLIC_APP_ENV` to `dev` or
+`prod`. `src/lib/firebase-config.ts` validates that the project ID, auth
+domain, storage bucket, messaging sender, and app ID form one coherent
+configuration. `next.config.ts` maps Vercel's environment identity to the
+required Firebase target:
+
+- Vercel Production requires `prod` / `project99live`.
+- Vercel Preview and Development require `dev` / `project99-dev`.
+- A mismatch or missing value fails the deployment before Next.js builds.
+- Non-Vercel quality CI may remain unconfigured so it can verify the app's
+  existing configuration-error state.
+
+After changing any `NEXT_PUBLIC_*` value in Vercel, create a new deployment
+without reusing the previous build cache; those values are compiled into the
+client bundle.
+
 There is deliberately **no `default` alias**. A bare `firebase deploy` fails with
 "no project active" instead of silently targeting whichever project was last
 used, so every deployment names its target.
