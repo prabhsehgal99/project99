@@ -101,7 +101,6 @@ All prior feature and fix branches were reviewed and squash-merged to `main` as 
   checks.
 - Configure Sentry in production and confirm a controlled test event is
   delivered.
-- Delete stale, already-merged remote branches (review and merge is complete).
 
 ## Why this comes first
 

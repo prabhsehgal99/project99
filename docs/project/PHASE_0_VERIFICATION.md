@@ -31,6 +31,8 @@ standalone PWA.
   - `/apple-touch-icon.png`
 - The production manifest declares standalone display mode and any/maskable icon
   assets.
+- The stale merged remote branch `chore/11-phase-0-5-setup-hardening` was
+  deleted from GitHub.
 
 ## Runtime QA still required
 

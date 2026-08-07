@@ -179,6 +179,8 @@ work.
 - `next.config.ts` now sets an explicit Turbopack root so builds do not infer a
   parent workspace root when multiple lockfiles exist on the development
   machine.
+- The stale merged remote branch `chore/11-phase-0-5-setup-hardening` was
+  deleted from GitHub.
 
 ## Operational follow-up
 
@@ -210,8 +212,5 @@ work.
 
 1. Run the remaining owner runtime QA checklist in
    `docs/project/PHASE_0_VERIFICATION.md` and then mark Phase 0 formally closed.
-2. Delete the last stale remote branch, `chore/11-phase-0-5-setup-hardening`
-   (fully merged as PR #18; deletion from a remote session was blocked by
-   branch-scoped push credentials, so delete it from GitHub or a laptop).
-3. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
+2. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
    hardening).
