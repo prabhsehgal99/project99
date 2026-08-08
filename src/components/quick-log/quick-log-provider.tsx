@@ -269,34 +269,22 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
               </details>
               <PrimarySave
                 saving={saving}
-                label="Save water"
-                onClick={() =>
-                  void runMutation(
-                    { type: "setWater", waterMl: waterLitres === "" ? 0 : Math.round(waterLitres * 1000) },
-                    "Water saved."
-                  )
-                }
-              />
-              <button
-                className="min-h-11 rounded-md border border-line px-4 text-sm font-medium text-ink"
-                type="button"
-                disabled={saving}
+                label="Log"
                 onClick={() =>
                   void runMutation(
                     {
                       type: "setNutrition",
+                      waterMl: waterLitres === "" ? 0 : Math.round(waterLitres * 1000),
                       caloriesConsumed: caloriesConsumed === "" ? 0 : caloriesConsumed,
                       proteinConsumed: proteinConsumed === "" ? 0 : proteinConsumed,
                       carbohydratesConsumed: carbohydratesConsumed === "" ? 0 : carbohydratesConsumed,
                       fatConsumed: fatConsumed === "" ? 0 : fatConsumed,
                       fibreConsumed: fibreConsumed === "" ? 0 : fibreConsumed
                     },
-                    "Nutrition totals saved."
+                    "Nutrition saved."
                   )
                 }
-              >
-                Save food totals
-              </button>
+              />
             </FocusedEditor>
           ) : null}
 

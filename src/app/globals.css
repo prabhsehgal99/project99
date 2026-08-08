@@ -3,24 +3,35 @@
 @plugin "@tailwindcss/forms";
 
 @theme {
-  --color-night: #080d0c;
-  --color-panel: #101816;
-  --color-raised: #17211e;
-  --color-ink: #f3f3ec;
-  --color-muted: #98a39e;
-  --color-line: #26322e;
-  --color-mint: #a9dcc4;
-  --color-violet: #c0b9e8;
-  --color-warm: #d9cda9;
-  --color-control: #1a2421;
-  --color-primary: #f3f3ec;
-  --color-primary-ink: #080d0c;
+  --color-night: var(--surface-canvas);
+  --color-panel: var(--surface-panel);
+  --color-raised: var(--surface-raised);
+  --color-ink: var(--content-primary);
+  --color-muted: var(--content-secondary);
+  --color-line: var(--border-subtle);
+  --color-control: var(--surface-control);
+  --color-primary: var(--action-fill);
+  --color-primary-ink: var(--action-ink);
+  /* Temporary compatibility aliases: all resolve to monochrome until themes ship. */
+  --color-mint: var(--content-primary);
+  --color-violet: var(--content-secondary);
+  --color-warm: var(--content-secondary);
   --shadow-glow: 0 18px 60px rgba(0, 0, 0, 0.34);
 }
 
 :root {
   color-scheme: dark;
-  background: #080d0c;
+  --surface-canvas: #090a0a;
+  --surface-panel: #111312;
+  --surface-raised: #191c1a;
+  --surface-control: #1d211f;
+  --content-primary: #f2f3ef;
+  --content-secondary: #a9ada8;
+  --border-subtle: #2c322f;
+  --action-fill: #f2f3ef;
+  --action-ink: #090a0a;
+  --focus-outline: #f2f3ef;
+  background: var(--surface-canvas);
 }
 
 * {
@@ -29,14 +40,14 @@
 
 html {
   min-height: 100%;
-  background: #080d0c;
+  background: var(--surface-canvas);
 }
 
 body {
   min-height: 100%;
   margin: 0;
-  background: #080d0c;
-  color: #f3f3ec;
+  background: var(--surface-canvas);
+  color: var(--content-primary);
   font-family: var(--font-sora), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-weight: 400;
   letter-spacing: -0.012em;
@@ -75,9 +86,15 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #a9dcc4;
+  outline: 2px solid var(--focus-outline);
   outline-offset: 2px;
 }
+
+/* Existing component utilities remain intentionally monochrome until a future theme opt-in. */
+[class*="text-mint"], [class*="text-violet"], [class*="text-warm"], [class*="text-emerald"], [class*="text-purple"] { color: var(--content-primary) !important; }
+[class*="bg-mint"], [class*="bg-violet"], [class*="bg-warm"], [class*="bg-emerald"], [class*="bg-purple"] { background-color: var(--surface-raised) !important; }
+[class*="border-mint"], [class*="border-violet"], [class*="border-warm"], [class*="border-emerald"], [class*="border-purple"] { border-color: var(--border-subtle) !important; }
+[class*="ring-mint"], [class*="ring-emerald"] { --tw-ring-color: var(--focus-outline) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   *,

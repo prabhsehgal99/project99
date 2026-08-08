@@ -42,17 +42,16 @@ function TodayContent() {
       </header>
 
       {!focusDismissed ? (
-        <section className="relative overflow-hidden rounded-3xl border border-line bg-[linear-gradient(145deg,#17231f,#101815)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] sm:p-6" aria-labelledby="up-next-title">
-          <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-mint/10 blur-2xl" aria-hidden="true" />
-          <div className="relative flex items-start justify-between gap-3">
-            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-mint">Up next</p>
-            <button className="-mr-2 -mt-2 inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-night/40 hover:text-ink" type="button" onClick={dismissFocus} aria-label="Dismiss Up next for this session">
+        <section className="border-b border-line pb-6" aria-labelledby="up-next-title">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted">Up next</p>
+            <button className="-mr-2 -mt-2 inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-raised hover:text-ink" type="button" onClick={dismissFocus} aria-label="Dismiss Up next for this session">
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
-          <h2 id="up-next-title" className="relative mt-3 max-w-xl text-2xl font-medium tracking-[-0.035em] text-ink sm:text-3xl">{focus.title}</h2>
-          <p className="relative mt-2 max-w-xl text-sm leading-6 text-muted">{todayExists || summary.hasMeaningfulEntry ? "Keep capture short and accurate. Your full day stays available when you need it." : "No log has been saved for today yet."}</p>
-          <div className="relative mt-5">
+          <h2 id="up-next-title" className="mt-3 max-w-xl text-2xl font-medium tracking-[-0.035em] text-ink sm:text-3xl">{focus.title}</h2>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{todayExists || summary.hasMeaningfulEntry ? "Keep capture short and accurate. Your full day stays available when you need it." : "No log has been saved for today yet."}</p>
+          <div className="mt-5">
             {"href" in focus ? (
               <Link className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-medium text-primary-ink transition hover:bg-ink/90" href={focus.href}>
                 {focus.type.includes("workout") ? <Dumbbell className="h-5 w-5" aria-hidden="true" /> : null}
@@ -80,9 +79,9 @@ function TodayContent() {
           {loading ? <span className="inline-flex items-center gap-2 text-xs text-muted"><Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />Syncing</span> : <span className="text-xs text-muted">Tap Log to add anything</span>}
         </div>
         <div className="border-y border-line">
-          <MetricRow label="Calories" value={`${todayLog.caloriesConsumed.toLocaleString()} / ${settings.calorieGoal.toLocaleString()}`} percent={summary.caloriePercent} tone="emerald" />
-          <MetricRow label="Protein" value={`${todayLog.proteinConsumed} / ${settings.proteinGoal} g`} percent={summary.proteinPercent} tone="purple" />
-          <MetricRow label="Water" value={`${summary.waterLitres.toFixed(2)} / ${summary.waterGoalLitres.toFixed(1)} L`} percent={summary.waterPercent} tone="warm" />
+          <MetricRow label="Calories" value={`${todayLog.caloriesConsumed.toLocaleString()} / ${settings.calorieGoal.toLocaleString()}`} percent={summary.caloriePercent} />
+          <MetricRow label="Protein" value={`${todayLog.proteinConsumed} / ${settings.proteinGoal} g`} percent={summary.proteinPercent} />
+          <MetricRow label="Water" value={`${summary.waterLitres.toFixed(2)} / ${summary.waterGoalLitres.toFixed(1)} L`} percent={summary.waterPercent} />
         </div>
       </section>
 
@@ -111,8 +110,8 @@ function TodayContent() {
   );
 }
 
-function MetricRow({ label, value, percent, tone }: { label: string; value: string; percent: number; tone: "emerald" | "purple" | "warm" }) {
-  return <div className="grid min-h-14 grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line last:border-b-0 sm:grid-cols-[92px_minmax(0,1fr)_auto]"><span className="text-sm text-ink">{label}</span><ProgressBar value={percent} tone={tone} /><span className="whitespace-nowrap text-xs tabular-nums text-muted">{value}</span></div>;
+function MetricRow({ label, value, percent }: { label: string; value: string; percent: number }) {
+  return <div className="grid min-h-14 grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line last:border-b-0 sm:grid-cols-[92px_minmax(0,1fr)_auto]"><span className="text-sm text-ink">{label}</span><ProgressBar value={percent} /><span className="whitespace-nowrap text-xs tabular-nums text-muted">{value}</span></div>;
 }
 
 function loggedMoments(log: ReturnType<typeof useTodayData>["todayLog"]) {

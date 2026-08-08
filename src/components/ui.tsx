@@ -46,13 +46,12 @@ export function Panel({ title, children, action }: { title: string; children: Re
   );
 }
 
-export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "purple" | "warm" }) {
+export function ProgressBar({ value }: { value: number }) {
   const width = Math.max(0, Math.min(100, value));
-  const color = tone === "emerald" ? "bg-mint" : tone === "purple" ? "bg-violet" : "bg-warm";
 
   return (
     <div className="h-1.5 overflow-hidden rounded-full bg-raised" aria-hidden="true">
-      <div className={`h-full rounded-full ${color}`} style={{ width: `${width}%` }} />
+      <div className="h-full rounded-full bg-ink" style={{ width: `${width}%` }} />
     </div>
   );
 }
@@ -144,7 +143,7 @@ export function NumberInput({
   return (
     <label className="block">
       <span className="text-sm font-medium text-muted">{label}</span>
-      <div className="mt-2 flex items-center rounded-md border border-line bg-raised focus-within:border-mint">
+      <div className="mt-2 flex items-center rounded-md border border-line bg-raised focus-within:border-ink">
         <button
           className="flex h-11 w-11 shrink-0 items-center justify-center border-r border-line text-muted transition hover:bg-panel hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
           type="button"

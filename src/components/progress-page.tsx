@@ -104,15 +104,15 @@ function ProgressContent({ user }: { user: User }) {
         {chartData.some((point) => point.weight !== null) ? (
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 10, right: 8, bottom: 0, left: -24 }}>
-                <CartesianGrid stroke="#26322e" vertical={false} />
-                <XAxis dataKey="label" stroke="#98a39e" tickLine={false} axisLine={false} />
-                <YAxis stroke="#98a39e" tickLine={false} axisLine={false} domain={["dataMin - 1", "dataMax + 1"]} />
+              <LineChart data={chartData} margin={{ top: 10, right: 8, bottom: 0, left: 8 }}>
+                <CartesianGrid stroke="#2c322f" vertical={false} />
+                <XAxis dataKey="label" stroke="#a9ada8" tickLine={false} axisLine={false} />
+                <YAxis width={56} tickMargin={10} stroke="#a9ada8" tickLine={false} axisLine={false} domain={["dataMin - 1", "dataMax + 1"]} />
                 <Tooltip
-                  contentStyle={{ background: "#101816", border: "1px solid #26322e", borderRadius: 8, color: "#f3f3ec" }}
+                  contentStyle={{ background: "#111312", border: "1px solid #2c322f", borderRadius: 8, color: "#f2f3ef" }}
                   formatter={(value) => [`${Number(value).toFixed(1)} kg`, "Weight"]}
                 />
-                <Line type="monotone" dataKey="weight" stroke="#a9dcc4" strokeWidth={3} dot={{ r: 4, fill: "#d9cda9" }} connectNulls />
+                <Line type="monotone" dataKey="weight" stroke="#f2f3ef" strokeWidth={3} dot={{ r: 4, fill: "#f2f3ef" }} connectNulls />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -135,7 +135,7 @@ function ProgressContent({ user }: { user: User }) {
               <span className="text-muted">Current</span>
               <span className="font-medium text-ink">{weight === null ? "Add morning weight" : `${weight.toFixed(1)} kg`}</span>
             </div>
-            <ProgressBar value={goalProgress} tone="emerald" />
+            <ProgressBar value={goalProgress} />
             <p className="mt-3 text-sm text-muted">
               {goalDelta === null ? "Goal progress appears after a weight entry." : `${Math.abs(goalDelta).toFixed(1)} kg ${goalDelta > 0 ? "above" : "from"} ${settings.goalWeightKg.toFixed(1)} kg.`}
             </p>
@@ -166,7 +166,7 @@ function TargetLine({ label, value, percent }: { label: string; value: string; p
         <span className="text-muted">{label}</span>
         <span className="font-medium text-ink">{value}</span>
       </div>
-      <ProgressBar value={percent} tone="emerald" />
+      <ProgressBar value={percent} />
     </div>
   );
 }

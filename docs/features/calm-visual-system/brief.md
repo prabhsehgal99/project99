@@ -23,8 +23,8 @@ action, log a short update, record training, or correct a Daily Log.
   divider-led grouping.
 - Today presents a compact header, one focused Up next surface, three flat
   metrics, and a concise log rhythm.
-- Mint, violet, and warm convey state/progress rather than serving as default
-  button fills.
+- The authenticated product renders in dark grayscale only, with semantic
+  tokens ready for a later light mode and optional accents.
 
 ## In scope
 
@@ -50,9 +50,8 @@ action, log a short update, record training, or correct a Daily Log.
 
 ## UX requirements
 
-- Match the supplied `project99-calm-redesign.html` direction: Sora, deep
-  near-black surfaces, light primary buttons, flat metric rows, and restrained
-  mint/violet/warm signals.
+- Use Sora, deep near-black surfaces, light primary buttons, and flat metric
+  rows. Do not render mint, violet, or warm accents in this release.
 - Preserve 44px touch targets, keyboard focus, dialog behavior, reduced-motion
   behavior, safe-area layout, and all existing loading/error/recovery states.
 - Verify phone widths from 320px and desktop layouts.

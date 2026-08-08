@@ -326,6 +326,18 @@ The environment contract and mapping are covered by unit tests.
   visual hierarchy. Persistent dismissal, user-selectable themes, and landing
   page redesign remain separate work.
 
+### D-021 - Authenticated UI is monochrome until theme support ships
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Supersedes:** D-020’s mint, violet, and warm accent treatment.
+- **Decision:** Authenticated screens use dark grayscale surfaces, content, and
+  controls only. Theme tokens remain semantic so light mode and optional accent
+  themes can be introduced later without a broad component rewrite; neither is
+  exposed or rendered now.
+- **Reason:** Accent colors were still visually noisy and distracted from the
+  daily logging hierarchy.
+
 
 ## Decision entry template
 
