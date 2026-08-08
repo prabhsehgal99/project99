@@ -183,7 +183,7 @@ foundation issues were implemented in PR #28, merged to `main`, and closed.
   sign-in/session restoration/icon rendering, Sentry delivery, and a production
   Firestore write smoke test.
 
-## Architecture Observatory (issue #35, in review)
+## Architecture Observatory (issue #35, draft PR #36)
 
 - Branch `feature/35-architecture-observatory` adds an internal unlinked
   `/architecture` route that visualizes Project99 as an evidence-backed building

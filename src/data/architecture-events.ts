@@ -49,6 +49,11 @@ const envIdentityPr = githubPr(24, "Enforce Firebase dev and production environm
 const rulesTestsPr = githubPr(27, "Add emulator-backed Firestore rules tests", "81bb7ab34cf28428aa13c2fd5a82c922006cd6dc");
 const foundationClosurePr = githubPr(28, "Close pending foundation issues", "07d30a539dc7706b9e37af4288aed2cacf8fbb39");
 const phaseZeroPr = githubPr(33, "Record Phase 0 verification pass", "0aed964c4ba2f1f3c91f7f54571cb0cae6623f91");
+const observatoryPr: ArchitectureReference = {
+  label: "PR #36: Build Project99 Architecture Observatory",
+  pullRequest: 36,
+  url: "https://github.com/prabhsehgal99/project99/pull/36"
+};
 
 export const architectureEvents: ArchitectureEvent[] = [
   {
@@ -762,7 +767,7 @@ export const architectureEvents: ArchitectureEvent[] = [
       "Project99 gained an internal architecture-history route, a strict event ledger, deterministic generation scripts, freshness checking, and update documentation.",
     changeType: "added",
     milestone: "Internal engineering tooling",
-    sourceRefs: [githubIssue(35, "Build Project99 Architecture Observatory"), decision("D-018 - Architecture history uses a versioned event ledger")],
+    sourceRefs: [githubIssue(35, "Build Project99 Architecture Observatory"), observatoryPr, decision("D-018 - Architecture history uses a versioned event ledger")],
     changes: [
       {
         operation: "added",
@@ -787,13 +792,13 @@ export const architectureEvents: ArchitectureEvent[] = [
           dependencies: ["project-bedrock", "quality-gate-system", "application-foundation"],
           introduced: "2026-08-08",
           lastChanged: "2026-08-08",
-          sourceRefs: [githubIssue(35, "Build Project99 Architecture Observatory"), decision("D-018 - Architecture history uses a versioned event ledger")],
+          sourceRefs: [githubIssue(35, "Build Project99 Architecture Observatory"), observatoryPr, decision("D-018 - Architecture history uses a versioned event ledger")],
           verification: [
             { label: "Architecture schema tests", status: "passed", path: "src/lib/architecture-observatory.test.ts" },
             { label: "Freshness check", status: "passed", detail: "npm run architecture:check validates generated data and watched-path updates." },
             { label: "Static internal route", status: "present", path: "src/app/architecture/page.tsx" }
           ],
-          limitations: ["The first PR reference is unknown until the draft pull request is opened."],
+          limitations: ["The final merge commit is unavailable until this branch is merged."],
           position: { x: 435, y: 20, width: 250, height: 58 }
         })
       },
@@ -813,7 +818,7 @@ export const architectureEvents: ArchitectureEvent[] = [
           dependencies: ["project-bedrock", "application-foundation", "firestore-data-boundary", "architecture-observatory"],
           introduced: "2026-08-01",
           lastChanged: "2026-08-08",
-          sourceRefs: [hardeningPr, rulesTestsPr, phaseZeroPr, githubIssue(35, "Build Project99 Architecture Observatory"), decision("D-018 - Architecture history uses a versioned event ledger")],
+          sourceRefs: [hardeningPr, rulesTestsPr, phaseZeroPr, githubIssue(35, "Build Project99 Architecture Observatory"), observatoryPr, decision("D-018 - Architecture history uses a versioned event ledger")],
           verification: [
             { label: "npm run architecture:generate", status: "passed", detail: "Generated the deterministic observatory data artifact." },
             { label: "npm run architecture:check", status: "passed", detail: "Validated generated freshness and watched-path coverage." }
@@ -822,6 +827,6 @@ export const architectureEvents: ArchitectureEvent[] = [
         })
       }
     ],
-    knownLimitations: ["The pull-request number and final commit are unavailable until this branch is pushed and the draft PR is opened."]
+    knownLimitations: ["The final merge commit is unavailable until this branch is merged."]
   }
 ];

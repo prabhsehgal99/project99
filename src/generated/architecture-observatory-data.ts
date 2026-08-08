@@ -1842,7 +1842,7 @@ export const architectureObservatoryEvents =
           "introduced": "2026-08-08",
           "lastChanged": "2026-08-08",
           "limitations": [
-            "The first PR reference is unknown until the draft pull request is opened."
+            "The final merge commit is unavailable until this branch is merged."
           ],
           "name": "Architecture Observatory",
           "paths": [
@@ -1865,6 +1865,11 @@ export const architectureObservatoryEvents =
               "issue": 35,
               "label": "Issue #35: Build Project99 Architecture Observatory",
               "url": "https://github.com/prabhsehgal99/project99/issues/35"
+            },
+            {
+              "label": "PR #36: Build Project99 Architecture Observatory",
+              "pullRequest": 36,
+              "url": "https://github.com/prabhsehgal99/project99/pull/36"
             },
             {
               "label": "D-018 - Architecture history uses a versioned event ledger",
@@ -1949,6 +1954,11 @@ export const architectureObservatoryEvents =
               "url": "https://github.com/prabhsehgal99/project99/issues/35"
             },
             {
+              "label": "PR #36: Build Project99 Architecture Observatory",
+              "pullRequest": 36,
+              "url": "https://github.com/prabhsehgal99/project99/pull/36"
+            },
+            {
               "label": "D-018 - Architecture history uses a versioned event ledger",
               "url": "docs/project/DECISIONS.md"
             }
@@ -1975,7 +1985,7 @@ export const architectureObservatoryEvents =
     "date": "2026-08-08",
     "id": "2026-08-08-architecture-observatory",
     "knownLimitations": [
-      "The pull-request number and final commit are unavailable until this branch is pushed and the draft PR is opened."
+      "The final merge commit is unavailable until this branch is merged."
     ],
     "milestone": "Internal engineering tooling",
     "sourceRefs": [
@@ -1983,6 +1993,11 @@ export const architectureObservatoryEvents =
         "issue": 35,
         "label": "Issue #35: Build Project99 Architecture Observatory",
         "url": "https://github.com/prabhsehgal99/project99/issues/35"
+      },
+      {
+        "label": "PR #36: Build Project99 Architecture Observatory",
+        "pullRequest": 36,
+        "url": "https://github.com/prabhsehgal99/project99/pull/36"
       },
       {
         "label": "D-018 - Architecture history uses a versioned event ledger",
