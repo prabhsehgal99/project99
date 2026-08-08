@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FIREBASE_ENV_KEYS,
+  firebaseClientAuthDomain,
   firebaseConfigError,
   missingFirebaseEnvKeys,
   vercelFirebaseConfigError,
@@ -131,6 +132,48 @@ describe("firebaseConfigError", () => {
         NEXT_PUBLIC_FIREBASE_APP_ID: "1:1013590080881:web:test"
       })
     ).toContain("app ID does not match");
+  });
+});
+
+describe("firebaseClientAuthDomain", () => {
+  it("uses the configured Firebase auth domain outside production", () => {
+    expect(
+      firebaseClientAuthDomain(completeDev, {
+        host: "localhost:3000",
+        hostname: "localhost",
+        protocol: "http:"
+      })
+    ).toBe("project99-dev.firebaseapp.com");
+  });
+
+  it("uses the production app host for first-party redirect auth", () => {
+    expect(
+      firebaseClientAuthDomain(completeProd, {
+        host: "project99-ten.vercel.app",
+        hostname: "project99-ten.vercel.app",
+        protocol: "https:"
+      })
+    ).toBe("project99-ten.vercel.app");
+  });
+
+  it("keeps Firebase-hosted production apps on their configured auth domain", () => {
+    expect(
+      firebaseClientAuthDomain(completeProd, {
+        host: "project99live.firebaseapp.com",
+        hostname: "project99live.firebaseapp.com",
+        protocol: "https:"
+      })
+    ).toBe("project99live.firebaseapp.com");
+  });
+
+  it("does not replace the auth domain on insecure or local production hosts", () => {
+    expect(
+      firebaseClientAuthDomain(completeProd, {
+        host: "localhost:3000",
+        hostname: "localhost",
+        protocol: "http:"
+      })
+    ).toBe("project99live.firebaseapp.com");
   });
 });
 

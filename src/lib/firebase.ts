@@ -10,7 +10,11 @@ import {
   type Auth
 } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
-import { firebaseConfigError, type FirebaseEnv } from "./firebase-config";
+import {
+  firebaseClientAuthDomain,
+  firebaseConfigError,
+  type FirebaseEnv
+} from "./firebase-config";
 
 // Static `process.env.NEXT_PUBLIC_*` reads only. Next.js inlines these into the
 // client bundle at build time; a dynamic lookup would be undefined in browsers.
@@ -26,7 +30,10 @@ const firebaseEnv: FirebaseEnv = {
 
 const firebaseConfig = {
   apiKey: firebaseEnv.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: firebaseEnv.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  authDomain: firebaseClientAuthDomain(
+    firebaseEnv,
+    typeof window === "undefined" ? undefined : window.location
+  ),
   projectId: firebaseEnv.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: firebaseEnv.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: firebaseEnv.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,

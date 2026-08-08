@@ -24,6 +24,11 @@ export const FIREBASE_ENV_KEYS = [
 export type AppEnvironment = "dev" | "prod";
 export type FirebaseEnvKey = (typeof FIREBASE_ENV_KEYS)[number];
 export type FirebaseEnv = Partial<Record<FirebaseEnvKey, string>>;
+export type BrowserLocationLike = {
+  host: string;
+  hostname: string;
+  protocol: string;
+};
 
 const FIREBASE_PROJECTS: Record<AppEnvironment, string> = {
   dev: "project99-dev",
@@ -32,6 +37,34 @@ const FIREBASE_PROJECTS: Record<AppEnvironment, string> = {
 
 function value(env: FirebaseEnv, key: FirebaseEnvKey): string {
   return env[key]?.trim() ?? "";
+}
+
+export function firebaseClientAuthDomain(
+  env: FirebaseEnv,
+  location?: BrowserLocationLike
+): string {
+  const configuredAuthDomain = value(env, "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+
+  if (!location || value(env, "NEXT_PUBLIC_APP_ENV") !== "prod") {
+    return configuredAuthDomain;
+  }
+
+  const host = location.host.trim();
+  const hostname = location.hostname.trim();
+
+  if (
+    location.protocol !== "https:"
+    || host === ""
+    || hostname === ""
+    || hostname === configuredAuthDomain
+    || hostname.endsWith(".firebaseapp.com")
+    || hostname === "localhost"
+    || hostname.endsWith(".localhost")
+  ) {
+    return configuredAuthDomain;
+  }
+
+  return host;
 }
 
 /** Names of the required variables that are absent or blank. */
