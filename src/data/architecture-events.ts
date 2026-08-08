@@ -891,5 +891,111 @@ export const architectureEvents: ArchitectureEvent[] = [
       }
     ],
     knownLimitations: ["The final merge commit is unavailable until this branch is merged."]
+  },
+  {
+    id: "2026-08-08-calm-daily-experience",
+    date: "2026-08-08",
+    title: "Calm daily experience model",
+    summary:
+      "The authenticated product shifted from a dashboard-plus-form structure to a focused Today surface, global Quick Log action, Progress destination, More destination, and transaction-safe Daily Log mutations.",
+    changeType: "modified",
+    milestone: "Phase 1A daily operating system",
+    sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model")],
+    changes: [
+      {
+        operation: "modified",
+        elementId: "dashboard-wing",
+        summary: "Dashboard became the Today experience with a single data-driven Up next action.",
+        element: element({
+          id: "dashboard-wing",
+          name: "Today wing",
+          category: "product",
+          filter: "interface",
+          status: "implemented",
+          feature: "Today",
+          responsibility: "Shows local date context, one adaptive focus action, compact daily progress, and truthful logged signals without exposing the complete Daily Log form.",
+          paths: ["src/app/dashboard/page.tsx", "src/components/dashboard-page.tsx", "src/lib/today.ts"],
+          dependencies: ["application-foundation", "daily-log-core", "settings-utilities", "workout-wing", "today-data-boundary", "quick-log-sheet"],
+          introduced: "2026-07-31",
+          lastChanged: "2026-08-08",
+          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model")],
+          verification: [
+            { label: "Today focus tests", status: "passed", path: "src/lib/today.test.ts" },
+            { label: "Production build", status: "passed", detail: "npm run build passed during issue #37 implementation." }
+          ],
+          position: { x: 160, y: 250, width: 180, height: 78 }
+        })
+      },
+      {
+        operation: "added",
+        elementId: "today-data-boundary",
+        summary: "Added a narrow shared client boundary for today's log, settings, and active workout.",
+        element: element({
+          id: "today-data-boundary",
+          name: "Today data boundary",
+          category: "frame",
+          filter: "product",
+          status: "implemented",
+          feature: "Today and Quick Log shared reads",
+          responsibility: "Shares today's Daily Log, settings, loading/error state, and active workout between Today and Quick Log without moving route-specific history into global state.",
+          paths: ["src/components/today-data-provider.tsx", "src/components/authenticated-shell.tsx"],
+          dependencies: ["firebase-auth-boundary", "firestore-data-boundary", "daily-log-core", "workout-wing"],
+          introduced: "2026-08-08",
+          lastChanged: "2026-08-08",
+          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign")],
+          verification: [{ label: "Strict TypeScript", status: "passed", detail: "npm run typecheck passed during issue #37 implementation." }],
+          position: { x: 380, y: 235, width: 230, height: 60 }
+        })
+      },
+      {
+        operation: "added",
+        elementId: "quick-log-sheet",
+        summary: "Added the global Quick Log action backed by validated Daily Log transactions.",
+        element: element({
+          id: "quick-log-sheet",
+          name: "Quick Log sheet",
+          category: "product",
+          filter: "interface",
+          status: "implemented",
+          feature: "Quick Log",
+          responsibility: "Lets authenticated users record frequent Daily Log fields through focused dialog editors and transaction-safe writes that preserve unrelated fields.",
+          paths: ["src/components/quick-log/quick-log-provider.tsx", "src/lib/daily-log.ts", "src/lib/firestore.ts", "src/lib/daily-log.test.ts"],
+          dependencies: ["today-data-boundary", "daily-log-core", "firestore-data-boundary", "navigation-guard"],
+          introduced: "2026-08-08",
+          lastChanged: "2026-08-08",
+          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model")],
+          verification: [
+            { label: "Daily Log mutation tests", status: "passed", path: "src/lib/daily-log.test.ts" },
+            { label: "Firestore rules suite", status: "passed", path: "tests/firestore.rules.test.ts" }
+          ],
+          position: { x: 635, y: 235, width: 220, height: 60 }
+        })
+      },
+      {
+        operation: "modified",
+        elementId: "firestore-data-boundary",
+        summary: "Daily Log writes gained a focused transaction mutation path for Quick Log.",
+        element: element({
+          id: "firestore-data-boundary",
+          name: "Firestore data boundary",
+          category: "frame",
+          filter: "data-security",
+          status: "implemented",
+          feature: "User-owned persistence",
+          responsibility: "Centralizes client reads, subscriptions, writes, transactions, normalization, and error reporting for user-owned Firestore documents.",
+          paths: ["src/lib/firestore.ts", "src/lib/daily-log.ts", "src/lib/types.ts", "firestore.rules"],
+          dependencies: ["firebase-auth-boundary"],
+          introduced: "2026-07-31",
+          lastChanged: "2026-08-08",
+          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model")],
+          verification: [
+            { label: "Owner-only rules", status: "passed", path: "firestore.rules" },
+            { label: "Rules emulator tests", status: "passed", path: "tests/firestore.rules.test.ts" }
+          ],
+          position: { x: 680, y: 400, width: 245, height: 78 }
+        })
+      }
+    ],
+    knownLimitations: ["Agent workspace screenshots were limited to unauthenticated/configuration states because local Firebase environment values were not present."]
   }
 ];

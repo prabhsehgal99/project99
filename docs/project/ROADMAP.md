@@ -35,8 +35,8 @@ The Daily Log is the dated source of truth connecting these systems. Workout ses
 | Stage | Product outcome | Main capabilities |
 |---|---|---|
 | Complete: Foundation verification | The existing authenticated flow works reliably with real Firebase data | Auth QA, Daily Log QA, security tests, deployment verification |
-| Now: Phase 1A Daily operating system | The user can manage a complete day from one coherent experience | Daily Log, dashboard, goals, navigation, PWA polish |
-| Phase 1B: Workout engine | The app becomes excellent for recording real gym sessions | Exercises, templates, sets, RPE, history, PRs, timers |
+| Now: Phase 1A Daily operating system | The user can manage a complete day from one coherent experience | Today, Quick Log, Daily Log, Progress, More, goals, navigation, PWA polish |
+| Phase 1B: Workout engine | The app becomes excellent for recording real gym sessions | Active exercise entry, sets, RPE, history, templates, PRs, timers |
 | Phase 1C: Nutrition system | Food intake can be logged without another tracking app | Food database, meals, servings, favourites, daily totals |
 | Phase 1D: Measurements and progress | Physical progress becomes visible beyond scale weight | Measurements, photos, comparisons, trend views |
 | Phase 1E: Recovery and cardio | Training readiness and non-lifting activity are represented | Sleep, mood, soreness, energy, steps, cardio sessions |
@@ -114,6 +114,9 @@ Make Project99 useful every day before it becomes feature-heavy.
 - Protection against silently discarding unsaved changes
 - Remote-update conflict handling
 - Fast partial entry—the user should not need to complete every field
+- Global Quick Log for frequent focused updates
+- Two-tap common logging where possible, starting with water increments
+- Detailed Daily Log editing through progressive disclosure
 - Reliable local-date and timezone behavior
 - Daily journal notes
 - Clear completion status for each section
@@ -121,7 +124,8 @@ Make Project99 useful every day before it becomes feature-heavy.
 
 ### Goals and preferences
 
-Move temporary dashboard settings into a proper settings area:
+Move temporary dashboard settings into More as a proper goals and preferences
+area:
 
 - Weight goal
 - Calorie target
@@ -135,19 +139,37 @@ Move temporary dashboard settings into a proper settings area:
 
 Goals should support effective dates eventually, so historical progress is not recalculated against a newly changed target.
 
-### Dashboard
+### Today
 
-The dashboard should remain a summary, not another editor:
+Today is the authenticated default experience while `/dashboard` remains the
+route-compatible URL. It should answer what matters now, not become another
+editor:
 
+- One adaptive primary action based only on real current data
 - Calories and protein remaining
 - Water progress
-- Current weight and short-term trend
+- Compact calorie, protein, and water progress
 - Today’s workout and cardio state
 - Sleep and recovery summary
+- Concise logged signals
 - Habit/streak status
 - Missing-log prompts
-- One clear primary action based on the moment
 - Quick navigation into the relevant system
+
+Today should not display future-roadmap data such as meal events, unsupported
+vitals, readiness scores, wearable sync, or recommendations. New health domains
+should enter as concise Today signals, focused capture actions, and appropriate
+detail or history surfaces rather than additional permanent dashboard panels or
+a longer universal form.
+
+### Progress
+
+Progress is the home for trends and goal progress:
+
+- Weekly weight trend
+- Goal progress
+- Useful empty states that explain which logging action creates a trend
+- Later domain-specific trends only after their data models exist
 
 ### History
 
@@ -156,6 +178,29 @@ The dashboard should remain a summary, not another editor:
 - Search/filter by date range
 - Open any past log
 - Avoid implying that an unlogged day was a failed day
+
+### More
+
+More is the home for administrative and lower-frequency actions:
+
+- Goals and preferences
+- Daily Log history and detailed editor entry points
+- Account identity
+- Sign out
+
+Persistent account identity, email, avatar, and sign-out controls should not
+appear in authenticated phone or desktop chrome.
+
+### Delivery note
+
+The calm daily experience redesign is being handled as one coordinated
+implementation effort with one umbrella issue, one owned branch, and one draft
+pull request. The original three slices remain internal implementation
+milestones, not separate product phases or pull requests:
+
+1. Shell, Today, and Quick Log foundation
+2. Complete daily experience, Progress, and More
+3. Workout experience refinement
 
 ### PWA and application quality
 
@@ -231,9 +276,16 @@ Separate reusable definitions from completed activity:
 - RPE
 - Set notes and workout notes
 - Rest timer
-- Previous session values beside the current entry
+- Active exercise and set entry are dominant
+- Workout details live behind Options
+- Previous session values stay close to the current set entry
+- Save and synchronization status are secondary
+- Finish workout remains the primary completion action
 - Phone-friendly rapid set entry
 - Protection against losing an active session
+
+The existing workout-session model, calculations, validation, resume/save/finish
+behavior, and Daily Log linkage remain unchanged by the experience refinement.
 
 ### Training intelligence
 
@@ -415,11 +467,10 @@ Unify the individual trackers into one polished daily product.
 Recommended primary structure:
 
 - Today
-- Log
-- Workouts
-- Nutrition
+- Train
+- Log (global action)
 - Progress
-- More/Settings
+- More
 
 Navigation should adapt to mobile bottom navigation and desktop sidebar without presenting inactive placeholder destinations.
 
@@ -756,8 +807,10 @@ The next sequence should be:
 1. Finish real Firebase authentication and Daily Log runtime verification.
 2. Merge and stabilize the current authentication and Daily Log branches. (Done 2026-07-31.)
 3. Add Firestore emulator security tests.
-4. Complete settings, history, PWA, and Daily Log foundation polish.
-5. Build the workout engine as the next major vertical slice.
+4. Complete the calm daily operating-system redesign around Today, Quick Log,
+   Progress, More, and focused Daily Log editing.
+5. Continue workout-engine depth after the current active-workout experience
+   refinement.
 6. Build meal-level nutrition and the internal food database.
 7. Add measurements and progress photos.
 8. Add detailed recovery and cardio sessions.

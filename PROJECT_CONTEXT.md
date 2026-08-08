@@ -1,6 +1,6 @@
 # Project99 - Canonical Project Context
 
-Last updated: 2026-07-31
+Last updated: 2026-08-08
 
 ## Product identity
 
@@ -53,6 +53,8 @@ Defaults:
 
 - Dark mode.
 - Monochrome, emerald, and purple accent themes.
+- Authenticated navigation uses Today, Train, Log, Progress, and More.
+- Log is a global fast-capture action that opens Quick Log, not a route.
 - Persistent bottom navigation on mobile and a sidebar on desktop.
 - Readable, accessible, one-hand-friendly screens and touch targets.
 - Restrained motion used only when it improves comprehension.
@@ -140,19 +142,32 @@ components.
 
 ## Phase 1 core product
 
-### Dashboard
+### Today and Quick Log
 
-The dashboard answers "How am I doing today?" and may show calories remaining,
-protein remaining, today's workout and cardio, weight, water, sleep, streak, and
-daily/goal progress. It should summarize rather than become a second data-entry
-system.
+Today is the visible authenticated daily destination while `/dashboard` remains
+the route-compatible URL. Today answers "What should I do now?" with one
+adaptive primary focus action, compact calorie/protein/water progress, and
+concise logged signals.
+
+Quick Log is the global fast-capture interaction for frequent Daily Log updates.
+The Daily Log remains the canonical dated record and the complete correction
+surface for today and past dates. Progress owns trends and goal progress. More
+owns goals, preferences, Daily Log history, account identity, and sign out.
+Train owns workout sessions.
+
+New health domains should appear as concise Today signals, focused capture
+actions, and appropriate detail or history experiences. They should not create
+additional permanent dashboard panels or lengthen one universal form. The
+interface must not display unsupported meals, event times, vitals, readiness
+scores, recommendations, or automation before supporting data and rules exist.
 
 ### Workout engine
 
 Exercises support warm-up and working sets, weight, repetitions, RPE, previous
 workout, previous best, lifetime personal record, estimated 1RM, training volume,
-rest timer, and notes. Relevant previous values and records carry forward
-automatically.
+rest timer, and notes. Current workout entry should keep the active exercise and
+set entry dominant, with previous values close to the fields they inform.
+Relevant previous values and records carry forward automatically.
 
 ### Nutrition
 
@@ -172,7 +187,8 @@ Track sleep, soreness, energy, mood, steps, and cardio.
 
 ### Phase 1 - Foundation
 
-Authentication, dashboard, workouts, nutrition, measurements, and Daily Logs.
+Authentication, Today/Quick Log, Daily Logs, workouts, nutrition, measurements,
+Progress, and More.
 
 ### Phase 2 - Insights
 

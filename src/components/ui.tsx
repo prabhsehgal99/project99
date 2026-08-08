@@ -13,32 +13,32 @@ type StatCardProps = {
 
 export function StatCard({ title, value, detail, icon: Icon, tone = "neutral" }: StatCardProps) {
   const toneClass = {
-    emerald: "border-emerald-400/25 bg-emerald-400/10 text-emerald-200",
-    purple: "border-purple-400/25 bg-purple-400/10 text-purple-200",
-    neutral: "border-zinc-700 bg-zinc-900/75 text-zinc-200"
+    emerald: "border-mint/30 bg-mint/10 text-mint",
+    purple: "border-violet/30 bg-violet/10 text-violet",
+    neutral: "border-line bg-raised text-ink"
   }[tone];
 
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950/70 p-4 shadow-xs">
+    <section className="rounded-lg border border-line bg-panel p-4 shadow-xs">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">{title}</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-50">{value}</p>
+          <p className="text-xs font-medium text-muted">{title}</p>
+          <p className="mt-2 text-2xl font-semibold text-ink">{value}</p>
         </div>
         <div className={`rounded-md border p-2 ${toneClass}`}>
           <Icon className="h-5 w-5" aria-hidden="true" />
         </div>
       </div>
-      {detail ? <p className="mt-3 text-sm text-zinc-400">{detail}</p> : null}
+      {detail ? <p className="mt-3 text-sm text-muted">{detail}</p> : null}
     </section>
   );
 }
 
 export function Panel({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
   return (
-    <section className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-4 shadow-glow sm:p-5">
+    <section className="rounded-lg border border-line bg-panel p-4 shadow-glow sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-zinc-50">{title}</h2>
+        <h2 className="text-base font-semibold text-ink">{title}</h2>
         {action}
       </div>
       {children}
@@ -48,10 +48,10 @@ export function Panel({ title, children, action }: { title: string; children: Re
 
 export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "purple" }) {
   const width = Math.max(0, Math.min(100, value));
-  const color = tone === "emerald" ? "bg-emerald-400" : "bg-purple-400";
+  const color = tone === "emerald" ? "bg-mint" : "bg-violet";
 
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-zinc-800" aria-hidden="true">
+    <div className="h-2 overflow-hidden rounded-full bg-raised" aria-hidden="true">
       <div className={`h-full rounded-full ${color}`} style={{ width: `${width}%` }} />
     </div>
   );
@@ -143,10 +143,10 @@ export function NumberInput({
 
   return (
     <label className="block">
-      <span className="text-sm font-medium text-zinc-300">{label}</span>
-      <div className="mt-2 flex items-center rounded-md border border-zinc-700 bg-zinc-900/80 focus-within:border-emerald-400">
+      <span className="text-sm font-medium text-muted">{label}</span>
+      <div className="mt-2 flex items-center rounded-md border border-line bg-raised focus-within:border-mint">
         <button
-          className="flex h-11 w-11 shrink-0 items-center justify-center border-r border-zinc-800 text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex h-11 w-11 shrink-0 items-center justify-center border-r border-line text-muted transition hover:bg-panel hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
           type="button"
           onClick={() => stepBy(-1)}
           disabled={typeof min === "number" && value !== "" && value <= min}
@@ -156,7 +156,7 @@ export function NumberInput({
         </button>
         <input
           id={id}
-          className="min-h-11 w-full min-w-0 border-0 bg-transparent px-3 text-center text-base text-zinc-50 outline-hidden placeholder:text-zinc-600 focus:ring-0"
+          className="min-h-11 w-full min-w-0 border-0 bg-transparent px-3 text-center text-base text-ink outline-hidden placeholder:text-muted focus:ring-0"
           type="number"
           inputMode="decimal"
           min={min}
@@ -172,9 +172,9 @@ export function NumberInput({
           onBlur={() => setFocused(false)}
           onChange={(event) => commitDraft(event.target.value)}
         />
-        {suffix ? <span className="ml-2 text-sm text-zinc-500">{suffix}</span> : null}
+        {suffix ? <span className="ml-2 text-sm text-muted">{suffix}</span> : null}
         <button
-          className="ml-3 flex h-11 w-11 shrink-0 items-center justify-center border-l border-zinc-800 text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+          className="ml-3 flex h-11 w-11 shrink-0 items-center justify-center border-l border-line text-muted transition hover:bg-panel hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
           type="button"
           onClick={() => stepBy(1)}
           disabled={typeof max === "number" && value !== "" && value >= max}
