@@ -280,6 +280,33 @@ The environment contract and mapping are covered by unit tests.
   and regenerate the observatory data. Changes with no architectural impact must
   document an exception instead of silently letting the building drift.
 
+### D-019 - Today and Quick Log are the primary daily interaction model
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Context:** The authenticated interface exposes the Daily Log data model as
+  long stacks of equally weighted controls. Common updates therefore feel like
+  completing a checklist, persistent account identity consumes daily-use space,
+  and adding nutrition, measurements, recovery, and vitals to the same pattern
+  would make the product progressively harder to use.
+- **Decision:** Keep the Daily Log as the canonical dated record, but make an
+  adaptive Today summary and a global Quick Log action the primary daily
+  experience. Move detailed dated editing one level deeper, move trends into
+  Progress, and move goals, profile identity, and sign out into More. Quick Log
+  updates must use validated transaction-safe mutations that preserve unrelated
+  Daily Log fields. The interface must not present meal events, per-field times,
+  vitals, readiness scores, or automation before supporting data exists.
+- **Reason:** This structure reduces daily effort without weakening data quality
+  or creating parallel sources of truth. It also gives later health domains a
+  predictable place to appear without turning the default screen into a longer
+  form.
+- **Consequences:** `/dashboard` remains route-compatible but is presented as
+  Today. `/log` and `/log/[date]` remain the comprehensive correction and history
+  experience rather than the common capture path. Persistent authenticated
+  chrome no longer displays the user's identity or sign-out action. New domains
+  should add a concise Today signal, a focused capture action, and an appropriate
+  detail experience instead of another permanent dashboard panel.
+
 
 ## Decision entry template
 

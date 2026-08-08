@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "firebase/auth";
-import { AlertTriangle, Loader2, Save } from "lucide-react";
+import { Activity, AlertTriangle, ChevronRight, Loader2, Moon, NotebookPen, Save, Scale, Utensils } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -16,6 +16,7 @@ import { DailyLogRecoverySection } from "@/components/daily-log/daily-log-recove
 import { Panel } from "@/components/ui";
 import {
   dailyLogDataSignature,
+  formatActivityStatus,
   serializeDailyLog,
   toDailyLogDraft,
   validateDailyLogDraft,
@@ -24,6 +25,8 @@ import {
 import { compareDateKeys, isFutureDateKey, isValidDateKey, shiftDateKey, todayKey } from "@/lib/dates";
 import { saveDailyLog, subscribeToDailyLog, type DailyLogSnapshot } from "@/lib/firestore";
 import type { DailyLog, DailyLogDraft } from "@/lib/types";
+
+type DailyLogSection = "body" | "nutrition" | "activity" | "recovery" | "notes";
 
 export function DailyLogPage({ dateKey }: { dateKey: string }) {
   return <AuthenticatedShell>{(user) => <DailyLogContent user={user} dateKey={dateKey} />}</AuthenticatedShell>;
@@ -46,6 +49,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
   const [conflictLog, setConflictLog] = useState<DailyLog | null>(null);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [cachedWarningDate, setCachedWarningDate] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<DailyLogSection | null>(null);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const dirtyRef = useRef(false);
   const loadedSignatureRef = useRef<string | null>(null);
@@ -387,23 +391,68 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
       ) : null}
 
       <form
-        className="mt-5 grid gap-5 xl:grid-cols-2"
+        className="mt-5 space-y-5"
         onSubmit={async (event) => {
           event.preventDefault();
           await runSave();
         }}
       >
-        <DailyLogMorningSection draft={draft} errors={fieldErrors} onChange={updateDraft} />
-        <DailyLogNutritionSection draft={draft} errors={fieldErrors} onChange={updateDraft} />
-        <DailyLogActivitySection draft={draft} onChange={updateDraft} />
-        <DailyLogRecoverySection draft={draft} errors={fieldErrors} onChange={updateDraft} />
-        <div className="xl:col-span-2">
-          <DailyLogNotesSection draft={draft} errors={fieldErrors} onChange={updateDraft} />
-        </div>
+        {activeSection ? (
+          <div className="rounded-lg border border-line bg-panel p-4 sm:p-5">
+            <button
+              className="mb-4 min-h-11 rounded-md border border-line bg-raised px-4 text-sm font-medium text-ink"
+              type="button"
+              onClick={() => setActiveSection(null)}
+            >
+              Back to categories
+            </button>
+            {activeSection === "body" ? <DailyLogMorningSection draft={draft} errors={fieldErrors} onChange={updateDraft} /> : null}
+            {activeSection === "nutrition" ? <DailyLogNutritionSection draft={draft} errors={fieldErrors} onChange={updateDraft} /> : null}
+            {activeSection === "activity" ? <DailyLogActivitySection draft={draft} onChange={updateDraft} /> : null}
+            {activeSection === "recovery" ? <DailyLogRecoverySection draft={draft} errors={fieldErrors} onChange={updateDraft} /> : null}
+            {activeSection === "notes" ? <DailyLogNotesSection draft={draft} errors={fieldErrors} onChange={updateDraft} /> : null}
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            <CategoryButton
+              icon={<Scale className="h-5 w-5" aria-hidden="true" />}
+              title="Body"
+              detail={`${draft.weightKg === "" ? "Add morning weight" : `${draft.weightKg} kg`} · ${draft.sleepHours === "" ? "Log sleep" : `${draft.sleepHours} h sleep`}`}
+              onClick={() => setActiveSection("body")}
+            />
+            <CategoryButton
+              icon={<Utensils className="h-5 w-5" aria-hidden="true" />}
+              title="Nutrition"
+              detail={`${draft.caloriesConsumed === "" ? 0 : draft.caloriesConsumed} kcal · ${draft.proteinConsumed === "" ? 0 : draft.proteinConsumed} g protein · ${draft.waterLitres === "" ? 0 : draft.waterLitres} L`}
+              onClick={() => setActiveSection("nutrition")}
+            />
+            <CategoryButton
+              icon={<Activity className="h-5 w-5" aria-hidden="true" />}
+              title="Activity"
+              detail={`Workout ${formatActivityStatus(draft.workoutStatus)} · cardio ${formatActivityStatus(draft.cardioStatus)} · ${draft.habitDone ? "habit done" : "habit open"}`}
+              onClick={() => setActiveSection("activity")}
+            />
+            <CategoryButton
+              icon={<Moon className="h-5 w-5" aria-hidden="true" />}
+              title="Recovery"
+              detail={`${draft.energyLevel === null ? "Add energy" : `Energy ${draft.energyLevel}/5`} · ${draft.steps === "" ? "Add steps" : `${draft.steps} steps`}`}
+              onClick={() => setActiveSection("recovery")}
+            />
+            <div className="md:col-span-2">
+              <CategoryButton
+                icon={<NotebookPen className="h-5 w-5" aria-hidden="true" />}
+                title="Notes"
+                detail={draft.journalNotes.trim() ? "Journal note saved" : "Add a journal note"}
+                onClick={() => setActiveSection("notes")}
+              />
+            </div>
+          </div>
+        )}
 
-        <div className="sticky bottom-[72px] z-20 -mx-4 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur-sm md:static md:col-span-2 md:mx-0 md:border-0 md:bg-transparent md:p-0">
+        {dirty || saving ? (
+        <div className="sticky bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-20 -mx-4 border-t border-line bg-night/95 px-4 py-3 backdrop-blur-sm md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
           <button
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-emerald-400 px-5 text-base font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night transition disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
             type="submit"
             disabled={saving || !dirty}
           >
@@ -411,8 +460,38 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
             Save Daily Log
           </button>
         </div>
+        ) : null}
       </form>
     </div>
+  );
+}
+
+function CategoryButton({
+  icon,
+  title,
+  detail,
+  onClick
+}: {
+  icon: React.ReactNode;
+  title: string;
+  detail: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="flex min-h-20 w-full items-center justify-between gap-4 rounded-lg border border-line bg-panel p-4 text-left transition hover:border-mint/50"
+      type="button"
+      onClick={onClick}
+    >
+      <span className="flex min-w-0 items-center gap-3">
+        <span className="text-mint">{icon}</span>
+        <span className="min-w-0">
+          <span className="block text-base font-semibold text-ink">{title}</span>
+          <span className="mt-1 block truncate text-sm text-muted">{detail}</span>
+        </span>
+      </span>
+      <ChevronRight className="h-5 w-5 shrink-0 text-muted" aria-hidden="true" />
+    </button>
   );
 }
 

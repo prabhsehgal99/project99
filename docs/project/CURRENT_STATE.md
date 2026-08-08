@@ -214,6 +214,41 @@ foundation issues were implemented in PR #28, merged to `main`, and closed.
   event ledger and to keep the route out of customer-facing navigation unless
   explicitly approved.
 
+## Calm daily experience redesign (issue #37)
+
+- Branch `feature/37-calm-daily-experience` implements the Phase 1A/1B daily
+  experience redesign in one coordinated pull request.
+- `/dashboard` is now presented as Today, with local date context, a single
+  data-driven Up next action, compact calorie/protein/water progress, and
+  truthful logged signals.
+- The authenticated shell now uses Today, Train, Log, Progress, and More. Log is
+  a global Quick Log action, not a route; persistent user identity and sign out
+  moved to More > Account.
+- A narrow Today data provider shares today's Daily Log, settings, and active
+  workout state between Today and Quick Log without moving route-specific
+  history into global state.
+- Quick Log uses focused native-dialog editors and transaction-safe Daily Log
+  mutations that read the latest document, normalize it, validate the complete
+  result, preserve `createdAt`, and update `updatedAt`.
+- `/progress` now owns the weekly weight trend and goal progress that previously
+  lived on the dashboard. `/more` owns Daily Log history, goals/preferences, and
+  account sign out.
+- `/log/[date]` now uses category summaries and focused editors while preserving
+  the existing draft, validation, save recovery, cached-data warning, conflict,
+  and unsaved-navigation behavior.
+- `/workouts` was visually refocused around active exercise and set entry, with
+  workout name/notes under Options and Finish workout as the primary sticky
+  action; the persisted workout-session model is unchanged.
+- D-019 records the durable Today/Quick Log interaction model. The architecture
+  event ledger and generated observatory data were updated for the new shared
+  data boundary and mutation path.
+- Verification in the `chennai` agent workspace: `npm run lint`,
+  `npm run typecheck`, `npm test`, `npm run test:rules`, `npm run build`, and
+  `npm run architecture:check` pass. Local Playwright screenshots were captured
+  for the unauthenticated/configuration-required render at 320px and desktop.
+  Authenticated runtime verification still requires Firebase dev environment
+  values, which are absent in agent workspaces.
+
 ## Known blockers
 
 - `.env.local` is absent in *agent* workspaces, so authenticated runtime

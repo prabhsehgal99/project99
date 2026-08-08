@@ -18,6 +18,31 @@ export type DailyLogValidation = {
   summary: string[];
 };
 
+export type DailyLogMutation =
+  | { type: "incrementWater"; amountMl: number }
+  | { type: "setWater"; waterMl: number }
+  | { type: "setWeight"; weightKg: number | null }
+  | { type: "setSleep"; sleepHours: number | null }
+  | {
+      type: "setNutrition";
+      caloriesConsumed: number;
+      proteinConsumed: number;
+      carbohydratesConsumed: number;
+      fatConsumed: number;
+      fibreConsumed: number;
+    }
+  | {
+      type: "setRecovery";
+      moodLevel: ScaleLevel | null;
+      energyLevel: ScaleLevel | null;
+      sorenessLevel: ScaleLevel | null;
+    }
+  | { type: "setSteps"; steps: number | null }
+  | { type: "setWorkoutStatus"; workoutStatus: ActivityStatus }
+  | { type: "setCardioStatus"; cardioStatus: ActivityStatus }
+  | { type: "setHabit"; habitDone: boolean }
+  | { type: "setJournal"; journalNotes: string };
+
 export const activityStatuses: ActivityStatus[] = ["planned", "complete", "rest", "missed"];
 export const scaleLevels: ScaleLevel[] = [1, 2, 3, 4, 5];
 
@@ -222,6 +247,63 @@ export function serializeDailyLog(draft: DailyLogDraft): DailyLog {
     steps: draft.steps === "" ? null : Math.round(draft.steps),
     journalNotes: draft.journalNotes.trim()
   };
+}
+
+function validateCompleteDailyLog(log: DailyLog, today: string) {
+  return validateDailyLogDraft(toDailyLogDraft(log), today);
+}
+
+export function applyDailyLogMutation(log: DailyLog, mutation: DailyLogMutation, today: string): DailyLog {
+  const next: DailyLog = { ...log };
+
+  switch (mutation.type) {
+    case "incrementWater":
+      next.waterMl = Math.max(0, Math.min(15_000, Math.round(next.waterMl + mutation.amountMl)));
+      break;
+    case "setWater":
+      next.waterMl = Math.round(mutation.waterMl);
+      break;
+    case "setWeight":
+      next.weightKg = mutation.weightKg;
+      break;
+    case "setSleep":
+      next.sleepHours = mutation.sleepHours;
+      break;
+    case "setNutrition":
+      next.caloriesConsumed = Math.round(mutation.caloriesConsumed);
+      next.proteinConsumed = Math.round(mutation.proteinConsumed);
+      next.carbohydratesConsumed = Math.round(mutation.carbohydratesConsumed);
+      next.fatConsumed = Math.round(mutation.fatConsumed);
+      next.fibreConsumed = Math.round(mutation.fibreConsumed);
+      break;
+    case "setRecovery":
+      next.moodLevel = mutation.moodLevel;
+      next.energyLevel = mutation.energyLevel;
+      next.sorenessLevel = mutation.sorenessLevel;
+      break;
+    case "setSteps":
+      next.steps = mutation.steps === null ? null : Math.round(mutation.steps);
+      break;
+    case "setWorkoutStatus":
+      next.workoutStatus = mutation.workoutStatus;
+      break;
+    case "setCardioStatus":
+      next.cardioStatus = mutation.cardioStatus;
+      break;
+    case "setHabit":
+      next.habitDone = mutation.habitDone;
+      break;
+    case "setJournal":
+      next.journalNotes = mutation.journalNotes.trim();
+      break;
+  }
+
+  const validation = validateCompleteDailyLog(next, today);
+  if (!validation.valid) {
+    throw new Error(validation.summary[0] ?? "Daily Log update is not valid.");
+  }
+
+  return serializeDailyLog(toDailyLogDraft(next));
 }
 
 export function dailyLogDataSignature(log: DailyLog) {

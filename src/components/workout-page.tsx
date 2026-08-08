@@ -229,15 +229,16 @@ function WorkoutContent({ user }: { user: User }) {
   }
 
   const volume = workoutVolumeLb(draft);
+  const activeExercise = draft.exercises[0];
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="rounded-lg border border-line bg-panel p-5">
         <div>
-          <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">Active workout</p>
-          <h1 className="mt-1 text-2xl font-semibold text-zinc-50">{draft.title || "Workout"}</h1>
-          <p className="mt-1 text-sm text-zinc-400">{draft.date} · {volume.toLocaleString()} lb working volume</p>
+          <p className="text-sm font-medium text-muted">Active workout</p>
+          <h1 className="mt-1 text-3xl font-semibold text-ink">{activeExercise?.name ?? "Build today's workout"}</h1>
+          <p className="mt-2 text-sm text-muted">{draft.date} · {volume.toLocaleString()} lb working volume · {draft.exercises.length} exercise{draft.exercises.length === 1 ? "" : "s"}</p>
         </div>
-        <span className={`rounded-md border px-3 py-2 text-sm ${dirty ? "border-amber-400/30 bg-amber-400/10 text-amber-100" : "border-zinc-800 bg-zinc-900 text-zinc-300"}`}>
+        <span className={`mt-4 inline-flex rounded-md border px-3 py-2 text-sm ${dirty ? "border-warm/40 bg-warm/10 text-warm" : "border-line bg-raised text-muted"}`}>
           {dirty ? "Unsaved changes" : "Saved workout"}
         </span>
       </div>
@@ -283,12 +284,16 @@ function WorkoutContent({ user }: { user: User }) {
       ) : null}
 
       <form className="mt-5 space-y-5" onSubmit={(event) => { event.preventDefault(); void saveWorkout(); }}>
-        <Panel title="Workout details">
+        <details className="rounded-lg border border-line bg-panel p-4">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-semibold text-ink">
+            Options
+            <ChevronDown className="h-5 w-5 text-muted" aria-hidden="true" />
+          </summary>
           <label className="block text-sm font-medium text-zinc-200" htmlFor="workout-title">Workout name</label>
           <input id="workout-title" className="mt-2 block min-h-11 w-full rounded-md border-zinc-700 bg-zinc-900 text-zinc-50 placeholder:text-zinc-600 focus:border-emerald-400 focus:ring-emerald-400 sm:max-w-md" value={draft.title} maxLength={80} onChange={(event) => markDirty({ ...draft, title: event.target.value })} />
           <label className="mt-4 block text-sm font-medium text-zinc-200" htmlFor="workout-notes">Workout notes <span className="font-normal text-zinc-500">(optional)</span></label>
           <textarea id="workout-notes" className="mt-2 block min-h-24 w-full rounded-md border-zinc-700 bg-zinc-900 text-zinc-50 placeholder:text-zinc-600 focus:border-emerald-400 focus:ring-emerald-400" value={draft.notes} maxLength={2000} onChange={(event) => markDirty({ ...draft, notes: event.target.value })} />
-        </Panel>
+        </details>
 
         {draft.exercises.map((exercise, index) => (
           <ExerciseEditor
@@ -306,14 +311,14 @@ function WorkoutContent({ user }: { user: User }) {
           onAdd={(definition) => markDirty({ ...draft, exercises: [...draft.exercises, newWorkoutExercise(definition)] })}
         />
 
-        <div className="sticky bottom-[72px] z-20 -mx-4 flex flex-col gap-2 border-t border-zinc-800 bg-zinc-950/95 px-4 py-3 backdrop-blur-sm md:static md:mx-0 md:flex-row md:border-0 md:bg-transparent md:p-0">
-          <button className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md border border-zinc-700 bg-zinc-900 px-5 text-base font-semibold text-zinc-100 disabled:opacity-60 md:flex-none" type="submit" disabled={saving || finishing || !dirty}>
-            {saving ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Save className="h-5 w-5" aria-hidden="true" />}
-            Save workout
-          </button>
-          <button className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md bg-emerald-400 px-5 text-base font-semibold text-zinc-950 disabled:opacity-60 md:flex-none" type="button" disabled={saving || finishing} onClick={finishWorkout}>
+        <div className="sticky bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-20 -mx-4 flex flex-col gap-2 border-t border-line bg-night/95 px-4 py-3 backdrop-blur-sm md:static md:mx-0 md:flex-row md:items-center md:border-0 md:bg-transparent md:p-0">
+          <button className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night disabled:opacity-60 md:flex-none" type="button" disabled={saving || finishing} onClick={finishWorkout}>
             {finishing ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Check className="h-5 w-5" aria-hidden="true" />}
             Finish workout
+          </button>
+          <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-line bg-raised px-4 text-sm font-medium text-muted disabled:opacity-60 md:flex-none" type="submit" disabled={saving || finishing || !dirty}>
+            {saving ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Save className="h-5 w-5" aria-hidden="true" />}
+            Save
           </button>
         </div>
       </form>
@@ -325,15 +330,15 @@ function ExercisePicker({ chosenIds, onAdd }: { chosenIds: string[]; onAdd: (def
   const available = exerciseCatalogue.filter((exercise) => !chosenIds.includes(exercise.id));
   if (available.length === 0) return null;
   return (
-    <details className="rounded-lg border border-dashed border-zinc-700 bg-zinc-950/70 p-4">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-zinc-100">
-        Add exercise <ChevronDown className="h-5 w-5 text-zinc-400" aria-hidden="true" />
+    <details className="rounded-lg border border-dashed border-line bg-panel p-4">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink">
+        Add exercise <ChevronDown className="h-5 w-5 text-muted" aria-hidden="true" />
       </summary>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {available.map((exercise) => (
-          <button key={exercise.id} className="flex min-h-12 items-center justify-between rounded-md border border-zinc-800 bg-zinc-900 px-3 text-left text-sm text-zinc-100 hover:border-emerald-400/50" type="button" onClick={() => onAdd(exercise)}>
-            <span><span className="block font-medium">{exercise.name}</span><span className="text-xs text-zinc-500">{exercise.primaryMuscleGroup}</span></span>
-            <Plus className="h-5 w-5 text-emerald-300" aria-hidden="true" />
+          <button key={exercise.id} className="flex min-h-12 items-center justify-between rounded-md border border-line bg-raised px-3 text-left text-sm text-ink hover:border-mint/50" type="button" onClick={() => onAdd(exercise)}>
+            <span><span className="block font-medium">{exercise.name}</span><span className="text-xs text-muted">{exercise.primaryMuscleGroup}</span></span>
+            <Plus className="h-5 w-5 text-mint" aria-hidden="true" />
           </button>
         ))}
       </div>
@@ -346,35 +351,49 @@ function ExerciseEditor({ exercise, index, previous, onChange, onRemove }: { exe
   const bestEstimatedOneRepMax = Math.max(0, ...exercise.sets.map((set) => estimatedOneRepMaxLb(set) ?? 0));
   const previousSet = previous?.sets.find((set) => set.kind === "working" && isCompletedSet(set));
   return (
-    <Panel
-      title={`${index + 1}. ${exercise.name}`}
-      action={<button className="inline-flex min-h-11 items-center gap-2 rounded-md px-2 text-sm text-zinc-400 hover:text-red-200" type="button" onClick={onRemove}><Trash2 className="h-4 w-4" aria-hidden="true" /><span className="sr-only sm:not-sr-only">Remove</span></button>}
-    >
+    <section className="rounded-lg border border-line bg-panel p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm text-muted">Exercise {index + 1}</p>
+          <h2 className="mt-1 text-xl font-semibold text-ink">{exercise.name}</h2>
+        </div>
+        <button className="inline-flex min-h-11 items-center gap-2 rounded-md px-2 text-sm text-muted hover:text-red-200" type="button" onClick={onRemove}>
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          <span className="sr-only sm:not-sr-only">Remove</span>
+        </button>
+      </div>
       <div className="flex flex-wrap gap-2 text-xs text-zinc-400">
-        <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1">{exercise.primaryMuscleGroup}</span>
-        <span className="rounded-md border border-zinc-800 bg-zinc-900 px-2 py-1">{volume.toLocaleString()} lb volume</span>
-        {bestEstimatedOneRepMax > 0 ? <span className="rounded-md border border-purple-400/25 bg-purple-400/10 px-2 py-1 text-purple-100">Est. 1RM {bestEstimatedOneRepMax} lb</span> : null}
-        {previousSet && previousSet.weightLb !== null && previousSet.reps !== null ? <span className="rounded-md border border-emerald-400/25 bg-emerald-400/10 px-2 py-1 text-emerald-100">Previous {previousSet.weightLb} lb × {previousSet.reps}</span> : null}
+        <span className="rounded-md border border-line bg-raised px-2 py-1 text-muted">{exercise.primaryMuscleGroup}</span>
+        <span className="rounded-md border border-line bg-raised px-2 py-1 text-muted">{volume.toLocaleString()} lb volume</span>
+        {bestEstimatedOneRepMax > 0 ? <span className="rounded-md border border-violet/25 bg-violet/10 px-2 py-1 text-violet">Est. 1RM {bestEstimatedOneRepMax} lb</span> : null}
       </div>
       <div className="mt-4 space-y-3">
-        {exercise.sets.map((set, setIndex) => <SetEditor key={set.id} set={set} index={setIndex} onChange={(nextSet) => onChange({ ...exercise, sets: exercise.sets.map((item) => item.id === nextSet.id ? nextSet : item) })} onRemove={() => onChange({ ...exercise, sets: exercise.sets.filter((item) => item.id !== set.id) })} />)}
+        {exercise.sets.map((set, setIndex) => <SetEditor key={set.id} set={set} index={setIndex} previousSet={previousSet} onChange={(nextSet) => onChange({ ...exercise, sets: exercise.sets.map((item) => item.id === nextSet.id ? nextSet : item) })} onRemove={() => onChange({ ...exercise, sets: exercise.sets.filter((item) => item.id !== set.id) })} />)}
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        <button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm font-medium text-zinc-100" type="button" onClick={() => onChange({ ...exercise, sets: [...exercise.sets, newWorkoutSet("working")] })}><Plus className="h-4 w-4" aria-hidden="true" /> Working set</button>
-        <button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-zinc-700 bg-zinc-900 px-3 text-sm font-medium text-zinc-100" type="button" onClick={() => onChange({ ...exercise, sets: [...exercise.sets, newWorkoutSet("warmup")] })}><Plus className="h-4 w-4" aria-hidden="true" /> Warm-up</button>
+        <button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 text-sm font-medium text-ink" type="button" onClick={() => onChange({ ...exercise, sets: [...exercise.sets, newWorkoutSet("working")] })}><Plus className="h-4 w-4" aria-hidden="true" /> Working set</button>
+        <button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 text-sm font-medium text-ink" type="button" onClick={() => onChange({ ...exercise, sets: [...exercise.sets, newWorkoutSet("warmup")] })}><Plus className="h-4 w-4" aria-hidden="true" /> Warm-up</button>
       </div>
-      <label className="mt-4 block text-sm font-medium text-zinc-300" htmlFor={`exercise-notes-${exercise.id}`}>Exercise notes <span className="font-normal text-zinc-500">(optional)</span></label>
-      <input id={`exercise-notes-${exercise.id}`} className="mt-2 block min-h-11 w-full rounded-md border-zinc-700 bg-zinc-900 text-zinc-50 focus:border-emerald-400 focus:ring-emerald-400" value={exercise.notes} maxLength={500} onChange={(event) => onChange({ ...exercise, notes: event.target.value })} />
-    </Panel>
+      <details className="mt-4 rounded-md border border-line bg-night/30 p-3">
+        <summary className="min-h-11 cursor-pointer text-sm font-medium text-muted">Exercise notes</summary>
+        <input id={`exercise-notes-${exercise.id}`} className="mt-2 block min-h-11 w-full rounded-md border-line bg-raised text-ink focus:border-mint focus:ring-mint" value={exercise.notes} maxLength={500} onChange={(event) => onChange({ ...exercise, notes: event.target.value })} />
+      </details>
+    </section>
   );
 }
 
-function SetEditor({ set, index, onChange, onRemove }: { set: WorkoutSet; index: number; onChange: (set: WorkoutSet) => void; onRemove: () => void }) {
+function SetEditor({ set, index, previousSet, onChange, onRemove }: { set: WorkoutSet; index: number; previousSet?: WorkoutSet; onChange: (set: WorkoutSet) => void; onRemove: () => void }) {
   const id = `set-${set.id}`;
   const numericChange = (field: "weightLb" | "reps" | "rpe", raw: string) => onChange({ ...set, [field]: raw === "" ? null : Number(raw) });
   return (
-    <fieldset className="rounded-md border border-zinc-800 bg-zinc-900/60 p-3">
-      <div className="flex items-center justify-between gap-3"><legend className="text-sm font-medium text-zinc-100">{set.kind === "warmup" ? "Warm-up" : "Working"} set {index + 1}</legend><button className="inline-flex min-h-11 items-center text-sm text-zinc-400 hover:text-red-200" type="button" onClick={onRemove}>Remove</button></div>
+    <fieldset className={`rounded-md border p-3 ${set.kind === "warmup" ? "border-warm/35 bg-warm/10" : "border-line bg-raised"}`}>
+      <div className="flex items-center justify-between gap-3">
+        <legend className="text-sm font-medium text-ink">{set.kind === "warmup" ? "Warm-up" : "Working"} set {index + 1}</legend>
+        <button className="inline-flex min-h-11 items-center text-sm text-muted hover:text-red-200" type="button" onClick={onRemove}>Remove</button>
+      </div>
+      {previousSet && previousSet.weightLb !== null && previousSet.reps !== null ? (
+        <p className="mt-1 text-xs text-muted">Previous working set: {previousSet.weightLb} lb × {previousSet.reps}</p>
+      ) : null}
       <div className="mt-3 grid grid-cols-3 gap-2">
         <NumberField id={`${id}-weight`} label="Weight (lb)" min={0} max={2000} step="0.5" value={set.weightLb} onChange={(value) => numericChange("weightLb", value)} />
         <NumberField id={`${id}-reps`} label="Reps" min={1} max={100} step="1" value={set.reps} onChange={(value) => numericChange("reps", value)} />
@@ -385,7 +404,7 @@ function SetEditor({ set, index, onChange, onRemove }: { set: WorkoutSet; index:
 }
 
 function NumberField({ id, label, value, min, max, step, onChange }: { id: string; label: string; value: number | null; min: number; max: number; step: string; onChange: (value: string) => void }) {
-  return <label className="block text-xs font-medium text-zinc-400" htmlFor={id}>{label}<input id={id} className="mt-1 block min-h-11 w-full rounded-md border-zinc-700 bg-zinc-950 text-sm text-zinc-50 focus:border-emerald-400 focus:ring-emerald-400" type="number" inputMode="decimal" min={min} max={max} step={step} value={value ?? ""} onChange={(event) => onChange(event.target.value)} /></label>;
+  return <label className="block text-xs font-medium text-muted" htmlFor={id}>{label}<input id={id} className="mt-1 block min-h-11 w-full rounded-md border-line bg-night text-sm text-ink focus:border-mint focus:ring-mint" type="number" inputMode="decimal" min={min} max={max} step={step} value={value ?? ""} onChange={(event) => onChange(event.target.value)} /></label>;
 }
 
 function WorkoutLoading() {

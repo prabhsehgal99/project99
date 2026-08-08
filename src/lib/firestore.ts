@@ -9,6 +9,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -17,7 +18,7 @@ import {
   type Unsubscribe
 } from "firebase/firestore";
 import type { User } from "firebase/auth";
-import { normalizeDailyLog } from "@/lib/daily-log";
+import { applyDailyLogMutation, normalizeDailyLog, type DailyLogMutation } from "@/lib/daily-log";
 import { getFirebaseDb } from "@/lib/firebase";
 import { reportFirestoreError } from "@/lib/monitoring";
 import { normalizeWorkoutSession } from "@/lib/workout";
@@ -141,6 +142,25 @@ export async function saveDailyLog(uid: string, log: DailyLog, existingLog: Dail
       ...log,
       createdAt: existingLog?.createdAt ?? serverTimestamp(),
       updatedAt: serverTimestamp()
+    });
+  });
+}
+
+export async function mutateDailyLog(uid: string, date: string, mutation: DailyLogMutation, today: string) {
+  return reportFirestoreError("mutate-daily-log", async () => {
+    const db = getFirebaseDb();
+    const ref = doc(db, "users", uid, "dailyMetrics", date);
+
+    await runTransaction(db, async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      const existingLog = snapshot.exists() ? normalizeDailyLog(date, snapshot.data()) : defaultDailyLog(date);
+      const nextLog = applyDailyLogMutation(existingLog, mutation, today);
+
+      transaction.set(ref, {
+        ...nextLog,
+        createdAt: snapshot.exists() ? existingLog.createdAt : serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
     });
   });
 }

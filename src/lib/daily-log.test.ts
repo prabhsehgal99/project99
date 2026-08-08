@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyDailyLogMutation,
   dailyLogSummary,
   habitStreak,
   normalizeDailyLog,
@@ -188,5 +189,37 @@ describe("dailyLogSummary", () => {
   it("treats an untouched default log as not meaningful", () => {
     const summary = dailyLogSummary(log("2026-07-31"), defaultSettings);
     expect(summary.hasMeaningfulEntry).toBe(false);
+  });
+});
+
+describe("applyDailyLogMutation", () => {
+  const today = "2026-07-31";
+
+  it("increments water without changing unrelated fields", () => {
+    const existing = log(today, { waterMl: 500, weightKg: 80.5, journalNotes: "keep this" });
+    const next = applyDailyLogMutation(existing, { type: "incrementWater", amountMl: 250 }, today);
+
+    expect(next.waterMl).toBe(750);
+    expect(next.weightKg).toBe(80.5);
+    expect(next.journalNotes).toBe("keep this");
+  });
+
+  it("caps water increments at the accepted upper bound", () => {
+    const next = applyDailyLogMutation(log(today, { waterMl: 14_900 }), { type: "incrementWater", amountMl: 250 }, today);
+    expect(next.waterMl).toBe(15_000);
+  });
+
+  it("creates a complete normalized log from a missing-day default", () => {
+    const next = applyDailyLogMutation(defaultDailyLog(today), { type: "setWeight", weightKg: 82.2 }, today);
+
+    expect(next.schemaVersion).toBe(1);
+    expect(next.date).toBe(today);
+    expect(next.weightKg).toBe(82.2);
+    expect(next.caloriesConsumed).toBe(0);
+    expect(next.workoutStatus).toBe("planned");
+  });
+
+  it("rejects invalid focused values through complete Daily Log validation", () => {
+    expect(() => applyDailyLogMutation(log(today), { type: "setSteps", steps: 300_000 }, today)).toThrow("Steps must be between 0 and 200,000.");
   });
 });
