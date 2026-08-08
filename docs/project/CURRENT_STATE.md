@@ -14,6 +14,9 @@ The current Phase 1 component branch adds the first owner-scoped workout
 template/custom-exercise and first-party nutrition foundations. Meal entries
 are summarized with the existing Daily Log macro values as an explicit manual
 adjustment, preserving historical records without a destructive migration.
+The nutrition follow-up adds date-scoped food logging, quantities, favourites,
+recents, saved meals, custom meal labels, and snapshot-based copying on the
+same draft pull request.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
 foundation issues were implemented in PR #28, merged to `main`, and closed.

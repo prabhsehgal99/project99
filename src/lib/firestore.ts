@@ -342,6 +342,17 @@ export function subscribeToNutritionEntries(uid: string, date: string, onNext: (
   );
 }
 
+export function subscribeToRecentNutritionEntries(uid: string, onNext: (items: NutritionEntry[]) => void, onError: (error: Error) => void) {
+  return onSnapshot(
+    query(collection(getFirebaseDb(), "users", uid, "nutritionEntries"), orderBy("createdAt", "desc"), limit(30)),
+    (snapshot) => onNext(snapshot.docs.flatMap((item) => {
+      const value = documentWithId<NutritionEntry>(item.id, item.data());
+      return value ? [value] : [];
+    })),
+    onError
+  );
+}
+
 export function subscribeToSavedMeals(uid: string, onNext: (items: SavedMeal[]) => void, onError: (error: Error) => void) {
   return subscribeToUserCollection(uid, "savedMeals", onNext, onError, [orderBy("name", "asc")]);
 }
@@ -354,6 +365,17 @@ export async function saveFood(uid: string, food: Food) {
 export async function saveNutritionEntry(uid: string, entry: NutritionEntry) {
   const ref = doc(getFirebaseDb(), "users", uid, "nutritionEntries", entry.id);
   await setDoc(ref, { ...entry, createdAt: entry.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export async function updateNutritionEntry(uid: string, entry: NutritionEntry) {
+  const ref = doc(getFirebaseDb(), "users", uid, "nutritionEntries", entry.id);
+  await updateDoc(ref, {
+    date: entry.date,
+    mealGroup: entry.mealGroup,
+    mealLabel: entry.mealLabel,
+    quantity: entry.quantity,
+    updatedAt: serverTimestamp()
+  });
 }
 
 export async function deleteNutritionEntry(uid: string, id: string) {

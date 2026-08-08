@@ -81,8 +81,8 @@ function TodayContent() {
           {loading ? <span className="inline-flex items-center gap-2 text-xs text-muted"><Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />Syncing</span> : <span className="text-xs text-muted">Tap Log to add anything</span>}
         </div>
         <div className="border-y border-line">
-          <MetricRow label="Calories" value={`${todayLog.caloriesConsumed.toLocaleString()} / ${settings.calorieGoal.toLocaleString()}`} percent={summary.caloriePercent} />
-          <MetricRow label="Protein" value={`${todayLog.proteinConsumed} / ${settings.proteinGoal} g`} percent={summary.proteinPercent} />
+          <MetricRow label="Calories" value={`${nutrition.calories.toLocaleString()} / ${settings.calorieGoal.toLocaleString()}`} percent={summary.caloriePercent} />
+          <MetricRow label="Protein" value={`${nutrition.protein} / ${settings.proteinGoal} g`} percent={summary.proteinPercent} />
           <MetricRow label="Water" value={`${summary.waterLitres.toFixed(2)} / ${summary.waterGoalLitres.toFixed(1)} L`} percent={summary.waterPercent} />
         </div>
       </section>
@@ -90,7 +90,7 @@ function TodayContent() {
       <section className="mt-8" aria-label="Your rhythm">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-[15px] font-medium tracking-[-0.02em] text-ink">Your rhythm</h2>
-          <Link className="min-h-11 px-2 py-3 text-xs font-medium text-muted hover:text-ink" href={`/log/${today}`}>Edit full day</Link>
+          <Link className="min-h-11 px-2 py-3 text-xs font-medium text-muted hover:text-ink" href={`/nutrition?date=${today}`}>Log food</Link>
         </div>
         {rhythm.length > 0 ? (
           <div className="relative ml-1 border-l border-line pl-6">

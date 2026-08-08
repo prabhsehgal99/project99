@@ -2457,7 +2457,7 @@ export const architectureObservatoryEvents =
             "x": 960,
             "y": 250
           },
-          "responsibility": "Stores user-created food snapshots and dated meal entries, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          "responsibility": "Stores user-created food snapshots and dated meal entries, exposes fast per-meal capture and copying, then combines their derived values with the Daily Log manual nutrition adjustment.",
           "sourceRefs": [
             {
               "label": "D-001 - Daily Log is the central dated record",
@@ -2474,12 +2474,17 @@ export const architectureObservatoryEvents =
               "label": "Nutrition projection tests",
               "path": "src/lib/nutrition.test.ts",
               "status": "passed"
+            },
+            {
+              "label": "Rules emulator tests",
+              "path": "tests/firestore.rules.test.ts",
+              "status": "passed"
             }
           ]
         },
         "elementId": "nutrition-wing",
         "operation": "added",
-        "summary": "Added the date-scoped food logging surface and pure daily nutrition projection."
+        "summary": "Added date-scoped food logging with quantity edits, favourites, recents, saved meals, and snapshot-based copying."
       },
       {
         "element": {
@@ -2594,7 +2599,7 @@ export const architectureObservatoryEvents =
         "url": "docs/project/DECISIONS.md"
       }
     ],
-    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and itemized nutrition entries that complement the Daily Log manual adjustment.",
+    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
     "title": "Workout templates and first-party nutrition"
   }
 ] satisfies ArchitectureEvent[];

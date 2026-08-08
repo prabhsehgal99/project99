@@ -46,7 +46,7 @@ export function nutritionDaySummary(log: DailyLog, entries: NutritionEntry[]) {
   return { meals, manual, total: addNutrition(meals, manual) };
 }
 
-export function foodSnapshot(food: Food) {
+export function foodSnapshot(food: Pick<Food, "id" | "name" | "brand" | "servingName" | "servingGrams" | "per100g">) {
   return {
     foodId: food.id,
     foodName: food.name,

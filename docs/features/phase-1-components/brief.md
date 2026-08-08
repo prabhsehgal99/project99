@@ -17,7 +17,8 @@ without losing existing daily nutrition history.
   independent active-session snapshots.
 - A small local rest timer and recent completed-workout context.
 - User-created foods, dated meal entries, saved meals, and manual-adjustment
-  nutrition summaries.
+  nutrition summaries, including quantity edits, favourites, recents, custom
+  meal labels, and snapshot-based copying.
 - Strict Firestore Rules and unit/emulator coverage for the new collections.
 
 ## Out of scope
@@ -30,4 +31,5 @@ without losing existing daily nutrition history.
 - [ ] Templates and food records remain owner-scoped and validated by Rules.
 - [ ] A template edit cannot change a session started from it.
 - [ ] Meal values and manual Daily Log values are displayed as one explicit sum.
+- [ ] Nutrition supports today and past-date logging without accepting future dates.
 - [ ] Mobile and desktop builds, lint, unit tests, and Rules tests pass.

@@ -14,4 +14,11 @@ describe("nutrition summaries", () => {
     const log = { ...defaultDailyLog(entry.date), caloriesConsumed: 100, proteinConsumed: 3 };
     expect(nutritionDaySummary(log, [entry]).total).toEqual({ calories: 300, protein: 9, carbohydrates: 30, fat: 4, fibre: 5 });
   });
+
+  it("scales fractional servings without mutating the historical entry snapshot", () => {
+    const copied = { ...entry, id: "copied", date: "2026-08-07", quantity: 1.5 };
+    expect(nutritionForEntry(copied)).toEqual({ calories: 300, protein: 9, carbohydrates: 45, fat: 6, fibre: 8 });
+    expect(entry.quantity).toBe(1);
+    expect(copied.foodName).toBe(entry.foodName);
+  });
 });

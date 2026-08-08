@@ -177,8 +177,10 @@ describe("ownership", () => {
     const other = authenticatedDb(OTHER_UID);
     await assertSucceeds(foodRef(owner).set(food()));
     await assertSucceeds(nutritionEntryRef(owner).set(nutritionEntry()));
+    await assertSucceeds(nutritionEntryRef(owner).update({ quantity: 1.5, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }));
     await assertFails(foodRef(other).get());
     await assertFails(nutritionEntryRef(other).set(nutritionEntry()));
+    await assertFails(nutritionEntryRef(other).update({ quantity: 2 }));
     await assertFails(foodRef(owner, OWNER_UID, "bad").set(food({ per100g: { calories: -1 } })));
     await assertFails(nutritionEntryRef(owner, OWNER_UID, "future").set(nutritionEntry({ date: "2999-01-01" })));
   });
