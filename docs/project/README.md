@@ -11,6 +11,10 @@ basic context.
 | `FEATURE_BRIEF_TEMPLATE.md` | Minimum input for a well-scoped feature | Copy it for each significant feature |
 | `WORKFLOW.md` | Cross-device and cross-agent delivery rules | The development or handoff process changes |
 
+## Active feature briefs
+
+- [Calm daily experience redesign](../features/daily-experience-redesign/brief.md)
+
 ## Recommended feature folder
 
 For a substantial feature, create:

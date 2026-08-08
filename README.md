@@ -4,9 +4,10 @@ Project 99 is a mobile-first personal fitness and health tracking PWA built with
 Next.js App Router, TypeScript, Tailwind CSS, Firebase Authentication, Cloud
 Firestore, Recharts, and Lucide icons.
 
-The current product includes Google sign-in, protected dashboard pages,
-Firestore-backed profiles and settings, Daily Logs, weekly weight trends, and a
-phone-first workout logger.
+The current product includes Google sign-in, a protected Today experience at the
+route-compatible `/dashboard` URL, global Quick Log capture, Firestore-backed
+profiles and settings, Daily Logs, Progress trends, More account/settings
+surfaces, and a phone-first workout logger.
 
 ## Requirements
 

@@ -1,17 +1,22 @@
 # Current state
 
-Last updated: 2026-08-07 (Phase 0 closed)
+Last updated: 2026-08-08 (calm daily redesign branch awaiting review)
 
 ## Current milestone
 
-Phase 1A (Daily Log hardening, settings, history, PWA polish) is active. Phase
-0 is formally closed as of 2026-08-07. Implementation, automated verification,
-Security Rules verification, build verification, public production reachability,
-owner runtime QA, installed iOS PWA behavior, production Firestore writes, and
-Sentry delivery have all passed.
+Phase 1A (Daily operating system) is active. Phase 0 is formally closed as of
+2026-08-07. Implementation, automated verification, Security Rules verification,
+build verification, public production reachability, owner runtime QA, installed
+iOS PWA behavior, production Firestore writes, and Sentry delivery have all
+passed.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
 foundation issues were implemented in PR #28, merged to `main`, and closed.
+
+Issue #37 implements the approved calm daily experience redesign on branch
+`feature/37-calm-daily-experience` in draft PR #38. The branch is implemented,
+locally verified, pushed, and awaiting review plus authenticated dev/preview
+runtime QA before merge.
 
 ## What is on `main`
 
@@ -216,38 +221,71 @@ foundation issues were implemented in PR #28, merged to `main`, and closed.
 
 ## Calm daily experience redesign (issue #37)
 
-- Branch `feature/37-calm-daily-experience` implements the Phase 1A/1B daily
-  experience redesign in one coordinated pull request.
-- `/dashboard` is now presented as Today, with local date context, a single
-  data-driven Up next action, compact calorie/protein/water progress, and
-  truthful logged signals.
-- The authenticated shell now uses Today, Train, Log, Progress, and More. Log is
-  a global Quick Log action, not a route; persistent user identity and sign out
-  moved to More > Account.
-- A narrow Today data provider shares today's Daily Log, settings, and active
-  workout state between Today and Quick Log without moving route-specific
-  history into global state.
+- Status: implemented on branch `feature/37-calm-daily-experience`, opened as
+  draft PR #38, awaiting review and authenticated runtime QA before merge.
+- The redesign was delivered as one coordinated implementation effort under
+  umbrella issue #37. The original three slices remain internal milestones only:
+  shell/Today/Quick Log foundation, complete daily experience with Progress and
+  More, and workout experience refinement.
+- `/dashboard` remains the stable route, but the visible destination is Today.
+  Today shows local date context, one data-driven Up next action, compact
+  calorie/protein/water progress, and concise truthful logged signals.
+- The authenticated shell uses Today, Train, Log, Progress, and More. Log opens
+  the global Quick Log experience above the current route and is not an inactive
+  navigation destination.
+- Persistent account identity and sign out were removed from phone and desktop
+  chrome. Account identity and sign out now live under More -> Account.
+- The Daily Log remains the canonical dated record at
+  `users/{uid}/dailyMetrics/{yyyy-mm-dd}`. Complete dated editing remains
+  available through `/log` and `/log/[date]`.
+- A narrow Today data provider shares today's Daily Log, settings, loading/error
+  state, and active workout state between Today and Quick Log without moving
+  route-specific history, charts, or past-day editors into global state.
 - Quick Log uses focused native-dialog editors and transaction-safe Daily Log
-  mutations that read the latest document, normalize it, validate the complete
-  result, preserve `createdAt`, and update `updatedAt`.
-- `/progress` now owns the weekly weight trend and goal progress that previously
-  lived on the dashboard. `/more` owns Daily Log history, goals/preferences, and
-  account sign out.
-- `/log/[date]` now uses category summaries and focused editors while preserving
-  the existing draft, validation, save recovery, cached-data warning, conflict,
-  and unsaved-navigation behavior.
-- `/workouts` was visually refocused around active exercise and set entry, with
-  workout name/notes under Options and Finish workout as the primary sticky
-  action; the persisted workout-session model is unchanged.
+  mutations that read the latest document, normalize it, apply one typed
+  mutation, validate the complete result, preserve `createdAt`, and update
+  `updatedAt`. These mutations preserve unrelated fields and concurrent
+  server-backed updates.
+- Existing Firestore collection paths, Daily Log schema, settings schema,
+  workout-session model, workout calculations, owner-scoped authorization, and
+  Security Rules remain intact.
+- `/progress` owns the weekly weight trend and goal progress that previously
+  lived on the dashboard. Empty Progress states explain which logging action
+  creates the trend.
+- `/more` owns Daily Log history, goals/preferences, and account actions.
+- `/log/[date]` uses progressive disclosure with Body, Nutrition, Activity,
+  Recovery, and Notes category summaries and focused editors while preserving
+  the existing draft, validation, field-level errors, save recovery, cached-data
+  warning, remote-conflict handling, and unsaved-navigation behavior.
+- `/workouts` prioritizes active exercise and set entry. Workout name and notes
+  live behind Options, previous values stay near set entry, manual save/status
+  is secondary, Finish workout remains primary, and Daily Log linkage is
+  unchanged.
+- Loading, empty, error, and recovery behavior implemented or preserved:
+  authentication loading and Firebase configuration errors remain visible;
+  Today data shows loading/error state from the shared provider; Progress
+  handles empty trend data; Quick Log write failures keep attempted values and
+  expose Retry; detailed Daily Log cached/offline and remote-conflict behavior
+  remains in place; authentication loss continues through the protected-route
+  shell.
+- Accessibility behavior implemented or preserved: labeled phone and desktop
+  primary navigation; 44px+ controls; native Quick Log dialog with labeled title,
+  close control, Escape dismissal, focus restoration, and live success/failure
+  announcements; visible focus styling from existing controls; reduced-motion
+  and reduced-transparency/contrast fallbacks in global CSS.
 - D-019 records the durable Today/Quick Log interaction model. The architecture
   event ledger and generated observatory data were updated for the new shared
   data boundary and mutation path.
 - Verification in the `chennai` agent workspace: `npm run lint`,
   `npm run typecheck`, `npm test`, `npm run test:rules`, `npm run build`, and
-  `npm run architecture:check` pass. Local Playwright screenshots were captured
-  for the unauthenticated/configuration-required render at 320px and desktop.
-  Authenticated runtime verification still requires Firebase dev environment
-  values, which are absent in agent workspaces.
+  `npm run architecture:check` pass. Draft PR #38 has passing GitHub Quality and
+  Vercel checks.
+- Local Playwright CLI screenshots were captured for the
+  unauthenticated/configuration-required render at 320px and desktop. Because
+  `.env.local` is absent in agent workspaces, authenticated Today, Quick Log,
+  Progress, More, Daily Log, workout completion, and live Firestore runtime QA
+  still need verification in a dev-configured environment or Vercel preview
+  before merge.
 
 ## Known blockers
 
@@ -261,5 +299,8 @@ foundation issues were implemented in PR #28, merged to `main`, and closed.
 
 ## Next steps
 
-1. Continue Phase 1A (settings area, history, PWA polish, remaining Daily Log
-   hardening).
+1. Review draft PR #38 and complete authenticated dev/preview runtime QA for
+   Today, Quick Log, Progress, More, detailed Daily Log editing, and workout
+   completion/linkage.
+2. After the redesign is reviewed and merged, continue remaining Phase 1A polish
+   that is not closed by the redesign or Phase 0 verification.

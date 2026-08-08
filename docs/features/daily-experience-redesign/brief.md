@@ -2,7 +2,7 @@
 
 ## Status
 
-- **Stage:** Implemented in issue #37 pending pull-request review
+- **Stage:** Implemented — awaiting pull-request review and authenticated runtime QA
 - **Owner:** One active implementation agent per isolated feature branch
 - **Target milestone:** Phase 1A daily operating system and Phase 1B workout
   experience refinement
@@ -11,6 +11,8 @@
   D-019 Today and Quick Log as the primary daily interaction model
 - **Implementation issue:** Issue #37 implements the complete redesign in one
   coordinated pull request per the latest user direction.
+- **Implementation branch and PR:** `feature/37-calm-daily-experience`, draft
+  PR #38.
 - **Prior issue:** Issue #31 described a visual-only redesign and was closed as
   not planned. This brief supersedes that scope because the approved direction
   intentionally changes information architecture and interaction behavior while
@@ -596,10 +598,13 @@ or real reuse; do not replace the current monolith with a speculative framework.
 
 ## Delivery plan
 
-The brief is an umbrella direction. Implementation should use one issue, branch,
-and pull request for each vertical slice.
+The brief is an umbrella direction. The approved delivery approach uses one
+umbrella implementation issue, one owned feature branch, and one draft pull
+request. The original slices are retained as internal implementation milestones
+inside that single effort, with logical commits and continuous verification
+rather than separate issues, branches, or pull requests.
 
-### Slice 1 — Today foundation and minimum useful Quick Log
+### Milestone 1 — Today foundation and minimum useful Quick Log
 
 - New authenticated navigation and account relocation.
 - Today screen with one focus action and existing progress values.
@@ -610,10 +615,10 @@ and pull request for each vertical slice.
 - Loading, empty, write-error, keyboard, reduced-motion, and mobile/desktop
   acceptance coverage.
 
-This slice must be independently useful and is the recommended first
-implementation issue.
+This milestone establishes the first independently useful daily loop inside the
+single redesign branch.
 
-### Slice 2 — Complete daily experience
+### Milestone 2 — Complete daily experience
 
 - Remaining current-schema Quick Log actions.
 - Progress destination using existing trends and goals.
@@ -621,7 +626,7 @@ implementation issue.
 - Detailed Daily Log category summaries and focused editors.
 - Preservation of dirty-state, conflict, cached-data, and navigation protections.
 
-### Slice 3 — Focused workout experience
+### Milestone 3 — Focused workout experience
 
 - Compact active-workout layout.
 - Workout Options disclosure.
@@ -670,43 +675,53 @@ implementation issue.
 ## Acceptance criteria
 
 - [ ] Today is the authenticated landing experience and shows one primary focus
-      action based only on available data.
-- [ ] Persistent authenticated chrome does not display the user's name, email,
+      action based only on available data. Implemented in the branch and covered
+      by focus-priority unit tests; authenticated runtime QA remains outstanding
+      because this agent workspace has no Firebase dev configuration.
+- [x] Persistent authenticated chrome does not display the user's name, email,
       or sign-out action.
-- [ ] Account identity and sign out are available under More > Account.
-- [ ] Mobile navigation provides Today, Train, Log, Progress, and More; Log opens
+- [x] Account identity and sign out are available under More > Account.
+- [x] Mobile navigation provides Today, Train, Log, Progress, and More; Log opens
       Quick Log rather than navigating to an inactive page.
 - [ ] The user can add 250 mL of water from any primary destination in two taps.
-- [ ] Quick Log supports each current-schema category included in its delivery
-      slice without exposing unrelated fields.
+      Implemented in Quick Log; authenticated runtime QA remains outstanding.
+- [x] Quick Log supports each current-schema category included in the redesign
+      without exposing unrelated fields at once.
 - [ ] Successful writes update Today from the shared data source; failed writes
-      preserve the attempted value and provide Retry.
-- [ ] Quick Log mutations preserve unrelated Daily Log fields and concurrent
-      server-backed updates.
-- [ ] Every existing Daily Log field remains editable for today and past dates.
-- [ ] The detailed Daily Log preserves validation, dirty-state navigation,
+      preserve the attempted value and provide Retry. Implemented in the shared
+      provider and Quick Log error path; authenticated runtime QA remains
+      outstanding.
+- [x] Quick Log mutations preserve unrelated Daily Log fields and concurrent
+      server-backed updates. Covered by unit tests and transaction implementation.
+- [x] Every existing Daily Log field remains editable for today and past dates.
+- [x] The detailed Daily Log preserves validation, dirty-state navigation,
       cached-data warning, remote-conflict handling, and save recovery.
-- [ ] Progress contains the current weight trend and goal progress; Today does
+- [x] Progress contains the current weight trend and goal progress; Today does
       not duplicate the full analytics surface.
-- [ ] The active workout prioritizes exercise and set entry while retaining all
+- [x] The active workout prioritizes exercise and set entry while retaining all
       existing session validation, calculations, save, resume, and finish
       behavior.
-- [ ] No meal event, per-field timestamp, vital, readiness score, or automated
+- [x] No meal event, per-field timestamp, vital, readiness score, or automated
       recommendation is shown without a supporting accepted data model.
 - [ ] Interactive targets are at least 44 by 44 pixels and the experience works
-      without horizontal scrolling at 320 CSS pixels.
+      without horizontal scrolling at 320 CSS pixels. Implemented in classes and
+      the unauthenticated/configuration render was screenshot at 320px; full
+      authenticated layout QA remains outstanding.
 - [ ] Quick Log has correct dialog semantics, keyboard behavior, focus
-      restoration, and accessible status announcements.
-- [ ] Reduced-motion behavior avoids large sliding or spring movement.
-- [ ] Owner-only data access and cross-user denial remain verified by Firestore
+      restoration, and accessible status announcements. Implemented with native
+      dialog behavior and live regions; authenticated browser QA remains
+      outstanding.
+- [x] Reduced-motion behavior avoids large sliding or spring movement.
+- [x] Owner-only data access and cross-user denial remain verified by Firestore
       Rules tests.
-- [ ] `npm run lint` passes.
-- [ ] `npm run typecheck` passes.
-- [ ] `npm test` passes.
-- [ ] `npm run test:rules` passes when persistence behavior changes.
-- [ ] `npm run build` passes.
+- [x] `npm run lint` passes.
+- [x] `npm run typecheck` passes.
+- [x] `npm test` passes.
+- [x] `npm run test:rules` passes when persistence behavior changes.
+- [x] `npm run build` passes.
 - [ ] Mobile and desktop behavior is verified in a preview deployment before
-      merge.
+      merge. Vercel deployment passes, but authenticated preview behavior still
+      needs manual QA before merge.
 
 ## Open questions
 
