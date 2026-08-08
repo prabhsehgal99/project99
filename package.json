@@ -13,6 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:rules": "npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-project99-rules \"vitest run --config vitest.rules.config.mts\"",
+    "architecture:generate": "tsc --project tsconfig.architecture.json && node dist/architecture-scripts/scripts/architecture/generate-observatory.js",
+    "architecture:check": "tsc --project tsconfig.architecture.json && node dist/architecture-scripts/scripts/architecture/check-freshness.js",
     "env:setup": "node scripts/setup-env.mjs",
     "rules:deploy:dev": "npx --yes firebase-tools@15 deploy --only firestore:rules --project dev",
     "rules:deploy:prod": "npx --yes firebase-tools@15 deploy --only firestore:rules --project prod"

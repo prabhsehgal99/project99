@@ -21,6 +21,7 @@
 - [ ] Desktop layout checked
 - [ ] Loading, empty, and error states checked where applicable
 - [ ] Keyboard and screen-reader path checked where applicable
+- [ ] Architecture Observatory updated or exception documented where applicable (`docs/architecture/observatory.md`)
 
 ## Security and data
 

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "outDir": "dist/architecture-scripts",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "noEmit": false
+  },
+  "include": [
+    "scripts/architecture/**/*.ts",
+    "src/data/architecture-events.ts",
+    "src/lib/architecture-observatory.ts"
+  ]
+}
