@@ -1826,6 +1826,181 @@ export const architectureObservatoryEvents =
     "title": "Security tests and Phase 0 closure"
   },
   {
+    "changeType": "repaired",
+    "changes": [
+      {
+        "element": {
+          "category": "delivery",
+          "dependencies": [
+            "application-foundation",
+            "firebase-auth-boundary",
+            "environment-boundary"
+          ],
+          "feature": "Installable PWA",
+          "filter": "infrastructure",
+          "id": "pwa-delivery-shell",
+          "introduced": "2026-08-01",
+          "lastChanged": "2026-08-08",
+          "limitations": [],
+          "name": "PWA delivery shell",
+          "paths": [
+            "public/manifest.webmanifest",
+            "public/sw.js",
+            "public/icon-192.png",
+            "public/icon-512.png",
+            "public/apple-touch-icon.png",
+            "src/components/pwa-register.tsx",
+            "src/lib/auth-mode.ts",
+            "next.config.ts"
+          ],
+          "position": {
+            "height": 72,
+            "width": 235,
+            "x": 700,
+            "y": 66
+          },
+          "responsibility": "Provides manifest, icons, service worker behavior, first-party auth helper routing, and production static assets for installed-app use.",
+          "sourceRefs": [
+            {
+              "commit": "3d16f45287c8d10541177ec030c55e510587acca",
+              "label": "PR #18: Phase 0.5 setup hardening",
+              "pullRequest": 18,
+              "url": "https://github.com/prabhsehgal99/project99/pull/18"
+            },
+            {
+              "commit": "07d30a539dc7706b9e37af4288aed2cacf8fbb39",
+              "label": "PR #28: Close pending foundation issues",
+              "pullRequest": 28,
+              "url": "https://github.com/prabhsehgal99/project99/pull/28"
+            },
+            {
+              "commit": "0aed964c4ba2f1f3c91f7f54571cb0cae6623f91",
+              "label": "PR #33: Record Phase 0 verification pass",
+              "pullRequest": 33,
+              "url": "https://github.com/prabhsehgal99/project99/pull/33"
+            },
+            {
+              "commit": "4f8f776f3ae391b90117e5f2f04bc04d8acaffd8",
+              "label": "PR #34: Fix installed iOS PWA Google sign-in loop",
+              "pullRequest": 34,
+              "url": "https://github.com/prabhsehgal99/project99/pull/34"
+            },
+            {
+              "label": "D-017 - Redirect authentication for installed PWAs",
+              "url": "docs/project/DECISIONS.md"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Auth mode tests",
+              "path": "src/lib/auth-mode.test.ts",
+              "status": "passed"
+            },
+            {
+              "label": "First-party auth proxy tests",
+              "path": "src/lib/firebase-config.test.ts",
+              "status": "passed"
+            },
+            {
+              "label": "Service worker auth bypass",
+              "path": "public/sw.js",
+              "status": "present"
+            }
+          ]
+        },
+        "elementId": "pwa-delivery-shell",
+        "operation": "repaired",
+        "summary": "Installed PWA redirect auth now avoids third-party Firebase helper storage paths in production."
+      },
+      {
+        "element": {
+          "category": "foundation",
+          "dependencies": [
+            "application-foundation",
+            "environment-boundary"
+          ],
+          "feature": "Google authentication",
+          "filter": "data-security",
+          "id": "firebase-auth-boundary",
+          "introduced": "2026-07-31",
+          "lastChanged": "2026-08-08",
+          "limitations": [],
+          "name": "Authentication boundary",
+          "paths": [
+            "src/components/auth-provider.tsx",
+            "src/lib/firebase.ts",
+            "src/lib/firebase-config.ts",
+            "next.config.ts"
+          ],
+          "position": {
+            "height": 62,
+            "width": 310,
+            "x": 670,
+            "y": 500
+          },
+          "responsibility": "Keeps app data behind authenticated Firebase users and initializes Firebase client services from coherent environment configuration and first-party production auth routing.",
+          "sourceRefs": [
+            {
+              "commit": "98908d9a0fb80344456ec824a947ddfe7a6cdeca",
+              "label": "PR #1: Build Project 99 fitness PWA",
+              "pullRequest": 1,
+              "url": "https://github.com/prabhsehgal99/project99/pull/1"
+            },
+            {
+              "commit": "905f5e7509a11c567ac9213b6492311596c7062d",
+              "label": "PR #24: Enforce Firebase dev and production environment identity",
+              "pullRequest": 24,
+              "url": "https://github.com/prabhsehgal99/project99/pull/24"
+            },
+            {
+              "commit": "4f8f776f3ae391b90117e5f2f04bc04d8acaffd8",
+              "label": "PR #34: Fix installed iOS PWA Google sign-in loop",
+              "pullRequest": 34,
+              "url": "https://github.com/prabhsehgal99/project99/pull/34"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Firebase client auth-domain tests",
+              "path": "src/lib/firebase-config.test.ts",
+              "status": "passed"
+            },
+            {
+              "label": "Production redirect URI requirement",
+              "path": "docs/project/CURRENT_STATE.md",
+              "status": "present"
+            }
+          ]
+        },
+        "elementId": "firebase-auth-boundary",
+        "operation": "modified",
+        "summary": "Production client auth domain selection now uses the deployed HTTPS app host when appropriate."
+      }
+    ],
+    "date": "2026-08-08",
+    "id": "2026-08-08-ios-pwa-auth-proxy",
+    "knownLimitations": [
+      "Production Google OAuth settings must keep the assigned app-domain redirect URI authorized."
+    ],
+    "milestone": "Phase 0 production auth repair",
+    "sourceRefs": [
+      {
+        "commit": "4f8f776f3ae391b90117e5f2f04bc04d8acaffd8",
+        "label": "PR #34: Fix installed iOS PWA Google sign-in loop",
+        "pullRequest": 34,
+        "url": "https://github.com/prabhsehgal99/project99/pull/34"
+      },
+      {
+        "label": "D-017 - Redirect authentication for installed PWAs",
+        "url": "docs/project/DECISIONS.md"
+      }
+    ],
+    "summary": "Production Google redirect auth was repaired for installed iOS PWAs by using the app host as the client auth domain and proxying Firebase auth helper routes through Next.js.",
+    "title": "Installed iOS PWA auth proxy repair"
+  },
+  {
     "changeType": "added",
     "changes": [
       {

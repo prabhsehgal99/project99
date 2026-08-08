@@ -1,5 +1,5 @@
 // Bump CACHE_VERSION whenever caching behavior changes so activate() purges old caches.
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = `project99-${CACHE_VERSION}`;
 const OFFLINE_FALLBACK = "/";
 
@@ -31,6 +31,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (request.method !== "GET" || url.origin !== self.location.origin) {
+    return;
+  }
+
+  if (url.pathname.startsWith("/__/auth/") || url.pathname === "/__/firebase/init.json") {
+    event.respondWith(fetch(request));
     return;
   }
 

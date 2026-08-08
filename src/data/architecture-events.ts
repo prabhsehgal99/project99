@@ -49,6 +49,7 @@ const envIdentityPr = githubPr(24, "Enforce Firebase dev and production environm
 const rulesTestsPr = githubPr(27, "Add emulator-backed Firestore rules tests", "81bb7ab34cf28428aa13c2fd5a82c922006cd6dc");
 const foundationClosurePr = githubPr(28, "Close pending foundation issues", "07d30a539dc7706b9e37af4288aed2cacf8fbb39");
 const phaseZeroPr = githubPr(33, "Record Phase 0 verification pass", "0aed964c4ba2f1f3c91f7f54571cb0cae6623f91");
+const pwaAuthFixPr = githubPr(34, "Fix installed iOS PWA Google sign-in loop", "4f8f776f3ae391b90117e5f2f04bc04d8acaffd8");
 const observatoryPr: ArchitectureReference = {
   label: "PR #36: Build Project99 Architecture Observatory",
   pullRequest: 36,
@@ -758,6 +759,68 @@ export const architectureEvents: ArchitectureEvent[] = [
       }
     ],
     knownLimitations: ["Agent workspaces still need local Firebase environment values before authenticated runtime behavior can be exercised there."]
+  },
+  {
+    id: "2026-08-08-ios-pwa-auth-proxy",
+    date: "2026-08-08",
+    title: "Installed iOS PWA auth proxy repair",
+    summary:
+      "Production Google redirect auth was repaired for installed iOS PWAs by using the app host as the client auth domain and proxying Firebase auth helper routes through Next.js.",
+    changeType: "repaired",
+    milestone: "Phase 0 production auth repair",
+    sourceRefs: [pwaAuthFixPr, decision("D-017 - Redirect authentication for installed PWAs")],
+    changes: [
+      {
+        operation: "repaired",
+        elementId: "pwa-delivery-shell",
+        summary: "Installed PWA redirect auth now avoids third-party Firebase helper storage paths in production.",
+        element: element({
+          id: "pwa-delivery-shell",
+          name: "PWA delivery shell",
+          category: "delivery",
+          filter: "infrastructure",
+          status: "implemented",
+          feature: "Installable PWA",
+          responsibility: "Provides manifest, icons, service worker behavior, first-party auth helper routing, and production static assets for installed-app use.",
+          paths: ["public/manifest.webmanifest", "public/sw.js", "public/icon-192.png", "public/icon-512.png", "public/apple-touch-icon.png", "src/components/pwa-register.tsx", "src/lib/auth-mode.ts", "next.config.ts"],
+          dependencies: ["application-foundation", "firebase-auth-boundary", "environment-boundary"],
+          introduced: "2026-08-01",
+          lastChanged: "2026-08-08",
+          sourceRefs: [hardeningPr, foundationClosurePr, phaseZeroPr, pwaAuthFixPr, decision("D-017 - Redirect authentication for installed PWAs")],
+          verification: [
+            { label: "Auth mode tests", status: "passed", path: "src/lib/auth-mode.test.ts" },
+            { label: "First-party auth proxy tests", status: "passed", path: "src/lib/firebase-config.test.ts" },
+            { label: "Service worker auth bypass", status: "present", path: "public/sw.js" }
+          ],
+          position: { x: 700, y: 66, width: 235, height: 72 }
+        })
+      },
+      {
+        operation: "modified",
+        elementId: "firebase-auth-boundary",
+        summary: "Production client auth domain selection now uses the deployed HTTPS app host when appropriate.",
+        element: element({
+          id: "firebase-auth-boundary",
+          name: "Authentication boundary",
+          category: "foundation",
+          filter: "data-security",
+          status: "implemented",
+          feature: "Google authentication",
+          responsibility: "Keeps app data behind authenticated Firebase users and initializes Firebase client services from coherent environment configuration and first-party production auth routing.",
+          paths: ["src/components/auth-provider.tsx", "src/lib/firebase.ts", "src/lib/firebase-config.ts", "next.config.ts"],
+          dependencies: ["application-foundation", "environment-boundary"],
+          introduced: "2026-07-31",
+          lastChanged: "2026-08-08",
+          sourceRefs: [initialPr, envIdentityPr, pwaAuthFixPr],
+          verification: [
+            { label: "Firebase client auth-domain tests", status: "passed", path: "src/lib/firebase-config.test.ts" },
+            { label: "Production redirect URI requirement", status: "present", path: "docs/project/CURRENT_STATE.md" }
+          ],
+          position: { x: 670, y: 500, width: 310, height: 62 }
+        })
+      }
+    ],
+    knownLimitations: ["Production Google OAuth settings must keep the assigned app-domain redirect URI authorized."]
   },
   {
     id: "2026-08-08-architecture-observatory",

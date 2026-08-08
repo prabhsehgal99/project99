@@ -34,7 +34,25 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd()
   },
-  typedRoutes: false
+  typedRoutes: false,
+  async rewrites() {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.trim();
+
+    if (!projectId) {
+      return [];
+    }
+
+    return [
+      {
+        source: "/__/auth/:path*",
+        destination: `https://${projectId}.firebaseapp.com/__/auth/:path*`
+      },
+      {
+        source: "/__/firebase/init.json",
+        destination: `https://${projectId}.firebaseapp.com/__/firebase/init.json`
+      }
+    ];
+  }
 };
 
 export default nextConfig;
