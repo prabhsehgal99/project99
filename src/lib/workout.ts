@@ -5,7 +5,9 @@ import type {
   WorkoutSession,
   WorkoutSessionStatus,
   WorkoutSet,
-  WorkoutSetKind
+  WorkoutSetKind,
+  WorkoutTemplate,
+  WorkoutTemplateExercise
 } from "@/lib/types";
 
 export const exerciseCatalogue: ExerciseDefinition[] = [
@@ -57,6 +59,43 @@ export function newWorkoutExercise(definition: ExerciseDefinition): WorkoutExerc
     notes: "",
     sets: [newWorkoutSet("working")]
   };
+}
+
+export function workoutExerciseFromTemplate(exercise: WorkoutTemplateExercise): WorkoutExercise {
+  return {
+    id: crypto.randomUUID(),
+    exerciseId: exercise.exerciseId,
+    name: exercise.name,
+    primaryMuscleGroup: exercise.primaryMuscleGroup,
+    notes: exercise.notes,
+    sets: exercise.prescriptions.flatMap((prescription) =>
+      Array.from({ length: prescription.targetSets }, () => newWorkoutSet(prescription.kind))
+    )
+  };
+}
+
+export function workoutFromTemplate(template: WorkoutTemplate, id: string, date: string): WorkoutSession {
+  return {
+    id,
+    schemaVersion: 1,
+    date,
+    title: template.title,
+    status: "active",
+    exercises: template.exercises.map(workoutExerciseFromTemplate),
+    notes: template.notes
+  };
+}
+
+export function isLifetimePersonalRecord(current: WorkoutSet, sessions: WorkoutSession[], exerciseId: string, currentSessionId?: string) {
+  const currentBest = estimatedOneRepMaxLb(current);
+  if (currentBest === null) return false;
+  const previousBest = Math.max(
+    0,
+    ...sessions.filter((session) => session.id !== currentSessionId && session.status === "completed").flatMap((session) =>
+      session.exercises.filter((exercise) => exercise.exerciseId === exerciseId).flatMap((exercise) => exercise.sets.map(estimatedOneRepMaxLb))
+    ).filter((value): value is number => value !== null)
+  );
+  return currentBest > previousBest;
 }
 
 export function normalizeWorkoutSession(id: string, raw: unknown): WorkoutSession | null {

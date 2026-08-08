@@ -11,16 +11,18 @@ import { dailyLogSummary, formatActivityStatus } from "@/lib/daily-log";
 import { longDateLabel } from "@/lib/dates";
 import { dismissTodayFocus, isTodayFocusDismissed } from "@/lib/today-focus-visibility";
 import { todayFocus } from "@/lib/today";
+import { nutritionDaySummary } from "@/lib/nutrition";
 
 export function DashboardPage() {
   return <AuthenticatedShell>{() => <TodayContent />}</AuthenticatedShell>;
 }
 
 function TodayContent() {
-  const { today, todayLog, todayExists, settings, activeWorkout, loading, error } = useTodayData();
+  const { today, todayLog, todayExists, settings, activeWorkout, nutritionEntries, loading, error } = useTodayData();
   const { openQuickLog } = useQuickLog();
   const [focusDismissed, setFocusDismissed] = useState(() => isTodayFocusDismissed(today));
-  const summary = dailyLogSummary(todayLog, settings);
+  const nutrition = nutritionDaySummary(todayLog, nutritionEntries).total;
+  const summary = dailyLogSummary({ ...todayLog, caloriesConsumed: nutrition.calories, proteinConsumed: nutrition.protein, carbohydratesConsumed: nutrition.carbohydrates, fatConsumed: nutrition.fat, fibreConsumed: nutrition.fibre }, settings);
   const focus = todayFocus(todayLog, settings, activeWorkout);
   const rhythm = loggedMoments(todayLog);
 

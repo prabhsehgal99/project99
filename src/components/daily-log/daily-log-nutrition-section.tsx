@@ -1,6 +1,7 @@
 "use client";
 
 import { NumberInput, Panel } from "@/components/ui";
+import Link from "next/link";
 import type { DailyLogFieldErrors } from "@/lib/daily-log";
 import type { DailyLogDraft } from "@/lib/types";
 
@@ -14,7 +15,8 @@ export function DailyLogNutritionSection({
   onChange: (patch: Partial<DailyLogDraft>) => void;
 }) {
   return (
-    <Panel title="Nutrition totals">
+    <Panel title="Manual nutrition adjustment">
+      <p className="mb-4 text-sm leading-6 text-muted">These values are added to itemized meals. <Link className="font-medium text-ink underline" href="/nutrition">Log food</Link> for meal-level tracking.</p>
       <fieldset className="grid gap-4 sm:grid-cols-2">
         <legend className="sr-only">Nutrition totals</legend>
         <NumberInput

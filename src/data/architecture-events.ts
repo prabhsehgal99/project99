@@ -997,5 +997,56 @@ export const architectureEvents: ArchitectureEvent[] = [
       }
     ],
     knownLimitations: ["Agent workspace screenshots were limited to unauthenticated/configuration states because local Firebase environment values were not present."]
+  },
+  {
+    id: "2026-08-08-workout-nutrition-components",
+    date: "2026-08-08",
+    title: "Workout templates and first-party nutrition",
+    summary: "Project99 gained owner-scoped reusable workout definitions/templates and itemized nutrition entries that complement the Daily Log manual adjustment.",
+    changeType: "added",
+    milestone: "Phase 1B–1C components",
+    sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database")],
+    changes: [
+      {
+        operation: "added",
+        elementId: "nutrition-wing",
+        summary: "Added the date-scoped food logging surface and pure daily nutrition projection.",
+        element: element({
+          id: "nutrition-wing", name: "Nutrition wing", category: "product", filter: "product", status: "implemented", feature: "First-party nutrition",
+          responsibility: "Stores user-created food snapshots and dated meal entries, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          paths: ["src/app/nutrition/page.tsx", "src/components/nutrition-page.tsx", "src/lib/nutrition.ts", "src/lib/types.ts"],
+          dependencies: ["daily-log-core", "firestore-data-boundary", "today-data-boundary"], introduced: "2026-08-08", lastChanged: "2026-08-08",
+          sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database")],
+          verification: [{ label: "Nutrition projection tests", status: "passed", path: "src/lib/nutrition.test.ts" }],
+          limitations: ["Curated foods, barcode scanning, imports, and recipe-builder workflows remain deferred."], position: { x: 960, y: 250, width: 210, height: 80 }
+        })
+      },
+      {
+        operation: "modified",
+        elementId: "workout-wing",
+        summary: "Extended active workouts with template snapshots, custom exercises, local rest timing, and recent history context.",
+        element: element({
+          id: "workout-wing", name: "Workout wing", category: "product", filter: "product", status: "implemented", feature: "Workout engine",
+          responsibility: "Runs active sessions and reusable workout definitions while keeping each started session independent from future template edits.",
+          paths: ["src/components/workout-page.tsx", "src/lib/workout.ts", "src/lib/types.ts"],
+          dependencies: ["daily-log-core", "firestore-data-boundary"], introduced: "2026-08-05", lastChanged: "2026-08-08",
+          sourceRefs: [workoutPr], verification: [{ label: "Workout unit tests", status: "passed", path: "src/lib/workout.test.ts" }],
+          limitations: ["Workout template editing and full exercise-history routes remain incremental follow-up work."], position: { x: 160, y: 120, width: 210, height: 78 }
+        })
+      },
+      {
+        operation: "modified",
+        elementId: "firestore-data-boundary",
+        summary: "Extended owner-scoped Firestore collections and Rules for workout definitions, templates, foods, meals, and entries.",
+        element: element({
+          id: "firestore-data-boundary", name: "Firestore data boundary", category: "frame", filter: "data-security", status: "implemented", feature: "User-owned persistence",
+          responsibility: "Centralizes persistence and owner-only validation for dated logs plus independent workout and nutrition definitions.",
+          paths: ["src/lib/firestore.ts", "src/lib/types.ts", "firestore.rules", "tests/firestore.rules.test.ts"],
+          dependencies: ["firebase-auth-boundary"], introduced: "2026-07-31", lastChanged: "2026-08-08",
+          sourceRefs: [rulesTestsPr], verification: [{ label: "Rules emulator tests", status: "passed", path: "tests/firestore.rules.test.ts" }], position: { x: 680, y: 400, width: 245, height: 78 }
+        })
+      }
+    ],
+    knownLimitations: ["Authenticated runtime QA requires the project dev Firebase environment and is not available in this workspace."]
   }
 ];

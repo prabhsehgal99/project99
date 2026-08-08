@@ -22,7 +22,18 @@ import { applyDailyLogMutation, normalizeDailyLog, type DailyLogMutation } from 
 import { getFirebaseDb } from "@/lib/firebase";
 import { reportFirestoreError } from "@/lib/monitoring";
 import { normalizeWorkoutSession } from "@/lib/workout";
-import { defaultDailyLog, defaultSettings, type DailyLog, type UserSettings, type WorkoutSession } from "@/lib/types";
+import {
+  defaultDailyLog,
+  defaultSettings,
+  type DailyLog,
+  type Food,
+  type NutritionEntry,
+  type SavedMeal,
+  type UserExerciseDefinition,
+  type UserSettings,
+  type WorkoutSession,
+  type WorkoutTemplate
+} from "@/lib/types";
 
 export type DailyLogSnapshot = {
   exists: boolean;
@@ -281,4 +292,76 @@ export async function finishWorkoutSession(uid: string, session: WorkoutSession)
     });
     await batch.commit();
   });
+}
+
+function documentWithId<T extends object>(id: string, data: unknown): T | null {
+  return typeof data === "object" && data !== null ? ({ id, ...(data as object) } as T) : null;
+}
+
+function subscribeToUserCollection<T extends object>(uid: string, collectionName: string, onNext: (items: T[]) => void, onError: (error: Error) => void, constraints: ReturnType<typeof orderBy>[] = []) {
+  return onSnapshot(
+    query(collection(getFirebaseDb(), "users", uid, collectionName), ...constraints),
+    (snapshot) => onNext(snapshot.docs.flatMap((item) => {
+      const value = documentWithId<T>(item.id, item.data());
+      return value ? [value] : [];
+    })),
+    onError
+  );
+}
+
+export function subscribeToExerciseDefinitions(uid: string, onNext: (items: UserExerciseDefinition[]) => void, onError: (error: Error) => void) {
+  return subscribeToUserCollection(uid, "exerciseDefinitions", onNext, onError, [orderBy("name", "asc")]);
+}
+
+export function subscribeToWorkoutTemplates(uid: string, onNext: (items: WorkoutTemplate[]) => void, onError: (error: Error) => void) {
+  return subscribeToUserCollection(uid, "workoutTemplates", onNext, onError, [orderBy("title", "asc")]);
+}
+
+export async function saveExerciseDefinition(uid: string, exercise: UserExerciseDefinition) {
+  const ref = doc(getFirebaseDb(), "users", uid, "exerciseDefinitions", exercise.id);
+  await setDoc(ref, { ...exercise, createdAt: exercise.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export async function saveWorkoutTemplate(uid: string, template: WorkoutTemplate) {
+  const ref = doc(getFirebaseDb(), "users", uid, "workoutTemplates", template.id);
+  await setDoc(ref, { ...template, createdAt: template.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export function subscribeToFoods(uid: string, onNext: (items: Food[]) => void, onError: (error: Error) => void) {
+  return subscribeToUserCollection(uid, "foods", onNext, onError, [orderBy("name", "asc")]);
+}
+
+export function subscribeToNutritionEntries(uid: string, date: string, onNext: (items: NutritionEntry[]) => void, onError: (error: Error) => void) {
+  return onSnapshot(
+    query(collection(getFirebaseDb(), "users", uid, "nutritionEntries"), where("date", "==", date), orderBy("createdAt", "asc")),
+    (snapshot) => onNext(snapshot.docs.flatMap((item) => {
+      const value = documentWithId<NutritionEntry>(item.id, item.data());
+      return value ? [value] : [];
+    })),
+    onError
+  );
+}
+
+export function subscribeToSavedMeals(uid: string, onNext: (items: SavedMeal[]) => void, onError: (error: Error) => void) {
+  return subscribeToUserCollection(uid, "savedMeals", onNext, onError, [orderBy("name", "asc")]);
+}
+
+export async function saveFood(uid: string, food: Food) {
+  const ref = doc(getFirebaseDb(), "users", uid, "foods", food.id);
+  await setDoc(ref, { ...food, createdAt: food.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export async function saveNutritionEntry(uid: string, entry: NutritionEntry) {
+  const ref = doc(getFirebaseDb(), "users", uid, "nutritionEntries", entry.id);
+  await setDoc(ref, { ...entry, createdAt: entry.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export async function deleteNutritionEntry(uid: string, id: string) {
+  const { deleteDoc } = await import("firebase/firestore");
+  await deleteDoc(doc(getFirebaseDb(), "users", uid, "nutritionEntries", id));
+}
+
+export async function saveSavedMeal(uid: string, meal: SavedMeal) {
+  const ref = doc(getFirebaseDb(), "users", uid, "savedMeals", meal.id);
+  await setDoc(ref, { ...meal, createdAt: meal.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
 }

@@ -3,8 +3,8 @@
 import type { User } from "firebase/auth";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { todayKey } from "@/lib/dates";
-import { subscribeToActiveWorkout, subscribeToDailyLog, subscribeToSettings } from "@/lib/firestore";
-import { defaultDailyLog, defaultSettings, type DailyLog, type UserSettings, type WorkoutSession } from "@/lib/types";
+import { subscribeToActiveWorkout, subscribeToDailyLog, subscribeToNutritionEntries, subscribeToSettings } from "@/lib/firestore";
+import { defaultDailyLog, defaultSettings, type DailyLog, type NutritionEntry, type UserSettings, type WorkoutSession } from "@/lib/types";
 
 type TodayDataContextValue = {
   today: string;
@@ -12,6 +12,7 @@ type TodayDataContextValue = {
   todayLog: DailyLog;
   todayExists: boolean;
   activeWorkout: WorkoutSession | null;
+  nutritionEntries: NutritionEntry[];
   loading: boolean;
   error: string | null;
 };
@@ -24,6 +25,7 @@ export function TodayDataProvider({ user, children }: { user: User; children: Re
   const [todayLog, setTodayLog] = useState<DailyLog>(defaultDailyLog(today));
   const [todayExists, setTodayExists] = useState(false);
   const [activeWorkout, setActiveWorkout] = useState<WorkoutSession | null>(null);
+  const [nutritionEntries, setNutritionEntries] = useState<NutritionEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,9 +33,10 @@ export function TodayDataProvider({ user, children }: { user: User; children: Re
     let settingsReady = false;
     let todayReady = false;
     let workoutReady = false;
+    let nutritionReady = false;
 
     const markReady = () => {
-      if (settingsReady && todayReady && workoutReady) {
+      if (settingsReady && todayReady && workoutReady && nutritionReady) {
         setLoading(false);
       }
     };
@@ -74,11 +77,18 @@ export function TodayDataProvider({ user, children }: { user: User; children: Re
       },
       handleError
     );
+    const unsubscribeNutrition = subscribeToNutritionEntries(
+      user.uid,
+      today,
+      (entries) => { nutritionReady = true; setNutritionEntries(entries); markReady(); },
+      handleError
+    );
 
     return () => {
       unsubscribeSettings();
       unsubscribeToday();
       unsubscribeWorkout();
+      unsubscribeNutrition();
     };
   }, [today, user.uid]);
 
@@ -89,10 +99,11 @@ export function TodayDataProvider({ user, children }: { user: User; children: Re
       todayLog,
       todayExists,
       activeWorkout,
+      nutritionEntries,
       loading,
       error
     }),
-    [activeWorkout, error, loading, settings, today, todayExists, todayLog]
+    [activeWorkout, error, loading, nutritionEntries, settings, today, todayExists, todayLog]
   );
 
   return <TodayDataContext.Provider value={value}>{children}</TodayDataContext.Provider>;
