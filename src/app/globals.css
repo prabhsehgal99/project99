@@ -12,6 +12,9 @@
   --color-mint: #a9dcc4;
   --color-violet: #c0b9e8;
   --color-warm: #d9cda9;
+  --color-control: #1a2421;
+  --color-primary: #f3f3ec;
+  --color-primary-ink: #080d0c;
   --shadow-glow: 0 18px 60px rgba(0, 0, 0, 0.34);
 }
 
@@ -34,7 +37,9 @@ body {
   margin: 0;
   background: #080d0c;
   color: #f3f3ec;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sora), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.012em;
 }
 
 button,
@@ -55,6 +60,23 @@ input[type="number"]::-webkit-outer-spin-button {
 
 dialog::backdrop {
   background: rgba(2, 6, 5, 0.64);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #a9dcc4;
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

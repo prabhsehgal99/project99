@@ -154,14 +154,14 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
       {children}
       <dialog
         ref={dialogRef}
-        className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88dvh] w-full max-w-none overflow-y-auto rounded-t-lg border border-line bg-panel p-0 text-ink shadow-glow backdrop:bg-black/60 md:inset-0 md:m-auto md:max-h-[82vh] md:w-[min(92vw,560px)] md:rounded-lg"
+        className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88dvh] w-full max-w-none overflow-y-auto rounded-t-3xl border border-line bg-panel p-0 text-ink shadow-glow backdrop:bg-black/60 md:inset-0 md:m-auto md:max-h-[82vh] md:w-[min(92vw,560px)] md:rounded-3xl"
         aria-labelledby="quick-log-title"
         onClose={() => restoreFocusRef.current?.focus()}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-panel px-4 py-3">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-panel px-5 py-4">
           <div>
             <p className="text-xs font-medium text-muted">Quick Log</p>
-            <h2 id="quick-log-title" className="text-lg font-semibold text-ink">
+            <h2 id="quick-log-title" className="text-lg font-medium tracking-[-0.03em] text-ink">
               {editor === "root" ? "What changed?" : editorTitle(editor)}
             </h2>
           </div>
@@ -175,7 +175,7 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
           </button>
         </div>
 
-        <div className="p-4">
+        <div className="p-5">
           <div aria-live="polite" className="sr-only">
             {saving ? "Saving Quick Log update." : status || error}
           </div>
@@ -200,7 +200,7 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
             <div className="grid gap-3">
               <button
                 ref={firstActionRef}
-                className="flex min-h-14 items-center justify-between rounded-lg border border-mint/45 bg-mint px-4 text-left font-semibold text-night transition active:scale-[0.99]"
+                className="flex min-h-14 items-center justify-between rounded-2xl bg-primary px-4 text-left font-medium text-primary-ink transition active:scale-[0.99]"
                 type="button"
                 disabled={saving}
                 onClick={() => void runMutation({ type: "incrementWater", amountMl: 250 }, "Added 250 mL of water.")}
@@ -379,7 +379,7 @@ function editorTitle(editor: QuickLogEditor) {
 function QuickLogChoice({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
   return (
     <button
-      className="flex min-h-16 flex-col items-start justify-center gap-2 rounded-lg border border-line bg-raised px-3 text-left text-sm font-medium text-ink transition hover:border-mint/50 active:scale-[0.99]"
+      className="flex min-h-16 flex-col items-start justify-center gap-2 rounded-2xl border border-line bg-raised px-3 text-left text-sm font-medium text-ink transition hover:border-violet/60 active:scale-[0.99]"
       type="button"
       onClick={onClick}
     >
@@ -403,7 +403,7 @@ function FocusedEditor({ children, onBack }: { children: ReactNode; onBack: () =
 function PrimarySave({ saving, label = "Save", onClick }: { saving: boolean; label?: string; onClick: () => void }) {
   return (
     <button
-      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night transition hover:bg-mint/90 disabled:opacity-60"
+      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-medium text-primary-ink transition hover:bg-ink/90 disabled:opacity-60"
       type="button"
       disabled={saving}
       onClick={onClick}

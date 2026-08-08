@@ -76,10 +76,10 @@ function ProgressContent({ user }: { user: User }) {
   const latestSummary = logs.length > 0 ? dailyLogSummary(logs[logs.length - 1], settings) : null;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <div className="mx-auto max-w-5xl space-y-8">
       <header>
-        <p className="text-sm font-medium text-muted">Progress</p>
-        <h1 className="mt-1 text-3xl font-semibold text-ink">Trends without the daily noise.</h1>
+        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted">Progress</p>
+        <h1 className="mt-1 text-3xl font-medium tracking-[-0.04em] text-ink">Trends without the daily noise.</h1>
       </header>
 
       {error ? (
@@ -91,7 +91,7 @@ function ProgressContent({ user }: { user: User }) {
         </section>
       ) : null}
 
-      <section className="rounded-lg border border-line bg-panel p-5" aria-busy={loading}>
+      <section className="rounded-3xl border border-line bg-panel p-5 sm:p-6" aria-busy={loading}>
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-base font-semibold text-ink">Weekly weight trend</h2>
           {loading ? (
@@ -127,8 +127,8 @@ function ProgressContent({ user }: { user: User }) {
         )}
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-2">
-        <div className="rounded-lg border border-line bg-panel p-5">
+      <section className="grid gap-8 lg:grid-cols-2">
+        <div className="border-y border-line py-5">
           <h2 className="text-base font-semibold text-ink">Weight goal</h2>
           <div className="mt-5">
             <div className="mb-2 flex justify-between gap-3 text-sm">
@@ -142,7 +142,7 @@ function ProgressContent({ user }: { user: User }) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-line bg-panel p-5">
+        <div className="border-y border-line py-5">
           <h2 className="text-base font-semibold text-ink">Current daily targets</h2>
           {latestSummary ? (
             <div className="mt-5 grid gap-4">
@@ -161,7 +161,7 @@ function ProgressContent({ user }: { user: User }) {
 
 function TargetLine({ label, value, percent }: { label: string; value: string; percent: number }) {
   return (
-    <div>
+    <div className="border-b border-line pb-4 last:border-b-0 last:pb-0">
       <div className="mb-2 flex justify-between gap-3 text-sm">
         <span className="text-muted">{label}</span>
         <span className="font-medium text-ink">{value}</span>
@@ -177,7 +177,7 @@ function EmptyAction({ icon, title, detail, action, onClick }: { icon: React.Rea
       <div className="text-mint">{icon}</div>
       <h3 className="mt-3 text-base font-semibold text-ink">{title}</h3>
       <p className="mt-2 max-w-sm text-sm leading-6 text-muted">{detail}</p>
-      <button className="mt-4 min-h-11 rounded-md bg-mint px-4 text-sm font-semibold text-night" type="button" onClick={onClick}>
+      <button className="mt-4 min-h-11 rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink" type="button" onClick={onClick}>
         {action}
       </button>
     </div>

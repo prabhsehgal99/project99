@@ -1,13 +1,15 @@
 "use client";
 
-import { Bike, CheckCircle2, Droplets, Dumbbell, Flame, Loader2, Moon, NotebookPen, Scale, Utensils } from "lucide-react";
+import { Bike, CheckCircle2, Dumbbell, Loader2, Moon, NotebookPen, Scale, Utensils, X } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { AuthenticatedShell } from "@/components/authenticated-shell";
 import { useQuickLog } from "@/components/quick-log/quick-log-provider";
 import { useTodayData } from "@/components/today-data-provider";
 import { ProgressBar } from "@/components/ui";
 import { dailyLogSummary, formatActivityStatus } from "@/lib/daily-log";
 import { longDateLabel } from "@/lib/dates";
+import { dismissTodayFocus, isTodayFocusDismissed } from "@/lib/today-focus-visibility";
 import { todayFocus } from "@/lib/today";
 
 export function DashboardPage() {
@@ -17,168 +19,110 @@ export function DashboardPage() {
 function TodayContent() {
   const { today, todayLog, todayExists, settings, activeWorkout, loading, error } = useTodayData();
   const { openQuickLog } = useQuickLog();
+  const [focusDismissed, setFocusDismissed] = useState(() => isTodayFocusDismissed(today));
   const summary = dailyLogSummary(todayLog, settings);
   const focus = todayFocus(todayLog, settings, activeWorkout);
+  const rhythm = loggedMoments(todayLog);
 
-  return (
-    <div className="mx-auto grid max-w-6xl gap-5 xl:grid-cols-[minmax(0,1.05fr)_360px]">
-      <div className="space-y-5">
-        <section className="rounded-lg border border-line bg-panel p-5 shadow-glow sm:p-7">
-          <p className="text-sm font-medium text-muted">{longDateLabel(today)}</p>
-          <div className="mt-5 rounded-lg border border-mint/30 bg-raised p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-medium text-mint">Up next</p>
-                <h1 className="mt-2 max-w-2xl text-3xl font-semibold leading-tight text-ink sm:text-4xl">{focus.title}</h1>
-                <p className="mt-3 text-sm leading-6 text-muted">
-                  {todayExists || summary.hasMeaningfulEntry ? "Today has started. Keep capture short and accurate." : "No log has been saved for today yet."}
-                </p>
-              </div>
-              {"href" in focus ? (
-                <Link className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night" href={focus.href}>
-                  {focus.type.includes("workout") ? <Dumbbell className="h-5 w-5" aria-hidden="true" /> : null}
-                  {focus.label}
-                </Link>
-              ) : (
-                <button
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night"
-                  type="button"
-                  onClick={() => openQuickLog(focus.quickLog)}
-                >
-                  {focus.label}
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {error ? (
-          <section className="rounded-lg border border-red-300/30 bg-red-300/10 p-4 text-sm text-red-100" role="alert">
-            <p>{error}</p>
-            <button className="mt-3 min-h-11 rounded-md border border-red-200/50 px-4 text-sm font-medium" type="button" onClick={() => window.location.reload()}>
-              Retry
-            </button>
-          </section>
-        ) : null}
-
-        <section className="rounded-lg border border-line bg-panel p-4 sm:p-5" aria-busy={loading}>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold text-ink">Daily progress</h2>
-            {loading ? (
-              <span className="inline-flex items-center gap-2 text-xs text-muted">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-                Syncing
-              </span>
-            ) : null}
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <ProgressLine icon={<Flame className="h-5 w-5" aria-hidden="true" />} label="Calories" value={`${todayLog.caloriesConsumed} kcal`} detail={`${summary.caloriesRemaining} remaining`} percent={summary.caloriePercent} />
-            <ProgressLine icon={<Utensils className="h-5 w-5" aria-hidden="true" />} label="Protein" value={`${todayLog.proteinConsumed} g`} detail={`${summary.proteinRemaining} g remaining`} percent={summary.proteinPercent} />
-            <ProgressLine icon={<Droplets className="h-5 w-5" aria-hidden="true" />} label="Water" value={`${summary.waterLitres.toFixed(2)} L`} detail={`${summary.waterGoalLitres.toFixed(2)} L target`} percent={summary.waterPercent} />
-          </div>
-        </section>
-
-        <section className="rounded-lg border border-line bg-panel p-4 sm:p-5">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold text-ink">Recorded today</h2>
-            <Link className="min-h-11 px-2 py-3 text-sm font-medium text-mint" href={`/log/${today}`}>
-              Edit full day
-            </Link>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Signal label="Morning weight" value={todayLog.weightKg === null ? "Add morning weight" : `${todayLog.weightKg.toFixed(1)} kg`} icon={<Scale className="h-5 w-5" aria-hidden="true" />} onClick={() => openQuickLog("body")} />
-            <Signal label="Sleep" value={todayLog.sleepHours === null ? "Log sleep" : `${todayLog.sleepHours} h`} icon={<Moon className="h-5 w-5" aria-hidden="true" />} onClick={() => openQuickLog("sleep")} />
-            <Signal label="Workout" value={formatActivityStatus(todayLog.workoutStatus)} icon={<Dumbbell className="h-5 w-5" aria-hidden="true" />} href="/workouts" />
-            <Signal label="Cardio" value={formatActivityStatus(todayLog.cardioStatus)} icon={<Bike className="h-5 w-5" aria-hidden="true" />} onClick={() => openQuickLog("activity")} />
-            <Signal label="Recovery" value={todayLog.energyLevel === null ? "Check in" : `Energy ${todayLog.energyLevel}/5`} icon={<CheckCircle2 className="h-5 w-5" aria-hidden="true" />} onClick={() => openQuickLog("recovery")} />
-            <Signal label="Notes" value={todayLog.journalNotes ? "Journal note saved" : "Add note"} icon={<NotebookPen className="h-5 w-5" aria-hidden="true" />} onClick={() => openQuickLog("note")} />
-          </div>
-        </section>
-      </div>
-
-      <aside className="space-y-5">
-        <section className="rounded-lg border border-line bg-panel p-5">
-          <h2 className="text-base font-semibold text-ink">Fast capture</h2>
-          <div className="mt-4 grid gap-3">
-            <button className="min-h-12 rounded-md bg-mint px-4 text-sm font-semibold text-night" type="button" onClick={() => openQuickLog()}>
-              Open Quick Log
-            </button>
-            <button className="min-h-12 rounded-md border border-line bg-raised px-4 text-sm font-medium text-ink" type="button" onClick={() => openQuickLog("nutrition")}>
-              Add food totals or water
-            </button>
-            <button className="min-h-12 rounded-md border border-line bg-raised px-4 text-sm font-medium text-ink" type="button" onClick={() => openQuickLog("steps")}>
-              Add steps
-            </button>
-          </div>
-        </section>
-        <section className="rounded-lg border border-line bg-panel p-5">
-          <h2 className="text-base font-semibold text-ink">Next destinations</h2>
-          <div className="mt-4 grid gap-2">
-            <Link className="min-h-11 rounded-md border border-line bg-raised px-4 py-3 text-sm font-medium text-ink" href="/progress">
-              Review progress
-            </Link>
-            <Link className="min-h-11 rounded-md border border-line bg-raised px-4 py-3 text-sm font-medium text-ink" href="/more">
-              History, goals, and account
-            </Link>
-          </div>
-        </section>
-      </aside>
-    </div>
-  );
-}
-
-function ProgressLine({ icon, label, value, detail, percent }: { icon: React.ReactNode; label: string; value: string; detail: string; percent: number }) {
-  return (
-    <div className="rounded-md border border-line bg-night/35 p-4">
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-sm text-muted">
-          <span className="text-mint">{icon}</span>
-          {label}
-        </span>
-        <span className="text-sm font-semibold text-ink">{value}</span>
-      </div>
-      <div className="mt-4">
-        <ProgressBar value={percent} tone="emerald" />
-      </div>
-      <p className="mt-2 text-sm text-muted">{detail}</p>
-    </div>
-  );
-}
-
-function Signal({
-  icon,
-  label,
-  value,
-  href,
-  onClick
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  href?: string;
-  onClick?: () => void;
-}) {
-  const content = (
-    <>
-      <span className="text-mint">{icon}</span>
-      <span className="min-w-0">
-        <span className="block text-sm font-medium text-ink">{label}</span>
-        <span className="block truncate text-sm text-muted">{value}</span>
-      </span>
-    </>
-  );
-
-  if (href) {
-    return (
-      <Link className="flex min-h-16 items-center gap-3 rounded-md border border-line bg-raised px-4 text-left" href={href}>
-        {content}
-      </Link>
-    );
+  function dismissFocus() {
+    dismissTodayFocus(today);
+    setFocusDismissed(true);
   }
 
   return (
-    <button className="flex min-h-16 items-center gap-3 rounded-md border border-line bg-raised px-4 text-left" type="button" onClick={onClick}>
-      {content}
-    </button>
+    <div className="mx-auto max-w-3xl pb-5">
+      <header className="mb-7 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted">{longDateLabel(today)}</p>
+          <h1 className="mt-1 text-3xl font-medium tracking-[-0.04em] text-ink sm:text-4xl">Today</h1>
+        </div>
+        <Link className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-muted transition hover:bg-raised hover:text-ink" href={`/log/${today}`} aria-label="Open today’s full Daily Log">
+          <Scale className="h-5 w-5" aria-hidden="true" />
+        </Link>
+      </header>
+
+      {!focusDismissed ? (
+        <section className="relative overflow-hidden rounded-3xl border border-line bg-[linear-gradient(145deg,#17231f,#101815)] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] sm:p-6" aria-labelledby="up-next-title">
+          <div className="pointer-events-none absolute -right-20 -top-24 h-48 w-48 rounded-full bg-mint/10 blur-2xl" aria-hidden="true" />
+          <div className="relative flex items-start justify-between gap-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-mint">Up next</p>
+            <button className="-mr-2 -mt-2 inline-flex h-11 w-11 items-center justify-center rounded-xl text-muted transition hover:bg-night/40 hover:text-ink" type="button" onClick={dismissFocus} aria-label="Dismiss Up next for this session">
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+          </div>
+          <h2 id="up-next-title" className="relative mt-3 max-w-xl text-2xl font-medium tracking-[-0.035em] text-ink sm:text-3xl">{focus.title}</h2>
+          <p className="relative mt-2 max-w-xl text-sm leading-6 text-muted">{todayExists || summary.hasMeaningfulEntry ? "Keep capture short and accurate. Your full day stays available when you need it." : "No log has been saved for today yet."}</p>
+          <div className="relative mt-5">
+            {"href" in focus ? (
+              <Link className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-sm font-medium text-primary-ink transition hover:bg-ink/90" href={focus.href}>
+                {focus.type.includes("workout") ? <Dumbbell className="h-5 w-5" aria-hidden="true" /> : null}
+                {focus.label}
+              </Link>
+            ) : (
+              <button className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-primary px-5 text-sm font-medium text-primary-ink transition hover:bg-ink/90" type="button" onClick={() => openQuickLog(focus.quickLog)}>
+                {focus.label}
+              </button>
+            )}
+          </div>
+        </section>
+      ) : null}
+
+      {error ? (
+        <section className="mt-5 rounded-2xl border border-red-300/30 bg-red-300/10 p-4 text-sm text-red-100" role="alert">
+          <p>{error}</p>
+          <button className="mt-3 min-h-11 rounded-xl border border-red-200/50 px-4 text-sm font-medium" type="button" onClick={() => window.location.reload()}>Retry</button>
+        </section>
+      ) : null}
+
+      <section className="mt-8" aria-busy={loading} aria-label="Today so far">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-[15px] font-medium tracking-[-0.02em] text-ink">Today so far</h2>
+          {loading ? <span className="inline-flex items-center gap-2 text-xs text-muted"><Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />Syncing</span> : <span className="text-xs text-muted">Tap Log to add anything</span>}
+        </div>
+        <div className="border-y border-line">
+          <MetricRow label="Calories" value={`${todayLog.caloriesConsumed.toLocaleString()} / ${settings.calorieGoal.toLocaleString()}`} percent={summary.caloriePercent} tone="emerald" />
+          <MetricRow label="Protein" value={`${todayLog.proteinConsumed} / ${settings.proteinGoal} g`} percent={summary.proteinPercent} tone="purple" />
+          <MetricRow label="Water" value={`${summary.waterLitres.toFixed(2)} / ${summary.waterGoalLitres.toFixed(1)} L`} percent={summary.waterPercent} tone="warm" />
+        </div>
+      </section>
+
+      <section className="mt-8" aria-label="Your rhythm">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-[15px] font-medium tracking-[-0.02em] text-ink">Your rhythm</h2>
+          <Link className="min-h-11 px-2 py-3 text-xs font-medium text-muted hover:text-ink" href={`/log/${today}`}>Edit full day</Link>
+        </div>
+        {rhythm.length > 0 ? (
+          <div className="relative ml-1 border-l border-line pl-6">
+            {rhythm.map((moment) => (
+              <article key={moment.label} className="relative grid min-h-16 grid-cols-[1fr_auto] items-center gap-4 border-b border-line py-3 last:border-b-0">
+                <span className={`absolute -left-[29px] h-2.5 w-2.5 rounded-full border-2 border-night ${moment.tone}`} aria-hidden="true" />
+                <div><p className="text-sm text-ink">{moment.label}</p><p className="mt-0.5 text-xs text-muted">{moment.detail}</p></div>
+                <moment.icon className="h-4 w-4 text-muted" aria-hidden="true" />
+              </article>
+            ))}
+          </div>
+        ) : (
+          <button className="flex min-h-20 w-full items-center justify-between border-y border-line py-4 text-left text-sm text-muted transition hover:text-ink" type="button" onClick={() => openQuickLog()}>
+            <span>Nothing logged yet. Add the first signal when you are ready.</span><span className="text-xs font-medium text-mint">Open Log</span>
+          </button>
+        )}
+      </section>
+    </div>
   );
+}
+
+function MetricRow({ label, value, percent, tone }: { label: string; value: string; percent: number; tone: "emerald" | "purple" | "warm" }) {
+  return <div className="grid min-h-14 grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line last:border-b-0 sm:grid-cols-[92px_minmax(0,1fr)_auto]"><span className="text-sm text-ink">{label}</span><ProgressBar value={percent} tone={tone} /><span className="whitespace-nowrap text-xs tabular-nums text-muted">{value}</span></div>;
+}
+
+function loggedMoments(log: ReturnType<typeof useTodayData>["todayLog"]) {
+  const moments: { label: string; detail: string; tone: string; icon: typeof Scale }[] = [];
+  if (log.sleepHours !== null) moments.push({ label: "Sleep", detail: `${log.sleepHours} h`, tone: "bg-violet", icon: Moon });
+  if (log.weightKg !== null) moments.push({ label: "Morning weight", detail: `${log.weightKg.toFixed(1)} kg`, tone: "bg-mint", icon: Scale });
+  if (log.caloriesConsumed > 0 || log.proteinConsumed > 0) moments.push({ label: "Nutrition", detail: `${log.caloriesConsumed} kcal · ${log.proteinConsumed} g protein`, tone: "bg-warm", icon: Utensils });
+  if (log.workoutStatus === "complete") moments.push({ label: "Workout", detail: formatActivityStatus(log.workoutStatus), tone: "bg-mint", icon: Dumbbell });
+  if (log.cardioStatus === "complete") moments.push({ label: "Cardio", detail: formatActivityStatus(log.cardioStatus), tone: "bg-warm", icon: Bike });
+  if (log.energyLevel !== null || log.moodLevel !== null || log.sorenessLevel !== null) moments.push({ label: "Recovery", detail: `Energy ${log.energyLevel ?? "—"}/5 · Mood ${log.moodLevel ?? "—"}/5`, tone: "bg-violet", icon: CheckCircle2 });
+  if (log.journalNotes) moments.push({ label: "Journal", detail: "Note saved", tone: "bg-mint", icon: NotebookPen });
+  return moments;
 }

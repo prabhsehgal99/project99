@@ -36,7 +36,7 @@ export function StatCard({ title, value, detail, icon: Icon, tone = "neutral" }:
 
 export function Panel({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
   return (
-    <section className="rounded-lg border border-line bg-panel p-4 shadow-glow sm:p-5">
+    <section className="rounded-2xl border border-line bg-panel p-5 sm:p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-ink">{title}</h2>
         {action}
@@ -46,12 +46,12 @@ export function Panel({ title, children, action }: { title: string; children: Re
   );
 }
 
-export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "purple" }) {
+export function ProgressBar({ value, tone = "emerald" }: { value: number; tone?: "emerald" | "purple" | "warm" }) {
   const width = Math.max(0, Math.min(100, value));
-  const color = tone === "emerald" ? "bg-mint" : "bg-violet";
+  const color = tone === "emerald" ? "bg-mint" : tone === "purple" ? "bg-violet" : "bg-warm";
 
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-raised" aria-hidden="true">
+    <div className="h-1.5 overflow-hidden rounded-full bg-raised" aria-hidden="true">
       <div className={`h-full rounded-full ${color}`} style={{ width: `${width}%` }} />
     </div>
   );

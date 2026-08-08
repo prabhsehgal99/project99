@@ -40,8 +40,8 @@ function AuthenticatedShellContent({ children }: { children: (user: User) => Rea
   if (loading || (!user && configured)) {
     return (
       <main className="flex min-h-screen items-center justify-center px-4">
-        <div className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-950/80 px-4 py-3 text-zinc-300">
-          <Loader2 className="h-5 w-5 animate-spin text-emerald-300" aria-hidden="true" />
+        <div className="flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3 text-muted">
+          <Loader2 className="h-5 w-5 animate-spin text-mint" aria-hidden="true" />
           Loading
         </div>
       </main>
@@ -88,10 +88,10 @@ function AuthenticatedAppFrame({
 
   return (
     <div className="min-h-screen bg-night md:flex">
-      <aside className="hidden w-20 shrink-0 border-r border-line bg-panel/95 px-3 py-4 md:block lg:w-56">
-        <div className="flex min-h-11 items-center justify-center rounded-md border border-line bg-raised text-sm font-semibold text-mint lg:justify-start lg:px-3">
-          <Activity className="h-5 w-5" aria-hidden="true" />
-          <span className="sr-only lg:not-sr-only lg:ml-3">P99</span>
+      <aside className="hidden w-20 shrink-0 border-r border-line bg-panel px-3 py-5 md:block lg:w-56">
+        <div className="flex min-h-11 items-center justify-center text-sm font-medium tracking-[-0.03em] text-ink lg:justify-start lg:px-3">
+          <Activity className="h-5 w-5 text-mint" aria-hidden="true" />
+          <span className="sr-only lg:not-sr-only lg:ml-3">Project99</span>
         </div>
 
         <nav className="mt-6 space-y-2" aria-label="Primary">
@@ -99,7 +99,7 @@ function AuthenticatedAppFrame({
             <DesktopNavItem key={item.href} item={item} pathname={pathname} />
           ))}
           <button
-            className="flex min-h-12 w-full items-center justify-center gap-3 rounded-md bg-mint px-3 text-sm font-semibold text-night transition hover:bg-mint/90 lg:justify-start"
+            className="flex min-h-12 w-full items-center justify-center gap-3 rounded-2xl bg-primary px-3 text-sm font-medium text-primary-ink transition hover:bg-ink/90 lg:justify-start"
             type="button"
             onClick={() => openQuickLog()}
           >
@@ -115,21 +115,21 @@ function AuthenticatedAppFrame({
       <div className="min-w-0 flex-1 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:pb-0">
         {authError ? (
           <section className="mx-auto max-w-6xl px-4 pt-4 sm:px-6 lg:px-8">
-            <div className="rounded-lg border border-red-300/30 bg-red-300/10 p-4 text-sm text-red-100">{authError}</div>
+            <div className="rounded-2xl border border-red-300/30 bg-red-300/10 p-4 text-sm text-red-100">{authError}</div>
           </section>
         ) : null}
 
-        <main className="px-4 py-5 sm:px-6 lg:px-8">{children}</main>
+        <main className="px-5 py-6 sm:px-8 lg:px-10">{children}</main>
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-panel/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-night/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
         aria-label="Primary"
       >
         <MobileNavItem item={navItems[0]} pathname={pathname} />
         <MobileNavItem item={navItems[1]} pathname={pathname} />
         <button
-          className="mx-auto flex h-14 w-14 -translate-y-3 items-center justify-center rounded-full border border-mint/70 bg-mint text-night shadow-glow"
+          className="mx-auto flex h-14 w-14 -translate-y-3 items-center justify-center rounded-[18px] bg-primary text-primary-ink shadow-glow"
           type="button"
           onClick={() => openQuickLog()}
           aria-label="Open Quick Log"
@@ -155,8 +155,8 @@ function DesktopNavItem({
 
   return (
     <GuardedNavLink
-      className={`flex min-h-12 items-center justify-center gap-3 rounded-md px-3 text-sm font-medium transition lg:justify-start ${
-        active ? "bg-raised text-ink" : "text-muted hover:bg-raised hover:text-ink"
+      className={`flex min-h-12 items-center justify-center gap-3 rounded-xl px-3 text-sm font-medium transition lg:justify-start ${
+        active ? "bg-raised text-ink" : "text-muted hover:bg-raised/60 hover:text-ink"
       }`}
       href={item.href}
       active={active}
