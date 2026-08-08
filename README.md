@@ -128,6 +128,14 @@ Environment changes affect only new deployments. Redeploy without reusing the
 build cache after changing `NEXT_PUBLIC_*` values because Next.js inlines
 them during the build.
 
+Production Google redirect sign-in is served through a first-party Firebase Auth
+helper on the deployed app host. Keep the production app domain authorized in
+Firebase Authentication, and keep
+`https://project99-ten.vercel.app/__/auth/handler` in the Google OAuth client's
+authorized redirect URIs. `next.config.ts` proxies `/__/auth/*` and
+`/__/firebase/init.json` to the configured Firebase project's `firebaseapp.com`
+host so Safari and installed iOS PWAs do not depend on third-party storage.
+
 ## Verification
 
 ```bash

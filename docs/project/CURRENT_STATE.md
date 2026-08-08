@@ -183,6 +183,20 @@ foundation issues were implemented in PR #28, merged to `main`, and closed.
   sign-in/session restoration/icon rendering, Sentry delivery, and a production
   Firestore write smoke test.
 
+## Installed iOS PWA Google sign-in loop fix
+
+- On 2026-08-08, installed iOS PWA Google sign-in was reported to complete the
+  Google account step but return to the login screen. The failing path was the
+  standalone PWA redirect flow introduced for issue #14.
+- The app now keeps redirect auth for installed PWAs but initializes production
+  Firebase Auth with the first-party HTTPS app host and proxies `/__/auth/*` plus
+  `/__/firebase/init.json` through Next.js to the configured Firebase project.
+  This follows Firebase's redirect-auth guidance for Safari/storage-partitioned
+  browsers while preserving popup auth for regular browser tabs.
+- Production Firebase/Google configuration must keep the assigned app domain
+  authorized, including the Google OAuth redirect URI
+  `https://project99-ten.vercel.app/__/auth/handler`.
+
 ## Known blockers
 
 - `.env.local` is absent in *agent* workspaces, so authenticated runtime
