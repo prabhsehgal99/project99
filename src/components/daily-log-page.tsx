@@ -272,7 +272,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
     return (
       <div className="mx-auto max-w-3xl">
         <div className="flex min-h-64 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950/80 text-zinc-300">
-          <Loader2 className="mr-3 h-5 w-5 animate-spin text-emerald-300" aria-hidden="true" />
+          <Loader2 className="mr-3 h-5 w-5 animate-spin text-mint" aria-hidden="true" />
           Loading Daily Log
         </div>
       </div>
@@ -365,7 +365,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
-              className="inline-flex min-h-11 items-center justify-center rounded-md bg-emerald-400 px-4 text-sm font-semibold text-zinc-950 disabled:opacity-60"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink disabled:opacity-60"
               type="button"
               disabled={saving}
               onClick={saveAndNavigate}
@@ -413,7 +413,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
             {activeSection === "notes" ? <DailyLogNotesSection draft={draft} errors={fieldErrors} onChange={updateDraft} /> : null}
           </div>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-2 border-y border-line md:grid-cols-2 md:divide-x md:divide-line">
             <CategoryButton
               icon={<Scale className="h-5 w-5" aria-hidden="true" />}
               title="Body"
@@ -452,7 +452,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
         {dirty || saving ? (
         <div className="sticky bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-20 -mx-4 border-t border-line bg-night/95 px-4 py-3 backdrop-blur-sm md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
           <button
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night transition disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-medium text-primary-ink transition disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
             type="submit"
             disabled={saving || !dirty}
           >
@@ -479,7 +479,7 @@ function CategoryButton({
 }) {
   return (
     <button
-      className="flex min-h-20 w-full items-center justify-between gap-4 rounded-lg border border-line bg-panel p-4 text-left transition hover:border-mint/50"
+      className="flex min-h-20 w-full items-center justify-between gap-4 border-b border-line px-1 py-4 text-left transition hover:bg-raised/35"
       type="button"
       onClick={onClick}
     >

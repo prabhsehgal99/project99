@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-08-08 (calm daily redesign branch awaiting review)
+Last updated: 2026-08-08 (calm visual-system pass in progress)
 
 ## Current milestone
 
@@ -17,6 +17,11 @@ Issue #37 implements the approved calm daily experience redesign on branch
 `feature/37-calm-daily-experience` in draft PR #38. The branch is implemented,
 locally verified, pushed, and awaiting review plus authenticated dev/preview
 runtime QA before merge.
+
+Issue #39 extends the approved visual direction across authenticated screens on
+the `calm-visual-redesign` branch. It adds the Sora/divider-led visual system
+and a session-only dismissible Today Up next surface without changing persisted
+data or authorization behavior.
 
 ## What is on `main`
 

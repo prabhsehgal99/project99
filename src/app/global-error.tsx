@@ -16,12 +16,12 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="bg-zinc-950 text-zinc-50">
+      <body className="bg-night text-ink">
         <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-4 py-8">
           <h1 className="text-2xl font-semibold">Project 99 needs to restart this screen.</h1>
           <button
             type="button"
-            className="mt-6 min-h-11 self-start rounded-md bg-emerald-400 px-4 text-sm font-semibold text-zinc-950 hover:bg-emerald-300"
+            className="mt-6 min-h-11 self-start rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink hover:bg-ink/90"
             onClick={reset}
           >
             Try again

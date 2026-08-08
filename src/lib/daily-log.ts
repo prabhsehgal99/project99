@@ -25,6 +25,7 @@ export type DailyLogMutation =
   | { type: "setSleep"; sleepHours: number | null }
   | {
       type: "setNutrition";
+      waterMl: number;
       caloriesConsumed: number;
       proteinConsumed: number;
       carbohydratesConsumed: number;
@@ -270,6 +271,7 @@ export function applyDailyLogMutation(log: DailyLog, mutation: DailyLogMutation,
       next.sleepHours = mutation.sleepHours;
       break;
     case "setNutrition":
+      next.waterMl = Math.round(mutation.waterMl);
       next.caloriesConsumed = Math.round(mutation.caloriesConsumed);
       next.proteinConsumed = Math.round(mutation.proteinConsumed);
       next.carbohydratesConsumed = Math.round(mutation.carbohydratesConsumed);

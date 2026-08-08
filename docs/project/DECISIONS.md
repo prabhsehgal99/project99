@@ -307,6 +307,37 @@ The environment contract and mapping are covered by unit tests.
   should add a concise Today signal, a focused capture action, and an appropriate
   detail experience instead of another permanent dashboard panel.
 
+### D-020 - Calm visual system uses restrained accents and divider-led grouping
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Context:** The first calm daily redesign established the right information
+  architecture but the rendered product still overused green surfaces, Inter,
+  and nested cards, especially on phone-sized Today screens.
+- **Decision:** Use Sora throughout authenticated Project99 screens, with the
+  existing near-black palette and light primary actions. Use mint, violet, and
+  warm for progress and state—not as the default button fill. Prefer flat,
+  divider-led groups; reserve elevated surfaces for focused actions, forms,
+  sheets, and important feedback. Today’s Up next may be dismissed only in
+  client runtime memory, without a persisted preference or Daily Log mutation.
+- **Reason:** Fitness data needs clear rhythm and hierarchy. This direction
+  keeps the interface calm and premium without weakening dense logging flows.
+- **Consequences:** New authenticated UI should use the shared tokens and
+  visual hierarchy. Persistent dismissal, user-selectable themes, and landing
+  page redesign remain separate work.
+
+### D-021 - Authenticated UI is monochrome until theme support ships
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Supersedes:** D-020’s mint, violet, and warm accent treatment.
+- **Decision:** Authenticated screens use dark grayscale surfaces, content, and
+  controls only. Theme tokens remain semantic so light mode and optional accent
+  themes can be introduced later without a broad component rewrite; neither is
+  exposed or rendered now.
+- **Reason:** Accent colors were still visually noisy and distracted from the
+  daily logging hierarchy.
+
 
 ## Decision entry template
 

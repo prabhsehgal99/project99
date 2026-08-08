@@ -219,6 +219,25 @@ describe("applyDailyLogMutation", () => {
     expect(next.workoutStatus).toBe("planned");
   });
 
+  it("logs water and nutrition together without changing unrelated fields", () => {
+    const existing = log(today, { weightKg: 80.5, journalNotes: "keep this", waterMl: 500 });
+    const next = applyDailyLogMutation(
+      existing,
+      {
+        type: "setNutrition",
+        waterMl: 1750,
+        caloriesConsumed: 620,
+        proteinConsumed: 42,
+        carbohydratesConsumed: 70,
+        fatConsumed: 18,
+        fibreConsumed: 9
+      },
+      today
+    );
+
+    expect(next).toMatchObject({ waterMl: 1750, caloriesConsumed: 620, proteinConsumed: 42, weightKg: 80.5, journalNotes: "keep this" });
+  });
+
   it("rejects invalid focused values through complete Daily Log validation", () => {
     expect(() => applyDailyLogMutation(log(today), { type: "setSteps", steps: 300_000 }, today)).toThrow("Steps must be between 0 and 200,000.");
   });

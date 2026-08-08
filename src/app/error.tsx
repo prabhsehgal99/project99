@@ -21,7 +21,7 @@ export default function Error({
       <p className="mt-3 text-sm leading-6 text-zinc-300">Try again. Your saved data remains protected in Firebase.</p>
       <button
         type="button"
-        className="mt-6 min-h-11 self-start rounded-md bg-emerald-400 px-4 text-sm font-semibold text-zinc-950 hover:bg-emerald-300"
+        className="mt-6 min-h-11 self-start rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink hover:bg-ink/90"
         onClick={reset}
       >
         Try again

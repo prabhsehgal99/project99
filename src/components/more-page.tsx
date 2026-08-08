@@ -167,10 +167,10 @@ function MoreContent({ user }: { user: User }) {
   const history = [...logs].reverse().slice(0, 14);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <div className="mx-auto max-w-5xl space-y-8">
       <header>
-        <p className="text-sm font-medium text-muted">More</p>
-        <h1 className="mt-1 text-3xl font-semibold text-ink">History, goals, and account.</h1>
+        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted">More</p>
+        <h1 className="mt-1 text-3xl font-medium tracking-[-0.04em] text-ink">History, goals, and account.</h1>
       </header>
 
       {error || settingsErrors.length > 0 ? (
@@ -187,7 +187,7 @@ function MoreContent({ user }: { user: User }) {
         <section className="rounded-lg border border-violet/40 bg-violet/10 p-4 text-sm text-ink">
           <p className="font-medium">Save goal changes before continuing?</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button className="min-h-11 rounded-md bg-mint px-4 text-sm font-semibold text-night disabled:opacity-60" type="button" disabled={settingsSaving} onClick={saveAndContinue}>
+            <button className="min-h-11 rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink disabled:opacity-60" type="button" disabled={settingsSaving} onClick={saveAndContinue}>
               Save and continue
             </button>
             <button className="min-h-11 rounded-md border border-line bg-raised px-4 text-sm font-medium" type="button" onClick={discardAndContinue}>
@@ -200,16 +200,16 @@ function MoreContent({ user }: { user: User }) {
         </section>
       ) : null}
 
-      <section className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-lg border border-line bg-panel p-5">
+      <section className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="border-y border-line py-5">
           <div className="flex items-center gap-3">
             <CalendarDays className="h-5 w-5 text-mint" aria-hidden="true" />
             <h2 className="text-base font-semibold text-ink">Daily Log history</h2>
           </div>
-          <Link className="mt-4 inline-flex min-h-11 items-center rounded-md bg-mint px-4 text-sm font-semibold text-night" href={`/log/${todayKey()}`}>
+          <Link className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink" href={`/log/${todayKey()}`}>
             Edit today
           </Link>
-          <div className="mt-4 grid gap-2">
+          <div className="mt-4 divide-y divide-line border-y border-line">
             {loading ? (
               <p className="inline-flex items-center gap-2 text-sm text-muted">
                 <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -217,7 +217,7 @@ function MoreContent({ user }: { user: User }) {
               </p>
             ) : history.length > 0 ? (
               history.map((log) => (
-                <Link key={log.date} className="flex min-h-12 items-center justify-between rounded-md border border-line bg-raised px-3 text-sm" href={`/log/${log.date}`}>
+                <Link key={log.date} className="flex min-h-12 items-center justify-between px-1 text-sm transition hover:bg-raised/40" href={`/log/${log.date}`}>
                   <span className="font-medium text-ink">{log.date}</span>
                   <span className="text-muted">{log.weightKg === null ? "Partial" : `${log.weightKg.toFixed(1)} kg`}</span>
                 </Link>
@@ -228,7 +228,7 @@ function MoreContent({ user }: { user: User }) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-line bg-panel p-5">
+        <div className="rounded-3xl border border-line bg-panel p-5 sm:p-6">
           <div className="flex items-center gap-3">
             <Settings className="h-5 w-5 text-warm" aria-hidden="true" />
             <h2 className="text-base font-semibold text-ink">Goals and preferences</h2>
@@ -240,7 +240,7 @@ function MoreContent({ user }: { user: User }) {
             <NumberInput label="Water goal" value={waterGoalDraftLitres} min={0.5} max={15} step={0.25} decimalPlaces={2} suffix="L" onChange={(value) => updateSettings({ waterGoalMl: value === "" ? settingsDraft.waterGoalMl : litresToIntegerMillilitres(value) })} />
           </div>
           <button
-            className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night transition disabled:opacity-60 sm:w-auto"
+            className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-medium text-primary-ink transition disabled:opacity-60 sm:w-auto"
             type="button"
             onClick={handleSettingsSave}
             disabled={settingsSaving || loading || !settingsDirty}
@@ -251,16 +251,14 @@ function MoreContent({ user }: { user: User }) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-line bg-panel p-5">
+      <section className="border-y border-line py-5">
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-5 w-5 text-violet" aria-hidden="true" />
           <h2 className="text-base font-semibold text-ink">Account</h2>
         </div>
-        <div className="mt-4 grid gap-2 text-sm">
-          <p className="text-muted">Name</p>
-          <p className="font-medium text-ink">{user.displayName ?? "Project99 athlete"}</p>
-          <p className="mt-2 text-muted">Email</p>
-          <p className="font-medium text-ink">{user.email ?? "No email available"}</p>
+        <div className="mt-4 divide-y divide-line border-y border-line text-sm">
+          <div className="flex items-center justify-between gap-4 py-3"><p className="text-muted">Name</p><p className="font-medium text-ink">{user.displayName ?? "Project99 athlete"}</p></div>
+          <div className="flex items-center justify-between gap-4 py-3"><p className="text-muted">Email</p><p className="truncate font-medium text-ink">{user.email ?? "No email available"}</p></div>
         </div>
         <button
           className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-line bg-raised px-4 text-sm font-medium text-ink"

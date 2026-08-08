@@ -199,9 +199,9 @@ function WorkoutContent({ user }: { user: User }) {
   if (!draft) {
     return (
       <div className="mx-auto max-w-3xl">
-        <section className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-5 shadow-glow sm:p-7">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-emerald-400/30 bg-emerald-400/10">
-            <Dumbbell className="h-6 w-6 text-emerald-200" aria-hidden="true" />
+        <section className="rounded-3xl border border-line bg-panel p-5 sm:p-7">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-raised">
+            <Dumbbell className="h-6 w-6 text-mint" aria-hidden="true" />
           </div>
           <p className="mt-5 text-sm font-medium uppercase tracking-wide text-zinc-500">Workout</p>
           <h1 className="mt-2 text-2xl font-semibold text-zinc-50">Ready when you are.</h1>
@@ -214,7 +214,7 @@ function WorkoutContent({ user }: { user: User }) {
             </p>
           ) : null}
           <button
-            className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-emerald-400 px-5 text-base font-semibold text-zinc-950 transition hover:bg-emerald-300 disabled:opacity-60 sm:w-auto"
+            className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-medium text-primary-ink transition hover:bg-ink/90 disabled:opacity-60 sm:w-auto"
             type="button"
             disabled={starting}
             onClick={startWorkout}
@@ -232,7 +232,7 @@ function WorkoutContent({ user }: { user: User }) {
   const activeExercise = draft.exercises[0];
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="rounded-lg border border-line bg-panel p-5">
+      <div className="border-b border-line pb-5">
         <div>
           <p className="text-sm font-medium text-muted">Active workout</p>
           <h1 className="mt-1 text-3xl font-semibold text-ink">{activeExercise?.name ?? "Build today's workout"}</h1>
@@ -276,7 +276,7 @@ function WorkoutContent({ user }: { user: User }) {
         <div className="mt-4 rounded-lg border border-purple-400/30 bg-purple-400/10 p-4 text-sm text-purple-50">
           <p className="font-medium">Save changes before leaving this workout?</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button className="min-h-11 rounded-md bg-emerald-400 px-4 text-sm font-semibold text-zinc-950 disabled:opacity-60" type="button" disabled={saving} onClick={async () => { if (await saveWorkout()) window.location.assign(pendingHref); }}>Save and go</button>
+            <button className="min-h-11 rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink disabled:opacity-60" type="button" disabled={saving} onClick={async () => { if (await saveWorkout()) window.location.assign(pendingHref); }}>Save and go</button>
             <button className="min-h-11 rounded-md border border-zinc-700 bg-zinc-900 px-4 text-sm font-medium" type="button" onClick={() => { setDirty(false); dirtyRef.current = false; window.location.assign(pendingHref); }}>Discard changes</button>
             <button className="min-h-11 rounded-md border border-zinc-700 px-4 text-sm font-medium" type="button" onClick={() => setPendingHref(null)}>Cancel</button>
           </div>
@@ -312,7 +312,7 @@ function WorkoutContent({ user }: { user: User }) {
         />
 
         <div className="sticky bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-20 -mx-4 flex flex-col gap-2 border-t border-line bg-night/95 px-4 py-3 backdrop-blur-sm md:static md:mx-0 md:flex-row md:items-center md:border-0 md:bg-transparent md:p-0">
-          <button className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md bg-mint px-5 text-base font-semibold text-night disabled:opacity-60 md:flex-none" type="button" disabled={saving || finishing} onClick={finishWorkout}>
+          <button className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-medium text-primary-ink disabled:opacity-60 md:flex-none" type="button" disabled={saving || finishing} onClick={finishWorkout}>
             {finishing ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Check className="h-5 w-5" aria-hidden="true" />}
             Finish workout
           </button>
@@ -351,7 +351,7 @@ function ExerciseEditor({ exercise, index, previous, onChange, onRemove }: { exe
   const bestEstimatedOneRepMax = Math.max(0, ...exercise.sets.map((set) => estimatedOneRepMaxLb(set) ?? 0));
   const previousSet = previous?.sets.find((set) => set.kind === "working" && isCompletedSet(set));
   return (
-    <section className="rounded-lg border border-line bg-panel p-4 sm:p-5">
+    <section className="border-b border-line py-5 first:border-t">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm text-muted">Exercise {index + 1}</p>
