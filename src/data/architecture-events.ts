@@ -1048,5 +1048,42 @@ export const architectureEvents: ArchitectureEvent[] = [
       }
     ],
     knownLimitations: ["Authenticated runtime QA requires the project dev Firebase environment and is not available in this workspace."]
+  },
+  {
+    id: "2026-08-08-firestore-rules-release-gate",
+    date: "2026-08-08",
+    title: "Protected Firestore Rules release gate",
+    summary: "Firestore Rules releases now run from reviewed main through a tested, auditable GitHub Actions workflow instead of an arbitrary local checkout.",
+    changeType: "added",
+    milestone: "Internal engineering tooling",
+    sourceRefs: [githubIssue(43, "Harden Firestore Rules deployment workflow"), decision("D-022 - Firestore Rules releases are main-based, tested GitHub deployments")],
+    changes: [
+      {
+        operation: "added",
+        elementId: "firestore-rules-release-gate",
+        summary: "Added a main-based, environment-protected deployment path that runs emulator Rules tests before each release.",
+        element: element({
+          id: "firestore-rules-release-gate",
+          name: "Firestore Rules release gate",
+          category: "safety",
+          filter: "data-security",
+          status: "implemented",
+          feature: "Rules deployment",
+          responsibility: "Dispatches reviewed main to a target-specific protected environment, verifies Rules in the Firestore emulator, deploys with scoped credentials, and records release evidence.",
+          paths: [".github/workflows/deploy-firestore-rules.yml", "scripts/dispatch-firestore-rules-deployment.mjs", "package.json", "firestore.rules", "docs/project/WORKFLOW.md"],
+          dependencies: ["project-bedrock", "quality-gate-system", "firestore-data-boundary"],
+          introduced: "2026-08-08",
+          lastChanged: "2026-08-08",
+          sourceRefs: [githubIssue(43, "Harden Firestore Rules deployment workflow"), decision("D-022 - Firestore Rules releases are main-based, tested GitHub deployments")],
+          verification: [
+            { label: "Rules emulator suite", status: "passed", path: "tests/firestore.rules.test.ts" },
+            { label: "Protected workflow", status: "present", path: ".github/workflows/deploy-firestore-rules.yml" }
+          ],
+          limitations: ["The GitHub environments and scoped service-account secrets require one-time owner configuration before the workflow can release Rules."],
+          position: { x: 700, y: 165, width: 260, height: 68 }
+        })
+      }
+    ],
+    knownLimitations: ["The environment secrets and production approval must be configured in GitHub before the first protected release."]
   }
 ];

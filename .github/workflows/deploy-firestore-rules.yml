@@ -1,0 +1,95 @@
+name: Deploy Firestore Rules
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Firebase environment to receive the reviewed Rules release
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firestore-rules-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Test and deploy ${{ inputs.target }} Rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: firestore-${{ inputs.target }}
+
+    steps:
+      - name: Check out reviewed main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test Firestore Security Rules
+        run: npm run test:rules
+
+      - name: Resolve deployment target
+        id: target
+        shell: bash
+        run: |
+          case "${{ inputs.target }}" in
+            dev) echo "project=project99-dev" >> "$GITHUB_OUTPUT" ;;
+            prod) echo "project=project99live" >> "$GITHUB_OUTPUT" ;;
+            *) echo "Unsupported target: ${{ inputs.target }}" >&2; exit 1 ;;
+          esac
+
+      - name: Prepare deployment credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        shell: bash
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "FIREBASE_SERVICE_ACCOUNT is not configured for this GitHub environment." >&2
+            exit 1
+          fi
+          umask 077
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/firebase-service-account.json"
+
+      - name: Deploy Firestore Rules
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-service-account.json
+        run: npx --yes firebase-tools@15 deploy --only firestore:rules --project "${{ steps.target.outputs.project }}"
+
+      - name: Record release evidence
+        shell: bash
+        run: |
+          {
+            echo "## Firestore Rules release"
+            echo
+            echo "- **Target:** ${{ inputs.target }} (${{ steps.target.outputs.project }})"
+            echo "- **Source:** main at $(git rev-parse --short HEAD)"
+            echo "- **Rules SHA-256:** $(shasum -a 256 firestore.rules | awk '{print $1}')"
+            echo "- **Verification:** npm run test:rules"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove deployment credentials
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/firebase-service-account.json"

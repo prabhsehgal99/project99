@@ -122,17 +122,27 @@ There is deliberately **no `default` alias**. A bare `firebase deploy` fails wit
 "no project active" instead of silently targeting whichever project was last
 used, so every deployment names its target.
 
-Security rules live in `firestore.rules` and ship from the repository, never by
-hand from a console or a laptop:
+Security rules live in `firestore.rules` and ship only through the
+`Deploy Firestore Rules` GitHub Actions workflow. The workflow checks out
+reviewed `main` itself, runs the emulator-backed Rules suite, then records the
+target, source commit, and Rules checksum with the release. It uses separate
+protected environments named `firestore-dev` and `firestore-prod`; each holds a
+same-named `FIREBASE_SERVICE_ACCOUNT` secret scoped only to its Firebase
+project. Production must require approval.
+
+Request a release from a clean checkout with the portable scripts (or use the
+Actions tab directly):
 
 ```bash
-npm run rules:deploy:dev     # deploy firestore.rules to project99-dev
-npm run rules:deploy:prod    # deploy firestore.rules to project99live
+npm run rules:deploy:dev     # dispatches a main-based release to project99-dev
+npm run rules:deploy:prod    # dispatches a main-based release to project99live
 ```
 
-Deploy to `dev` first and confirm the change behaves, then to `prod`. Both
-projects run the same rules file; if they ever diverge, the repository is
-correct and the console is wrong.
+These scripts never deploy the Rules from the current working tree, so a stale
+branch cannot be released accidentally. Deploy to `dev` first, complete the
+authenticated runtime check, then request `prod`. Both projects run the same
+`main` Rules file; if they ever diverge, stop and investigate the Actions
+release evidence rather than attempting a console or raw-CLI correction.
 
 ## Secrets and environments
 

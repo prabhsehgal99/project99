@@ -99,20 +99,43 @@ Firebase project:
 npm run test:rules
 ```
 
-Deploy and test development first:
+Rules releases run only through the protected GitHub Actions workflow, which
+always checks out `main`, runs the emulator suite, and records the source commit
+and Rules checksum. This prevents an old local branch from being released by
+mistake.
+
+After a reviewed merge, request a development release:
 
 ```bash
 npm run rules:deploy:dev
 ```
 
-After validation, review, and merge, deploy the same committed rules to
-production:
+That command requires an authenticated GitHub CLI and dispatches the workflow
+against `main`; it does not deploy the Rules from the current folder. The same
+workflow can be run from the Actions tab without a local checkout.
+
+After the development release and authenticated runtime check pass, request a
+production release:
 
 ```bash
 npm run rules:deploy:prod
 ```
 
-Do not use a raw project ID or a bare `firebase deploy`.
+Configure two GitHub Actions environments before the first release:
+
+- `firestore-dev`, with a `FIREBASE_SERVICE_ACCOUNT` secret for a service
+  account scoped to `project99-dev`.
+- `firestore-prod`, with the same secret name but a distinct account scoped to
+  `project99live`; require approval for this environment.
+
+Each account needs only the Firebase Rules Admin role
+(`roles/firebaserules.admin`) in its own project. Store its JSON key only as the
+environment secret, never in a repository file or local environment file. The
+Firebase CLI uses these Application Default Credentials in CI, rather than a
+human Firebase login or a legacy `FIREBASE_TOKEN`.
+
+Do not run a raw `firebase deploy` for Rules. The Actions run is the release
+record and must be followed by the applicable authenticated app smoke test.
 
 ## Vercel deployment
 

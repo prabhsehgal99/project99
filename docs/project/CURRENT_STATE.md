@@ -31,6 +31,12 @@ the `calm-visual-redesign` branch. It adds the Sora/divider-led visual system
 and a session-only dismissible Today Up next surface without changing persisted
 data or authorization behavior.
 
+Issue #43 hardens Firestore Rules delivery after a stale local branch reported a
+successful release without the Rules needed by newly shipped collections. The
+implementation moves releases to a main-based GitHub Actions workflow that runs
+the emulator suite and records release evidence; it needs GitHub environment
+secrets and production approval configured before its first use.
+
 ## What is on `main`
 
 - Next.js App Router PWA with strict TypeScript, Tailwind CSS, Firebase Auth

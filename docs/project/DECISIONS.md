@@ -338,6 +338,27 @@ The environment contract and mapping are covered by unit tests.
 - **Reason:** Accent colors were still visually noisy and distracted from the
   daily logging hierarchy.
 
+### D-022 - Firestore Rules releases are main-based, tested GitHub deployments
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Context:** A local checkout on an older feature branch deployed its older
+  `firestore.rules` successfully. Firebase therefore reported a successful
+  release while newly shipped collections remained inaccessible to the app.
+- **Decision:** Release Firestore Rules only through a manually dispatched
+  GitHub Actions workflow that checks out `main`, runs `npm run test:rules`, and
+  deploys through the target's protected environment. Development and
+  production use separate, least-privileged Firebase service-account secrets;
+  production requires approval. The portable `rules:deploy:*` scripts dispatch
+  this workflow and never deploy from the caller's local checkout.
+- **Reason:** The authoritative reviewed Rules source must be independent of a
+  developer's active folder or branch, while deployment evidence must show what
+  was tested and released.
+- **Consequences:** Initial setup requires `firestore-dev` and
+  `firestore-prod` GitHub environments with their scoped
+  `FIREBASE_SERVICE_ACCOUNT` secrets. Rules releases are intentional, recorded
+  Actions runs rather than direct Firebase CLI commands.
+
 
 ## Decision entry template
 
