@@ -2601,5 +2601,89 @@ export const architectureObservatoryEvents =
     ],
     "summary": "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
     "title": "Workout templates and first-party nutrition"
+  },
+  {
+    "changeType": "added",
+    "changes": [
+      {
+        "element": {
+          "category": "safety",
+          "dependencies": [
+            "project-bedrock",
+            "quality-gate-system",
+            "firestore-data-boundary"
+          ],
+          "feature": "Rules deployment",
+          "filter": "data-security",
+          "id": "firestore-rules-release-gate",
+          "introduced": "2026-08-08",
+          "lastChanged": "2026-08-08",
+          "limitations": [
+            "The GitHub environments and scoped service-account secrets require one-time owner configuration before the workflow can release Rules."
+          ],
+          "name": "Firestore Rules release gate",
+          "paths": [
+            ".github/workflows/deploy-firestore-rules.yml",
+            "scripts/dispatch-firestore-rules-deployment.mjs",
+            "package.json",
+            "firestore.rules",
+            "docs/project/WORKFLOW.md"
+          ],
+          "position": {
+            "height": 68,
+            "width": 260,
+            "x": 700,
+            "y": 165
+          },
+          "responsibility": "Dispatches reviewed main to a target-specific protected environment, verifies Rules in the Firestore emulator, deploys with scoped credentials, and records release evidence.",
+          "sourceRefs": [
+            {
+              "issue": 43,
+              "label": "Issue #43: Harden Firestore Rules deployment workflow",
+              "url": "https://github.com/prabhsehgal99/project99/issues/43"
+            },
+            {
+              "label": "D-022 - Firestore Rules releases are main-based, tested GitHub deployments",
+              "url": "docs/project/DECISIONS.md"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Rules emulator suite",
+              "path": "tests/firestore.rules.test.ts",
+              "status": "passed"
+            },
+            {
+              "label": "Protected workflow",
+              "path": ".github/workflows/deploy-firestore-rules.yml",
+              "status": "present"
+            }
+          ]
+        },
+        "elementId": "firestore-rules-release-gate",
+        "operation": "added",
+        "summary": "Added a main-based, environment-protected deployment path that runs emulator Rules tests before each release."
+      }
+    ],
+    "date": "2026-08-08",
+    "id": "2026-08-08-firestore-rules-release-gate",
+    "knownLimitations": [
+      "The environment secrets and production approval must be configured in GitHub before the first protected release."
+    ],
+    "milestone": "Internal engineering tooling",
+    "sourceRefs": [
+      {
+        "issue": 43,
+        "label": "Issue #43: Harden Firestore Rules deployment workflow",
+        "url": "https://github.com/prabhsehgal99/project99/issues/43"
+      },
+      {
+        "label": "D-022 - Firestore Rules releases are main-based, tested GitHub deployments",
+        "url": "docs/project/DECISIONS.md"
+      }
+    ],
+    "summary": "Firestore Rules releases now run from reviewed main through a tested, auditable GitHub Actions workflow instead of an arbitrary local checkout.",
+    "title": "Protected Firestore Rules release gate"
   }
 ] satisfies ArchitectureEvent[];

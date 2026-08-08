@@ -16,8 +16,8 @@
     "architecture:generate": "tsc --project tsconfig.architecture.json && node dist/architecture-scripts/scripts/architecture/generate-observatory.js",
     "architecture:check": "tsc --project tsconfig.architecture.json && node dist/architecture-scripts/scripts/architecture/check-freshness.js",
     "env:setup": "node scripts/setup-env.mjs",
-    "rules:deploy:dev": "npx --yes firebase-tools@15 deploy --only firestore:rules --project dev",
-    "rules:deploy:prod": "npx --yes firebase-tools@15 deploy --only firestore:rules --project prod"
+    "rules:deploy:dev": "node scripts/dispatch-firestore-rules-deployment.mjs dev",
+    "rules:deploy:prod": "node scripts/dispatch-firestore-rules-deployment.mjs prod"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.69.0",
