@@ -2424,5 +2424,182 @@ export const architectureObservatoryEvents =
     ],
     "summary": "The authenticated product shifted from a dashboard-plus-form structure to a focused Today surface, global Quick Log action, Progress destination, More destination, and transaction-safe Daily Log mutations.",
     "title": "Calm daily experience model"
+  },
+  {
+    "changeType": "added",
+    "changes": [
+      {
+        "element": {
+          "category": "product",
+          "dependencies": [
+            "daily-log-core",
+            "firestore-data-boundary",
+            "today-data-boundary"
+          ],
+          "feature": "First-party nutrition",
+          "filter": "product",
+          "id": "nutrition-wing",
+          "introduced": "2026-08-08",
+          "lastChanged": "2026-08-08",
+          "limitations": [
+            "Curated foods, barcode scanning, imports, and recipe-builder workflows remain deferred."
+          ],
+          "name": "Nutrition wing",
+          "paths": [
+            "src/app/nutrition/page.tsx",
+            "src/components/nutrition-page.tsx",
+            "src/lib/nutrition.ts",
+            "src/lib/types.ts"
+          ],
+          "position": {
+            "height": 80,
+            "width": 210,
+            "x": 960,
+            "y": 250
+          },
+          "responsibility": "Stores user-created food snapshots and dated meal entries, exposes fast per-meal capture and copying, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          "sourceRefs": [
+            {
+              "label": "D-001 - Daily Log is the central dated record",
+              "url": "docs/project/DECISIONS.md"
+            },
+            {
+              "label": "D-004 - Internal food database",
+              "url": "docs/project/DECISIONS.md"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Nutrition projection tests",
+              "path": "src/lib/nutrition.test.ts",
+              "status": "passed"
+            },
+            {
+              "label": "Rules emulator tests",
+              "path": "tests/firestore.rules.test.ts",
+              "status": "passed"
+            }
+          ]
+        },
+        "elementId": "nutrition-wing",
+        "operation": "added",
+        "summary": "Added date-scoped food logging with quantity edits, favourites, recents, saved meals, and snapshot-based copying."
+      },
+      {
+        "element": {
+          "category": "product",
+          "dependencies": [
+            "daily-log-core",
+            "firestore-data-boundary"
+          ],
+          "feature": "Workout engine",
+          "filter": "product",
+          "id": "workout-wing",
+          "introduced": "2026-08-05",
+          "lastChanged": "2026-08-08",
+          "limitations": [
+            "Workout template editing and full exercise-history routes remain incremental follow-up work."
+          ],
+          "name": "Workout wing",
+          "paths": [
+            "src/components/workout-page.tsx",
+            "src/lib/workout.ts",
+            "src/lib/types.ts"
+          ],
+          "position": {
+            "height": 78,
+            "width": 210,
+            "x": 160,
+            "y": 120
+          },
+          "responsibility": "Runs active sessions and reusable workout definitions while keeping each started session independent from future template edits.",
+          "sourceRefs": [
+            {
+              "commit": "e4be0295255655d881ee33d96278fee0b69cb625",
+              "label": "PR #22: Start workout engine foundation",
+              "pullRequest": 22,
+              "url": "https://github.com/prabhsehgal99/project99/pull/22"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Workout unit tests",
+              "path": "src/lib/workout.test.ts",
+              "status": "passed"
+            }
+          ]
+        },
+        "elementId": "workout-wing",
+        "operation": "modified",
+        "summary": "Extended active workouts with template snapshots, custom exercises, local rest timing, and recent history context."
+      },
+      {
+        "element": {
+          "category": "frame",
+          "dependencies": [
+            "firebase-auth-boundary"
+          ],
+          "feature": "User-owned persistence",
+          "filter": "data-security",
+          "id": "firestore-data-boundary",
+          "introduced": "2026-07-31",
+          "lastChanged": "2026-08-08",
+          "limitations": [],
+          "name": "Firestore data boundary",
+          "paths": [
+            "src/lib/firestore.ts",
+            "src/lib/types.ts",
+            "firestore.rules",
+            "tests/firestore.rules.test.ts"
+          ],
+          "position": {
+            "height": 78,
+            "width": 245,
+            "x": 680,
+            "y": 400
+          },
+          "responsibility": "Centralizes persistence and owner-only validation for dated logs plus independent workout and nutrition definitions.",
+          "sourceRefs": [
+            {
+              "commit": "81bb7ab34cf28428aa13c2fd5a82c922006cd6dc",
+              "label": "PR #27: Add emulator-backed Firestore rules tests",
+              "pullRequest": 27,
+              "url": "https://github.com/prabhsehgal99/project99/pull/27"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Rules emulator tests",
+              "path": "tests/firestore.rules.test.ts",
+              "status": "passed"
+            }
+          ]
+        },
+        "elementId": "firestore-data-boundary",
+        "operation": "modified",
+        "summary": "Extended owner-scoped Firestore collections and Rules for workout definitions, templates, foods, meals, and entries."
+      }
+    ],
+    "date": "2026-08-08",
+    "id": "2026-08-08-workout-nutrition-components",
+    "knownLimitations": [
+      "Authenticated runtime QA requires the project dev Firebase environment and is not available in this workspace."
+    ],
+    "milestone": "Phase 1B–1C components",
+    "sourceRefs": [
+      {
+        "label": "D-001 - Daily Log is the central dated record",
+        "url": "docs/project/DECISIONS.md"
+      },
+      {
+        "label": "D-004 - Internal food database",
+        "url": "docs/project/DECISIONS.md"
+      }
+    ],
+    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
+    "title": "Workout templates and first-party nutrition"
   }
 ] satisfies ArchitectureEvent[];

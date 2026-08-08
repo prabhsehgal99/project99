@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "firebase/auth";
-import { Check, ChevronDown, Dumbbell, Loader2, Plus, Save, Trash2 } from "lucide-react";
+import { Check, ChevronDown, Dumbbell, Loader2, Plus, Save, Timer, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AuthenticatedShell } from "@/components/authenticated-shell";
 import { useNavigationGuard } from "@/components/navigation-guard";
@@ -9,10 +9,14 @@ import { Panel } from "@/components/ui";
 import { todayKey } from "@/lib/dates";
 import {
   finishWorkoutSession,
+  saveExerciseDefinition,
   saveActiveWorkoutSession,
+  saveWorkoutTemplate,
+  subscribeToExerciseDefinitions,
   startWorkoutSession,
   subscribeToActiveWorkout,
-  subscribeToRecentWorkoutSessions
+  subscribeToRecentWorkoutSessions,
+  subscribeToWorkoutTemplates
 } from "@/lib/firestore";
 import {
   estimatedOneRepMaxLb,
@@ -23,9 +27,10 @@ import {
   newWorkoutSet,
   previousCompletedExercise,
   validateWorkoutSession,
+  workoutFromTemplate,
   workoutVolumeLb
 } from "@/lib/workout";
-import type { WorkoutExercise, WorkoutSession, WorkoutSet } from "@/lib/types";
+import type { ExerciseDefinition, UserExerciseDefinition, WorkoutExercise, WorkoutSession, WorkoutSet, WorkoutTemplate } from "@/lib/types";
 
 export function WorkoutPage() {
   return <AuthenticatedShell>{(user) => <WorkoutContent user={user} />}</AuthenticatedShell>;
@@ -35,6 +40,8 @@ function WorkoutContent({ user }: { user: User }) {
   const [session, setSession] = useState<WorkoutSession | null>(null);
   const [draft, setDraft] = useState<WorkoutSession | null>(null);
   const [recentSessions, setRecentSessions] = useState<WorkoutSession[]>([]);
+  const [templates, setTemplates] = useState<WorkoutTemplate[]>([]);
+  const [customExercises, setCustomExercises] = useState<UserExerciseDefinition[]>([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -94,6 +101,9 @@ function WorkoutContent({ user }: { user: User }) {
     [user.uid]
   );
 
+  useEffect(() => subscribeToWorkoutTemplates(user.uid, setTemplates, (error) => setLoadError(error.message)), [user.uid]);
+  useEffect(() => subscribeToExerciseDefinitions(user.uid, setCustomExercises, (error) => setLoadError(error.message)), [user.uid]);
+
   const requestLeave = useCallback(
     (href: string) => {
       if (!dirtyRef.current) {
@@ -113,6 +123,19 @@ function WorkoutContent({ user }: { user: User }) {
       await startWorkoutSession(user.uid, todayKey());
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : "Unable to start the workout.");
+    } finally {
+      setStarting(false);
+    }
+  }
+
+  async function startFromTemplate(template: WorkoutTemplate) {
+    setStarting(true);
+    setLoadError(null);
+    try {
+      const id = await startWorkoutSession(user.uid, todayKey());
+      await saveActiveWorkoutSession(user.uid, workoutFromTemplate(template, id, todayKey()));
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Unable to start the template.");
     } finally {
       setStarting(false);
     }
@@ -143,6 +166,31 @@ function WorkoutContent({ user }: { user: User }) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function saveCurrentAsTemplate() {
+    if (!draft) return;
+    const validation = validateWorkoutSession(draft);
+    if (!validation.valid || draft.exercises.length === 0) {
+      setErrors(validation.errors.length ? validation.errors : ["Add an exercise before saving a template."]);
+      return;
+    }
+    setSaving(true);
+    try {
+      await saveWorkoutTemplate(user.uid, {
+        id: crypto.randomUUID(), schemaVersion: 1, title: draft.title.trim(), notes: draft.notes.trim(), archived: false,
+        exercises: draft.exercises.map((exercise) => ({
+          id: crypto.randomUUID(), exerciseId: exercise.exerciseId, name: exercise.name, primaryMuscleGroup: exercise.primaryMuscleGroup,
+          notes: exercise.notes, restSeconds: null,
+          prescriptions: ["warmup", "working"].flatMap((kind) => {
+            const sets = exercise.sets.filter((set) => set.kind === kind);
+            return sets.length ? [{ kind: kind as "warmup" | "working", targetSets: sets.length, repMin: null, repMax: null, targetRpe: null }] : [];
+          })
+        }))
+      });
+      setSaveMessage("Template saved.");
+    } catch (error) { setErrors([error instanceof Error ? error.message : "Unable to save template."]); }
+    finally { setSaving(false); }
   }
 
   async function finishWorkout() {
@@ -187,6 +235,19 @@ function WorkoutContent({ user }: { user: User }) {
           >
             Retry
           </button>
+          {templates.filter((template) => !template.archived).length > 0 ? (
+            <div className="mt-6 border-t border-line pt-5">
+              <h2 className="text-sm font-medium text-ink">Start from a template</h2>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {templates.filter((template) => !template.archived).map((template) => (
+                  <button key={template.id} className="min-h-12 rounded-xl border border-line bg-raised px-4 text-left text-sm text-ink hover:bg-panel" type="button" disabled={starting} onClick={() => void startFromTemplate(template)}>
+                    <span className="block font-medium">{template.title}</span><span className="text-xs text-muted">{template.exercises.length} exercises</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <CustomExerciseManager user={user} exercises={customExercises} />
         </Panel>
       </div>
     );
@@ -223,6 +284,7 @@ function WorkoutContent({ user }: { user: User }) {
             Start workout
           </button>
           {completedSessionCount > 0 ? <p className="mt-4 text-sm text-zinc-500">{completedSessionCount} recent completed workout{completedSessionCount === 1 ? "" : "s"} available for context.</p> : null}
+          {completedSessionCount > 0 ? <div className="mt-5 border-t border-line pt-4"><h2 className="text-sm font-medium text-ink">Recent history</h2><div className="mt-2 divide-y divide-line border-y border-line">{recentSessions.filter((item) => item.status === "completed").slice(0, 5).map((item) => <div key={item.id} className="flex min-h-11 items-center justify-between gap-3 py-2 text-sm"><span className="font-medium text-ink">{item.title}</span><span className="text-muted">{item.date} · {workoutVolumeLb(item).toLocaleString()} lb</span></div>)}</div></div> : null}
         </section>
       </div>
     );
@@ -293,6 +355,7 @@ function WorkoutContent({ user }: { user: User }) {
           <input id="workout-title" className="mt-2 block min-h-11 w-full rounded-md border-zinc-700 bg-zinc-900 text-zinc-50 placeholder:text-zinc-600 focus:border-emerald-400 focus:ring-emerald-400 sm:max-w-md" value={draft.title} maxLength={80} onChange={(event) => markDirty({ ...draft, title: event.target.value })} />
           <label className="mt-4 block text-sm font-medium text-zinc-200" htmlFor="workout-notes">Workout notes <span className="font-normal text-zinc-500">(optional)</span></label>
           <textarea id="workout-notes" className="mt-2 block min-h-24 w-full rounded-md border-zinc-700 bg-zinc-900 text-zinc-50 placeholder:text-zinc-600 focus:border-emerald-400 focus:ring-emerald-400" value={draft.notes} maxLength={2000} onChange={(event) => markDirty({ ...draft, notes: event.target.value })} />
+          <button className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 text-sm text-ink" type="button" disabled={saving || draft.exercises.length === 0} onClick={() => void saveCurrentAsTemplate()}>Save as template</button>
         </details>
 
         {draft.exercises.map((exercise, index) => (
@@ -308,6 +371,7 @@ function WorkoutContent({ user }: { user: User }) {
 
         <ExercisePicker
           chosenIds={draft.exercises.map((exercise) => exercise.exerciseId)}
+          definitions={[...exerciseCatalogue, ...customExercises.filter((exercise) => !exercise.archived)]}
           onAdd={(definition) => markDirty({ ...draft, exercises: [...draft.exercises, newWorkoutExercise(definition)] })}
         />
 
@@ -326,8 +390,8 @@ function WorkoutContent({ user }: { user: User }) {
   );
 }
 
-function ExercisePicker({ chosenIds, onAdd }: { chosenIds: string[]; onAdd: (definition: (typeof exerciseCatalogue)[number]) => void }) {
-  const available = exerciseCatalogue.filter((exercise) => !chosenIds.includes(exercise.id));
+function ExercisePicker({ chosenIds, definitions, onAdd }: { chosenIds: string[]; definitions: ExerciseDefinition[]; onAdd: (definition: ExerciseDefinition) => void }) {
+  const available = definitions.filter((exercise) => !chosenIds.includes(exercise.id));
   if (available.length === 0) return null;
   return (
     <details className="rounded-lg border border-dashed border-line bg-panel p-4">
@@ -346,6 +410,22 @@ function ExercisePicker({ chosenIds, onAdd }: { chosenIds: string[]; onAdd: (def
   );
 }
 
+function CustomExerciseManager({ user, exercises }: { user: User; exercises: UserExerciseDefinition[] }) {
+  const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  async function create() {
+    if (!name.trim()) { setError("Enter an exercise name."); return; }
+    setSaving(true); setError("");
+    try {
+      await saveExerciseDefinition(user.uid, { id: crypto.randomUUID(), schemaVersion: 1, source: "custom", name: name.trim(), primaryMuscleGroup: "full-body", equipment: "", movementCategory: "", instructions: "", setupNotes: "", archived: false });
+      setName("");
+    } catch (nextError) { setError(nextError instanceof Error ? nextError.message : "Could not save exercise."); }
+    finally { setSaving(false); }
+  }
+  return <details className="mt-5 border-t border-line pt-4"><summary className="min-h-11 cursor-pointer text-sm font-medium text-muted">Custom exercises ({exercises.filter((exercise) => !exercise.archived).length})</summary><div className="mt-3 flex gap-2"><label className="sr-only" htmlFor="custom-exercise">Exercise name</label><input id="custom-exercise" className="min-h-11 min-w-0 flex-1 rounded-md border-line bg-night text-ink" value={name} maxLength={120} onChange={(event) => setName(event.target.value)} placeholder="Exercise name" /><button className="min-h-11 rounded-md border border-line bg-raised px-3 text-sm" type="button" disabled={saving} onClick={() => void create()}>Add</button></div>{error ? <p className="mt-2 text-sm text-red-200">{error}</p> : null}</details>;
+}
+
 function ExerciseEditor({ exercise, index, previous, onChange, onRemove }: { exercise: WorkoutExercise; index: number; previous?: WorkoutExercise; onChange: (exercise: WorkoutExercise) => void; onRemove: () => void }) {
   const volume = exerciseVolumeLb(exercise);
   const bestEstimatedOneRepMax = Math.max(0, ...exercise.sets.map((set) => estimatedOneRepMaxLb(set) ?? 0));
@@ -362,6 +442,7 @@ function ExerciseEditor({ exercise, index, previous, onChange, onRemove }: { exe
           <span className="sr-only sm:not-sr-only">Remove</span>
         </button>
       </div>
+      <RestTimer />
       <div className="flex flex-wrap gap-2 text-xs text-zinc-400">
         <span className="rounded-md border border-line bg-raised px-2 py-1 text-muted">{exercise.primaryMuscleGroup}</span>
         <span className="rounded-md border border-line bg-raised px-2 py-1 text-muted">{volume.toLocaleString()} lb volume</span>
@@ -380,6 +461,17 @@ function ExerciseEditor({ exercise, index, previous, onChange, onRemove }: { exe
       </details>
     </section>
   );
+}
+
+function RestTimer() {
+  const [remaining, setRemaining] = useState(0);
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const timer = window.setInterval(() => setRemaining((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [remaining]);
+  const label = remaining ? `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}` : "Rest timer";
+  return <div className="mt-3 flex items-center gap-2" aria-live="polite"><button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 text-sm text-muted" type="button" onClick={() => setRemaining(90)}><Timer className="h-4 w-4" />{label}</button>{remaining ? <button className="min-h-11 px-2 text-xs text-muted" type="button" onClick={() => setRemaining(0)}>Stop</button> : null}</div>;
 }
 
 function SetEditor({ set, index, previousSet, onChange, onRemove }: { set: WorkoutSet; index: number; previousSet?: WorkoutSet; onChange: (set: WorkoutSet) => void; onRemove: () => void }) {

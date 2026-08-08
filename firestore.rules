@@ -216,6 +216,40 @@ service cloud.firestore {
       && data.updatedAt is timestamp;
     }
 
+    function validNutritionValues(values) {
+      return values is map
+        && values.keys().hasOnly(['calories', 'protein', 'carbohydrates', 'fat', 'fibre'])
+        && values.keys().hasAll(['calories', 'protein', 'carbohydrates', 'fat', 'fibre'])
+        && values.calories is number && values.calories >= 0 && values.calories <= 10000
+        && values.protein is number && values.protein >= 0 && values.protein <= 1000
+        && values.carbohydrates is number && values.carbohydrates >= 0 && values.carbohydrates <= 2000
+        && values.fat is number && values.fat >= 0 && values.fat <= 1000
+        && values.fibre is number && values.fibre >= 0 && values.fibre <= 500;
+    }
+
+    function validFood() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['schemaVersion', 'name', 'brand', 'provenance', 'servingName', 'servingGrams', 'per100g', 'favourite', 'archived', 'createdAt', 'updatedAt'])
+        && data.schemaVersion == 1 && data.name is string && data.name.size() > 0 && data.name.size() <= 120
+        && data.brand is string && data.brand.size() <= 120 && data.provenance == 'user'
+        && data.servingName is string && data.servingName.size() > 0 && data.servingName.size() <= 60
+        && data.servingGrams is number && data.servingGrams > 0 && data.servingGrams <= 5000
+        && validNutritionValues(data.per100g) && data.favourite is bool && data.archived is bool
+        && data.createdAt is timestamp && data.updatedAt is timestamp;
+    }
+
+    function validNutritionEntry() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['schemaVersion', 'date', 'mealGroup', 'mealLabel', 'foodId', 'foodName', 'brand', 'servingName', 'servingGrams', 'per100g', 'quantity', 'createdAt', 'updatedAt'])
+        && data.schemaVersion == 1 && validDateKey(data.date) && !isFutureDateKey(data.date)
+        && data.mealGroup in ['breakfast', 'lunch', 'dinner', 'snacks', 'custom'] && data.mealLabel is string && data.mealLabel.size() <= 60
+        && (data.foodId == null || (data.foodId is string && data.foodId.size() <= 128))
+        && data.foodName is string && data.foodName.size() > 0 && data.foodName.size() <= 120 && data.brand is string && data.brand.size() <= 120
+        && data.servingName is string && data.servingName.size() > 0 && data.servingName.size() <= 60 && data.servingGrams is number && data.servingGrams > 0 && data.servingGrams <= 5000
+        && validNutritionValues(data.per100g) && data.quantity is number && data.quantity > 0 && data.quantity <= 100
+        && data.createdAt is timestamp && data.updatedAt is timestamp;
+    }
+
     match /users/{userId} {
       allow read, delete: if owns(userId);
       allow create: if owns(userId) && validUserProfile(userId);
@@ -249,6 +283,53 @@ service cloud.firestore {
           && validWorkoutSession()
           && request.resource.data.createdAt == resource.data.createdAt
           && (resource.data.status != 'completed' || request.resource.data.status == 'completed');
+      }
+
+      match /exerciseDefinitions/{exerciseId} {
+        allow read, delete: if owns(userId);
+        allow create, update: if owns(userId)
+          && request.resource.data.keys().hasOnly(['schemaVersion', 'source', 'name', 'primaryMuscleGroup', 'equipment', 'movementCategory', 'instructions', 'setupNotes', 'archived', 'createdAt', 'updatedAt'])
+          && request.resource.data.schemaVersion == 1
+          && request.resource.data.source == 'custom'
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
+          && request.resource.data.primaryMuscleGroup in ['chest', 'back', 'shoulders', 'arms', 'legs', 'core', 'full-body']
+          && request.resource.data.equipment is string && request.resource.data.equipment.size() <= 80
+          && request.resource.data.movementCategory is string && request.resource.data.movementCategory.size() <= 80
+          && request.resource.data.instructions is string && request.resource.data.instructions.size() <= 2000
+          && request.resource.data.setupNotes is string && request.resource.data.setupNotes.size() <= 1000
+          && request.resource.data.archived is bool && request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
+      }
+
+      match /workoutTemplates/{templateId} {
+        allow read, delete: if owns(userId);
+        allow create, update: if owns(userId)
+          && request.resource.data.keys().hasOnly(['schemaVersion', 'title', 'notes', 'exercises', 'archived', 'createdAt', 'updatedAt'])
+          && request.resource.data.schemaVersion == 1 && request.resource.data.title is string
+          && request.resource.data.title.size() > 0 && request.resource.data.title.size() <= 80
+          && request.resource.data.notes is string && request.resource.data.notes.size() <= 2000
+          && request.resource.data.exercises is list && request.resource.data.exercises.size() <= 30
+          && request.resource.data.archived is bool && request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
+      }
+
+      match /foods/{foodId} {
+        allow read, delete: if owns(userId);
+        allow create: if owns(userId) && validFood();
+        allow update: if owns(userId) && validFood() && request.resource.data.createdAt == resource.data.createdAt;
+      }
+
+      match /nutritionEntries/{entryId} {
+        allow read, delete: if owns(userId);
+        allow create: if owns(userId) && validNutritionEntry();
+        allow update: if owns(userId) && validNutritionEntry() && request.resource.data.createdAt == resource.data.createdAt;
+      }
+
+      match /savedMeals/{mealId} {
+        allow read, delete: if owns(userId);
+        allow create, update: if owns(userId) && request.resource.data.keys().hasOnly(['schemaVersion', 'name', 'mealGroup', 'items', 'createdAt', 'updatedAt']) && request.resource.data.schemaVersion == 1
+          && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
+          && request.resource.data.mealGroup in ['breakfast', 'lunch', 'dinner', 'snacks', 'custom']
+          && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 30
+          && request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
       }
     }
   }

@@ -128,6 +128,17 @@ function userSettingsRef(db: Firestore, uid = OWNER_UID, documentId = "preferenc
   return db.doc(`users/${uid}/settings/${documentId}`);
 }
 
+function foodRef(db: Firestore, uid = OWNER_UID, id = "food-1") { return db.doc(`users/${uid}/foods/${id}`); }
+function nutritionEntryRef(db: Firestore, uid = OWNER_UID, id = "entry-1") { return db.doc(`users/${uid}/nutritionEntries/${id}`); }
+
+function food(overrides: RuleDocument = {}): RuleDocument {
+  return { schemaVersion: 1, name: "Oats", brand: "", provenance: "user", servingName: "bowl", servingGrams: 50, per100g: { calories: 400, protein: 12, carbohydrates: 60, fat: 8, fibre: 10 }, favourite: false, archived: false, createdAt: FIXED_TIMESTAMP, updatedAt: FIXED_TIMESTAMP, ...overrides };
+}
+
+function nutritionEntry(overrides: RuleDocument = {}): RuleDocument {
+  return { schemaVersion: 1, date: DATE, mealGroup: "breakfast", mealLabel: "Breakfast", foodId: "food-1", foodName: "Oats", brand: "", servingName: "bowl", servingGrams: 50, per100g: { calories: 400, protein: 12, carbohydrates: 60, fat: 8, fibre: 10 }, quantity: 1, createdAt: FIXED_TIMESTAMP, updatedAt: FIXED_TIMESTAMP, ...overrides };
+}
+
 async function seedDailyLog(data: RuleDocument = dailyLog()): Promise<void> {
   await testEnvironment.withSecurityRulesDisabled(async (context) => {
     await dailyLogRef(context.firestore()).set(data);
@@ -161,6 +172,18 @@ afterAll(async () => {
 });
 
 describe("ownership", () => {
+  it("enforces owner-only nutrition records and validates food snapshots", async () => {
+    const owner = authenticatedDb(OWNER_UID);
+    const other = authenticatedDb(OTHER_UID);
+    await assertSucceeds(foodRef(owner).set(food()));
+    await assertSucceeds(nutritionEntryRef(owner).set(nutritionEntry()));
+    await assertSucceeds(nutritionEntryRef(owner).update({ quantity: 1.5, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }));
+    await assertFails(foodRef(other).get());
+    await assertFails(nutritionEntryRef(other).set(nutritionEntry()));
+    await assertFails(nutritionEntryRef(other).update({ quantity: 2 }));
+    await assertFails(foodRef(owner, OWNER_UID, "bad").set(food({ per100g: { calories: -1 } })));
+    await assertFails(nutritionEntryRef(owner, OWNER_UID, "future").set(nutritionEntry({ date: "2999-01-01" })));
+  });
   it("allows an owner to create, read, update, query, and delete a Daily Log", async () => {
     const db = authenticatedDb(OWNER_UID);
     const reference = dailyLogRef(db);

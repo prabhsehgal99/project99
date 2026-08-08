@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { estimatedOneRepMaxLb, exerciseVolumeLb, previousCompletedExercise, validateWorkoutSession, workoutVolumeLb } from "@/lib/workout";
-import type { WorkoutExercise, WorkoutSession } from "@/lib/types";
+import { estimatedOneRepMaxLb, exerciseVolumeLb, previousCompletedExercise, validateWorkoutSession, workoutFromTemplate, workoutVolumeLb } from "@/lib/workout";
+import type { WorkoutExercise, WorkoutSession, WorkoutTemplate } from "@/lib/types";
 
 const bench: WorkoutExercise = {
   id: "bench-1",
@@ -42,6 +42,14 @@ describe("workout calculations", () => {
   it("finds the matching exercise from the latest supplied completed session", () => {
     const previous = session({ id: "previous", status: "completed", date: "2026-08-01" });
     expect(previousCompletedExercise([previous], bench.exerciseId, "session-1")?.name).toBe("Barbell Bench Press");
+  });
+
+  it("copies template prescriptions into an independent active-session snapshot", () => {
+    const template: WorkoutTemplate = { id: "upper", schemaVersion: 1, title: "Upper", notes: "", archived: false, exercises: [{ id: "bench", exerciseId: bench.exerciseId, name: bench.name, primaryMuscleGroup: "chest", notes: "", restSeconds: 120, prescriptions: [{ kind: "working", targetSets: 3, repMin: 8, repMax: 10, targetRpe: 8 }] }] };
+    const workout = workoutFromTemplate(template, "active", "2026-08-08");
+    expect(workout.exercises[0].sets).toHaveLength(3);
+    template.exercises[0].name = "Changed template";
+    expect(workout.exercises[0].name).toBe("Barbell Bench Press");
   });
 });
 

@@ -112,6 +112,101 @@ export type ExerciseDefinition = {
   primaryMuscleGroup: MuscleGroup;
 };
 
+export type UserExerciseDefinition = ExerciseDefinition & {
+  schemaVersion: 1;
+  source: "custom";
+  equipment: string;
+  movementCategory: string;
+  instructions: string;
+  setupNotes: string;
+  archived: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type WorkoutTemplateSetPrescription = {
+  kind: WorkoutSetKind;
+  targetSets: number;
+  repMin: number | null;
+  repMax: number | null;
+  targetRpe: number | null;
+};
+
+export type WorkoutTemplateExercise = {
+  id: string;
+  exerciseId: string;
+  name: string;
+  primaryMuscleGroup: MuscleGroup;
+  notes: string;
+  restSeconds: number | null;
+  prescriptions: WorkoutTemplateSetPrescription[];
+};
+
+export type WorkoutTemplate = {
+  id: string;
+  schemaVersion: 1;
+  title: string;
+  notes: string;
+  exercises: WorkoutTemplateExercise[];
+  archived: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type NutritionValues = {
+  calories: number;
+  protein: number;
+  carbohydrates: number;
+  fat: number;
+  fibre: number;
+};
+
+export type Food = {
+  id: string;
+  schemaVersion: 1;
+  name: string;
+  brand: string;
+  provenance: "user";
+  servingName: string;
+  servingGrams: number;
+  per100g: NutritionValues;
+  favourite: boolean;
+  archived: boolean;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type MealGroup = "breakfast" | "lunch" | "dinner" | "snacks" | "custom";
+
+export type NutritionEntry = {
+  id: string;
+  schemaVersion: 1;
+  date: string;
+  mealGroup: MealGroup;
+  mealLabel: string;
+  foodId: string | null;
+  foodName: string;
+  brand: string;
+  servingName: string;
+  servingGrams: number;
+  per100g: NutritionValues;
+  quantity: number;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type SavedMealItem = Omit<NutritionEntry, "id" | "date" | "mealGroup" | "mealLabel" | "quantity" | "createdAt" | "updatedAt"> & { quantity: number };
+
+export type SavedMeal = {
+  id: string;
+  schemaVersion: 1;
+  name: string;
+  mealGroup: MealGroup;
+  items: SavedMealItem[];
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
 export const defaultDailyLog = (date: string, timezone = "UTC"): DailyLog => ({
   schemaVersion: 1,
   date,
