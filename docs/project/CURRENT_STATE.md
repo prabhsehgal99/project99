@@ -183,6 +183,23 @@ foundation issues were implemented in PR #28, merged to `main`, and closed.
   sign-in/session restoration/icon rendering, Sentry delivery, and a production
   Firestore write smoke test.
 
+## Architecture Observatory (issue #35, in review)
+
+- Branch `feature/35-architecture-observatory` adds an internal unlinked
+  `/architecture` route that visualizes Project99 as an evidence-backed building
+  with timeline controls, filters, a selectable SVG building view, element
+  inspector, change summary, and non-visual architecture list.
+- The observatory is driven by `src/data/architecture-events.ts`, validated by
+  strict TypeScript logic and Vitest tests in
+  `src/lib/architecture-observatory.ts`, and generated deterministically into
+  `src/generated/architecture-observatory-data.ts`.
+- `npm run architecture:generate` regenerates the route data, and
+  `npm run architecture:check` verifies generated freshness plus watched-path
+  coverage or documented exceptions.
+- D-018 records the durable decision to keep architecture history in a versioned
+  event ledger and to keep the route out of customer-facing navigation unless
+  explicitly approved.
+
 ## Known blockers
 
 - `.env.local` is absent in *agent* workspaces, so authenticated runtime

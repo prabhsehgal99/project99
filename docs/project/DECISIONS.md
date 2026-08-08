@@ -260,6 +260,26 @@ The environment contract and mapping are covered by unit tests.
 - **Consequences:** Installed-device sign-in and session restoration still need
   real iOS verification before issue #14 is closed.
 
+### D-018 - Architecture history uses a versioned event ledger
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Context:** Project99 now has enough milestones, safeguards, and cross-tool
+  workflow history that contributors need a structured way to inspect how the
+  architecture evolved without inferring quality from line counts or folder
+  size.
+- **Decision:** Maintain an internal `/architecture` observatory driven by
+  `src/data/architecture-events.ts`, with deterministic generated data,
+  validation tests, and a freshness check exposed through npm scripts. Keep it
+  unlinked from customer-facing navigation unless the owner explicitly approves
+  a product navigation entry.
+- **Reason:** A reviewable event ledger preserves evidence, dates, affected
+  paths, dependencies, verification, and limitations in a form that agents and
+  humans can update consistently.
+- **Consequences:** Meaningful architectural changes should update the ledger
+  and regenerate the observatory data. Changes with no architectural impact must
+  document an exception instead of silently letting the building drift.
+
 
 ## Decision entry template
 
