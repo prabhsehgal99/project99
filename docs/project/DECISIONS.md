@@ -372,7 +372,7 @@ The environment contract and mapping are covered by unit tests.
 
 - **Date:** 2026-08-08
 - **Status:** Accepted
-- **Decision:** Expose `/nutrition` as Meals in the authenticated desktop and mobile navigation, and expose a Meals choice in Quick Log that opens the same destination. Remove the misleading Quick Log label “Manual nutrition”; manual macros remain an adjustment in the detailed Daily Log and the water-total Quick Log editor.
+- **Decision:** Expose `/nutrition` as Meals in the authenticated desktop and mobile navigation, and expose a Meals choice in Quick Log that opens the same destination. Remove the misleading Quick Log label “Manual nutrition” and the one-tap water action; manual macros remain an adjustment in the detailed Daily Log, while Quick Log retains a focused Water total editor.
 - **Reason:** Itemized meal logging is a primary daily task and should not be hidden behind a generic Log choice or described as a manual macro entry.
 - **Consequences:** Authenticated mobile navigation contains six destinations including the central Log action. Future food-related entry points use the name Meals.
 

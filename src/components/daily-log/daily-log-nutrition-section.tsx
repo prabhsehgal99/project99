@@ -15,8 +15,8 @@ export function DailyLogNutritionSection({
   onChange: (patch: Partial<DailyLogDraft>) => void;
 }) {
   return (
-    <Panel title="Manual nutrition adjustment">
-      <p className="mb-4 text-sm leading-6 text-muted">These values are added to itemized meals. <Link className="font-medium text-ink underline" href={`/nutrition?date=${draft.date}`}>Log food</Link> for meal-level tracking.</p>
+    <Panel title="Meals and manual adjustment">
+      <p className="mb-4 text-sm leading-6 text-muted"><Link className="font-medium text-ink underline" href={`/nutrition?date=${draft.date}`}>Open Meals</Link> to log food item by item. These fields are only for a manual adjustment to the meal total.</p>
       <fieldset className="grid gap-4 sm:grid-cols-2">
         <legend className="sr-only">Nutrition totals</legend>
         <NumberInput
