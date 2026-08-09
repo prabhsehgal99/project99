@@ -60,7 +60,7 @@ function TodayContent() {
                 {focus.label}
               </Link>
             ) : (
-              <button className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-primary px-5 text-sm font-medium text-primary-ink transition hover:bg-ink/90" type="button" onClick={() => openQuickLog(focus.quickLog)}>
+              <button className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-primary px-5 text-sm font-medium text-primary-ink transition hover:bg-ink/90" type="button" onClick={openQuickLog}>
                 {focus.label}
               </button>
             )}

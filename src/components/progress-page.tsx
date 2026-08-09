@@ -2,13 +2,13 @@
 
 import type { User } from "firebase/auth";
 import { Loader2, Scale } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AuthenticatedShell } from "@/components/authenticated-shell";
-import { useQuickLog } from "@/components/quick-log/quick-log-provider";
 import { ProgressBar } from "@/components/ui";
 import { currentWeight, dailyLogSummary } from "@/lib/daily-log";
-import { recentDateKeys, shortDayLabel } from "@/lib/dates";
+import { recentDateKeys, shortDayLabel, todayKey } from "@/lib/dates";
 import { subscribeToRecentDailyLogs, subscribeToSettings } from "@/lib/firestore";
 import { defaultSettings, type DailyLog, type UserSettings } from "@/lib/types";
 
@@ -17,7 +17,6 @@ export function ProgressPage() {
 }
 
 function ProgressContent({ user }: { user: User }) {
-  const { openQuickLog } = useQuickLog();
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,9 +119,9 @@ function ProgressContent({ user }: { user: User }) {
           <EmptyAction
             icon={<Scale className="h-5 w-5" aria-hidden="true" />}
             title="No weight trend yet"
-            detail="Add morning weight in Quick Log to start the weekly trend."
+            detail="Add morning weight in the Daily Log to start the weekly trend."
             action="Add morning weight"
-            onClick={() => openQuickLog("body")}
+            href={`/log/${todayKey()}`}
           />
         )}
       </section>
@@ -171,15 +170,15 @@ function TargetLine({ label, value, percent }: { label: string; value: string; p
   );
 }
 
-function EmptyAction({ icon, title, detail, action, onClick }: { icon: React.ReactNode; title: string; detail: string; action: string; onClick: () => void }) {
+function EmptyAction({ icon, title, detail, action, href }: { icon: React.ReactNode; title: string; detail: string; action: string; href: string }) {
   return (
     <div className="flex min-h-64 flex-col items-center justify-center rounded-lg border border-dashed border-line bg-night/30 p-6 text-center">
       <div className="text-mint">{icon}</div>
       <h3 className="mt-3 text-base font-semibold text-ink">{title}</h3>
       <p className="mt-2 max-w-sm text-sm leading-6 text-muted">{detail}</p>
-      <button className="mt-4 min-h-11 rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink" type="button" onClick={onClick}>
+      <Link className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-medium text-primary-ink" href={href}>
         {action}
-      </button>
+      </Link>
     </div>
   );
 }

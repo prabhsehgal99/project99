@@ -371,10 +371,27 @@ The environment contract and mapping are covered by unit tests.
 ### D-024 - Meals is a first-class destination and Quick Log action
 
 - **Date:** 2026-08-08
-- **Status:** Accepted
+- **Status:** Superseded by D-025
 - **Decision:** Expose `/nutrition` as Meals in the authenticated desktop and mobile navigation, and expose a Meals choice in Quick Log that opens the same destination. Remove the misleading Quick Log label “Manual nutrition” and the one-tap water action; manual macros remain an adjustment in the detailed Daily Log, while Quick Log retains a focused Water total editor.
 - **Reason:** Itemized meal logging is a primary daily task and should not be hidden behind a generic Log choice or described as a manual macro entry.
 - **Consequences:** Authenticated mobile navigation contains six destinations including the central Log action. Future food-related entry points use the name Meals.
+
+### D-025 - Quick Log is limited to meals, one-tap water, and journal capture
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Supersedes:** D-024’s Quick Log scope; Meals remains a first-class destination.
+- **Context:** The Quick Log sheet exposed too many equally weighted Daily Log
+  fields, making a fast capture action read like another general-purpose editor.
+- **Decision:** Quick Log contains only itemized meal entry, one-tap 250 mL water
+  logging represented by a glass icon, and journal notes. Body, sleep, recovery,
+  steps, activity, manual nutrition adjustments, and water corrections remain in
+  the complete dated Daily Log.
+- **Reason:** The global action should be a small, repeatable daily ritual rather
+  than a second surface for every Daily Log field.
+- **Consequences:** Today and Progress link detailed health prompts to the Daily
+  Log. Quick Log retains the existing transaction-safe water and journal writes,
+  while meals use the established Nutrition experience.
 
 
 ## Decision entry template
