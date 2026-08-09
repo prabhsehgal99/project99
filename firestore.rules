@@ -238,16 +238,73 @@ service cloud.firestore {
         && data.createdAt is timestamp && data.updatedAt is timestamp;
     }
 
+    function validNutritionSnapshot(data) {
+      return (data.foodId == null || (data.foodId is string && data.foodId.size() <= 128))
+        && data.foodName is string && data.foodName.size() > 0 && data.foodName.size() <= 120
+        && data.brand is string && data.brand.size() <= 120
+        && data.servingName is string && data.servingName.size() > 0 && data.servingName.size() <= 60
+        && data.servingGrams is number && data.servingGrams > 0 && data.servingGrams <= 5000
+        && validNutritionValues(data.per100g);
+    }
+
     function validNutritionEntry() {
       let data = request.resource.data;
       return data.keys().hasOnly(['schemaVersion', 'date', 'mealGroup', 'mealLabel', 'foodId', 'foodName', 'brand', 'servingName', 'servingGrams', 'per100g', 'quantity', 'createdAt', 'updatedAt'])
         && data.schemaVersion == 1 && validDateKey(data.date) && !isFutureDateKey(data.date)
-        && data.mealGroup in ['breakfast', 'lunch', 'dinner', 'snacks', 'custom'] && data.mealLabel is string && data.mealLabel.size() <= 60
-        && (data.foodId == null || (data.foodId is string && data.foodId.size() <= 128))
-        && data.foodName is string && data.foodName.size() > 0 && data.foodName.size() <= 120 && data.brand is string && data.brand.size() <= 120
-        && data.servingName is string && data.servingName.size() > 0 && data.servingName.size() <= 60 && data.servingGrams is number && data.servingGrams > 0 && data.servingGrams <= 5000
-        && validNutritionValues(data.per100g) && data.quantity is number && data.quantity > 0 && data.quantity <= 100
+        && data.mealGroup in ['breakfast', 'lunch', 'dinner', 'snacks', 'custom'] && data.mealLabel is string && data.mealLabel.size() > 0 && data.mealLabel.size() <= 60
+        && validNutritionSnapshot(data) && data.quantity is number && data.quantity > 0 && data.quantity <= 100
         && data.createdAt is timestamp && data.updatedAt is timestamp;
+    }
+
+    function preservesNutritionSnapshot() {
+      return request.resource.data.foodId == resource.data.foodId
+        && request.resource.data.foodName == resource.data.foodName
+        && request.resource.data.brand == resource.data.brand
+        && request.resource.data.servingName == resource.data.servingName
+        && request.resource.data.servingGrams == resource.data.servingGrams
+        && request.resource.data.per100g == resource.data.per100g;
+    }
+
+    function validSavedMealItem(item) {
+      return item is map
+        && item.keys().hasOnly(['schemaVersion', 'foodId', 'foodName', 'brand', 'servingName', 'servingGrams', 'per100g', 'quantity'])
+        && item.keys().hasAll(['schemaVersion', 'foodId', 'foodName', 'brand', 'servingName', 'servingGrams', 'per100g', 'quantity'])
+        && item.schemaVersion == 1 && validNutritionSnapshot(item)
+        && item.quantity is number && item.quantity > 0 && item.quantity <= 100;
+    }
+
+    // Rules does not expose a list predicate, so validate each bounded item explicitly.
+    function validSavedMealItems(items) {
+      return (items.size() < 1 || validSavedMealItem(items[0]))
+        && (items.size() < 2 || validSavedMealItem(items[1]))
+        && (items.size() < 3 || validSavedMealItem(items[2]))
+        && (items.size() < 4 || validSavedMealItem(items[3]))
+        && (items.size() < 5 || validSavedMealItem(items[4]))
+        && (items.size() < 6 || validSavedMealItem(items[5]))
+        && (items.size() < 7 || validSavedMealItem(items[6]))
+        && (items.size() < 8 || validSavedMealItem(items[7]))
+        && (items.size() < 9 || validSavedMealItem(items[8]))
+        && (items.size() < 10 || validSavedMealItem(items[9]))
+        && (items.size() < 11 || validSavedMealItem(items[10]))
+        && (items.size() < 12 || validSavedMealItem(items[11]))
+        && (items.size() < 13 || validSavedMealItem(items[12]))
+        && (items.size() < 14 || validSavedMealItem(items[13]))
+        && (items.size() < 15 || validSavedMealItem(items[14]))
+        && (items.size() < 16 || validSavedMealItem(items[15]))
+        && (items.size() < 17 || validSavedMealItem(items[16]))
+        && (items.size() < 18 || validSavedMealItem(items[17]))
+        && (items.size() < 19 || validSavedMealItem(items[18]))
+        && (items.size() < 20 || validSavedMealItem(items[19]))
+        && (items.size() < 21 || validSavedMealItem(items[20]))
+        && (items.size() < 22 || validSavedMealItem(items[21]))
+        && (items.size() < 23 || validSavedMealItem(items[22]))
+        && (items.size() < 24 || validSavedMealItem(items[23]))
+        && (items.size() < 25 || validSavedMealItem(items[24]))
+        && (items.size() < 26 || validSavedMealItem(items[25]))
+        && (items.size() < 27 || validSavedMealItem(items[26]))
+        && (items.size() < 28 || validSavedMealItem(items[27]))
+        && (items.size() < 29 || validSavedMealItem(items[28]))
+        && (items.size() < 30 || validSavedMealItem(items[29]));
     }
 
     match /users/{userId} {
@@ -320,7 +377,9 @@ service cloud.firestore {
       match /nutritionEntries/{entryId} {
         allow read, delete: if owns(userId);
         allow create: if owns(userId) && validNutritionEntry();
-        allow update: if owns(userId) && validNutritionEntry() && request.resource.data.createdAt == resource.data.createdAt;
+        allow update: if owns(userId) && validNutritionEntry()
+          && request.resource.data.createdAt == resource.data.createdAt
+          && preservesNutritionSnapshot();
       }
 
       match /savedMeals/{mealId} {
@@ -329,6 +388,7 @@ service cloud.firestore {
           && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 80
           && request.resource.data.mealGroup in ['breakfast', 'lunch', 'dinner', 'snacks', 'custom']
           && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 30
+          && validSavedMealItems(request.resource.data.items)
           && request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
       }
     }

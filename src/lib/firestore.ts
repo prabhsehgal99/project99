@@ -367,6 +367,24 @@ export async function saveNutritionEntry(uid: string, entry: NutritionEntry) {
   await setDoc(ref, { ...entry, createdAt: entry.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
 }
 
+export async function saveNutritionEntries(uid: string, entries: NutritionEntry[]) {
+  if (entries.length === 0) return;
+  if (entries.length > 30) throw new Error("A meal can contain up to 30 foods.");
+
+  return reportFirestoreError("save-nutrition-entries", async () => {
+    const db = getFirebaseDb();
+    const batch = writeBatch(db);
+    entries.forEach((entry) => {
+      batch.set(doc(db, "users", uid, "nutritionEntries", entry.id), {
+        ...entry,
+        createdAt: entry.createdAt ?? serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    });
+    await batch.commit();
+  });
+}
+
 export async function updateNutritionEntry(uid: string, entry: NutritionEntry) {
   const ref = doc(getFirebaseDb(), "users", uid, "nutritionEntries", entry.id);
   await updateDoc(ref, {

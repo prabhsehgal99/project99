@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-08-08 (calm visual-system pass in progress)
+Last updated: 2026-08-08 (Phase 1C meal-level nutrition in review)
 
 ## Current milestone
 
@@ -17,6 +17,16 @@ adjustment, preserving historical records without a destructive migration.
 The nutrition follow-up adds date-scoped food logging, quantities, favourites,
 recents, saved meals, custom meal labels, and snapshot-based copying on the
 same draft pull request.
+
+Issue #45 completes the Phase 1C owner-managed nutrition core on
+`feature/45-meal-level-nutrition`. The dated Nutrition experience now groups
+flat immutable food snapshots into meals, supports food create/edit/archive,
+favourites, recents, saved meals, copy-forward, and quantity/meal edits. It
+computes the visible daily total from meal entries plus the existing manual
+Daily Log adjustment without migrating historical records. Multi-entry meal
+operations use bounded batch writes, and Rules protect entry snapshots and
+saved-meal item shapes. Authenticated dev/preview runtime QA remains required
+before merge because agent workspaces do not contain dev Firebase credentials.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
 foundation issues were implemented in PR #28, merged to `main`, and closed.

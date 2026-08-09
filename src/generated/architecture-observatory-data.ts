@@ -2442,7 +2442,7 @@ export const architectureObservatoryEvents =
           "introduced": "2026-08-08",
           "lastChanged": "2026-08-08",
           "limitations": [
-            "Curated foods, barcode scanning, imports, and recipe-builder workflows remain deferred."
+            "Curated foods, barcode scanning, imports, recipe-builder workflows, and nutrition analytics remain deferred."
           ],
           "name": "Nutrition wing",
           "paths": [
@@ -2457,7 +2457,7 @@ export const architectureObservatoryEvents =
             "x": 960,
             "y": 250
           },
-          "responsibility": "Stores user-created food snapshots and dated meal entries, exposes fast per-meal capture and copying, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          "responsibility": "Stores user-created food snapshots and dated entries, exposes a fast meal-first capture and correction workflow, then combines derived values with the Daily Log manual nutrition adjustment.",
           "sourceRefs": [
             {
               "label": "D-001 - Daily Log is the central dated record",
@@ -2465,6 +2465,10 @@ export const architectureObservatoryEvents =
             },
             {
               "label": "D-004 - Internal food database",
+              "url": "docs/project/DECISIONS.md"
+            },
+            {
+              "label": "D-023 - Nutrition totals combine immutable meal snapshots and manual adjustments",
               "url": "docs/project/DECISIONS.md"
             }
           ],
@@ -2484,7 +2488,7 @@ export const architectureObservatoryEvents =
         },
         "elementId": "nutrition-wing",
         "operation": "added",
-        "summary": "Added date-scoped food logging with quantity edits, favourites, recents, saved meals, and snapshot-based copying."
+        "summary": "Completed date-scoped meal logging with food editing/archival, atomic meal reuse, target deltas, and immutable snapshot protection."
       },
       {
         "element": {
@@ -2599,7 +2603,7 @@ export const architectureObservatoryEvents =
         "url": "docs/project/DECISIONS.md"
       }
     ],
-    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
+    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and a complete date-scoped nutrition workflow that combines immutable meal snapshots with the Daily Log manual adjustment.",
     "title": "Workout templates and first-party nutrition"
   },
   {

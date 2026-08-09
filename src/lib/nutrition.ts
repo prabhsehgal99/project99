@@ -1,4 +1,14 @@
-import type { DailyLog, Food, NutritionEntry, NutritionValues } from "@/lib/types";
+import type { DailyLog, Food, MealGroup, NutritionEntry, NutritionValues, SavedMeal, SavedMealItem, UserSettings } from "@/lib/types";
+
+export const mealGroups: MealGroup[] = ["breakfast", "lunch", "dinner", "snacks", "custom"];
+
+export const defaultMealLabels: Record<MealGroup, string> = {
+  breakfast: "Breakfast",
+  lunch: "Lunch",
+  dinner: "Dinner",
+  snacks: "Snacks",
+  custom: "Custom meal"
+};
 
 export const zeroNutrition = (): NutritionValues => ({ calories: 0, protein: 0, carbohydrates: 0, fat: 0, fibre: 0 });
 
@@ -46,6 +56,35 @@ export function nutritionDaySummary(log: DailyLog, entries: NutritionEntry[]) {
   return { meals, manual, total: addNutrition(meals, manual) };
 }
 
+export function nutritionTargets(values: NutritionValues, settings: Pick<UserSettings, "calorieGoal" | "proteinGoal">) {
+  return {
+    caloriesRemaining: settings.calorieGoal - values.calories,
+    proteinRemaining: settings.proteinGoal - values.protein,
+    caloriePercent: settings.calorieGoal > 0 ? (values.calories / settings.calorieGoal) * 100 : 0,
+    proteinPercent: settings.proteinGoal > 0 ? (values.protein / settings.proteinGoal) * 100 : 0
+  };
+}
+
+export function entriesForMeal(entries: NutritionEntry[], mealLabel: string) {
+  return entries.filter((entry) => entry.mealLabel === mealLabel);
+}
+
+export function mealNutrition(entries: NutritionEntry[]) {
+  return addNutrition(...entries.map(nutritionForEntry));
+}
+
+export function orderedMealLabels(entries: NutritionEntry[]) {
+  const customLabels = [...new Set(entries.filter((entry) => entry.mealGroup === "custom").map((entry) => entry.mealLabel))];
+  const standardLabels = mealGroups
+    .filter((group) => group !== "custom" && entries.some((entry) => entry.mealGroup === group))
+    .map((group) => defaultMealLabels[group]);
+  return [...standardLabels, ...customLabels];
+}
+
+export function isAvailableFood(food: Food) {
+  return !food.archived;
+}
+
 export function foodSnapshot(food: Pick<Food, "id" | "name" | "brand" | "servingName" | "servingGrams" | "per100g">) {
   return {
     foodId: food.id,
@@ -55,4 +94,39 @@ export function foodSnapshot(food: Pick<Food, "id" | "name" | "brand" | "serving
     servingGrams: food.servingGrams,
     per100g: food.per100g
   };
+}
+
+export function savedMealItem(entry: NutritionEntry): SavedMealItem {
+  return {
+    schemaVersion: entry.schemaVersion,
+    foodId: entry.foodId,
+    foodName: entry.foodName,
+    brand: entry.brand,
+    servingName: entry.servingName,
+    servingGrams: entry.servingGrams,
+    per100g: entry.per100g,
+    quantity: entry.quantity
+  };
+}
+
+export function copyNutritionEntry(entry: NutritionEntry, id: string, date: string, mealGroup: MealGroup, mealLabel: string): NutritionEntry {
+  return {
+    ...entry,
+    id,
+    date,
+    mealGroup,
+    mealLabel,
+    createdAt: undefined,
+    updatedAt: undefined
+  };
+}
+
+export function entriesFromSavedMeal(meal: SavedMeal, ids: string[], date: string, mealGroup: MealGroup, mealLabel: string): NutritionEntry[] {
+  return meal.items.map((item, index) => ({
+    ...item,
+    id: ids[index],
+    date,
+    mealGroup,
+    mealLabel
+  }));
 }

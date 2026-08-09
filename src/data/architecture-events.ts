@@ -1002,7 +1002,7 @@ export const architectureEvents: ArchitectureEvent[] = [
     id: "2026-08-08-workout-nutrition-components",
     date: "2026-08-08",
     title: "Workout templates and first-party nutrition",
-    summary: "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
+    summary: "Project99 gained owner-scoped reusable workout definitions/templates and a complete date-scoped nutrition workflow that combines immutable meal snapshots with the Daily Log manual adjustment.",
     changeType: "added",
     milestone: "Phase 1B–1C components",
     sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database")],
@@ -1010,15 +1010,15 @@ export const architectureEvents: ArchitectureEvent[] = [
       {
         operation: "added",
         elementId: "nutrition-wing",
-        summary: "Added date-scoped food logging with quantity edits, favourites, recents, saved meals, and snapshot-based copying.",
+        summary: "Completed date-scoped meal logging with food editing/archival, atomic meal reuse, target deltas, and immutable snapshot protection.",
         element: element({
           id: "nutrition-wing", name: "Nutrition wing", category: "product", filter: "product", status: "implemented", feature: "First-party nutrition",
-          responsibility: "Stores user-created food snapshots and dated meal entries, exposes fast per-meal capture and copying, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          responsibility: "Stores user-created food snapshots and dated entries, exposes a fast meal-first capture and correction workflow, then combines derived values with the Daily Log manual nutrition adjustment.",
           paths: ["src/app/nutrition/page.tsx", "src/components/nutrition-page.tsx", "src/lib/nutrition.ts", "src/lib/types.ts"],
           dependencies: ["daily-log-core", "firestore-data-boundary", "today-data-boundary"], introduced: "2026-08-08", lastChanged: "2026-08-08",
-          sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database")],
+          sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database"), decision("D-023 - Nutrition totals combine immutable meal snapshots and manual adjustments")],
           verification: [{ label: "Nutrition projection tests", status: "passed", path: "src/lib/nutrition.test.ts" }, { label: "Rules emulator tests", status: "passed", path: "tests/firestore.rules.test.ts" }],
-          limitations: ["Curated foods, barcode scanning, imports, and recipe-builder workflows remain deferred."], position: { x: 960, y: 250, width: 210, height: 80 }
+          limitations: ["Curated foods, barcode scanning, imports, recipe-builder workflows, and nutrition analytics remain deferred."], position: { x: 960, y: 250, width: 210, height: 80 }
         })
       },
       {
