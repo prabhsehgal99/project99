@@ -2,10 +2,11 @@
 
 import type { User } from "firebase/auth";
 import { Check, ChevronDown, Dumbbell, Loader2, Plus, Save, Timer, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AuthenticatedShell } from "@/components/authenticated-shell";
 import { useNavigationGuard } from "@/components/navigation-guard";
 import { Panel } from "@/components/ui";
+import { TrainingCoachPanel } from "@/components/training-coach-panel";
 import { todayKey } from "@/lib/dates";
 import {
   finishWorkoutSession,
@@ -23,6 +24,7 @@ import {
   exerciseCatalogue,
   exerciseVolumeLb,
   isCompletedSet,
+  newCardioBlock,
   newWorkoutExercise,
   newWorkoutSet,
   previousCompletedExercise,
@@ -30,7 +32,7 @@ import {
   workoutFromTemplate,
   workoutVolumeLb
 } from "@/lib/workout";
-import type { ExerciseDefinition, UserExerciseDefinition, WorkoutExercise, WorkoutSession, WorkoutSet, WorkoutTemplate } from "@/lib/types";
+import type { CardioBlock, ExerciseDefinition, UserExerciseDefinition, WorkoutExercise, WorkoutSession, WorkoutSet, WorkoutTemplate } from "@/lib/types";
 
 export function WorkoutPage() {
   return <AuthenticatedShell>{(user) => <WorkoutContent user={user} />}</AuthenticatedShell>;
@@ -206,6 +208,9 @@ function WorkoutContent({ user }: { user: User }) {
     setFinishing(true);
     try {
       await finishWorkoutSession(user.uid, draft);
+      if ((completedSessionCount + 1) % 5 === 0) {
+        void user.getIdToken().then((token) => fetch("/api/training-coach", { method: "POST", headers: { authorization: `Bearer ${token}` } })).catch(() => undefined);
+      }
       setDirty(false);
       dirtyRef.current = false;
       baselineRef.current = "";
@@ -218,10 +223,7 @@ function WorkoutContent({ user }: { user: User }) {
     }
   }
 
-  const completedSessionCount = useMemo(
-    () => recentSessions.filter((recentSession) => recentSession.status === "completed").length,
-    [recentSessions]
-  );
+  const completedSessionCount = recentSessions.filter((recentSession) => recentSession.status === "completed").length;
 
   if (loadError && !draft) {
     return (
@@ -235,6 +237,7 @@ function WorkoutContent({ user }: { user: User }) {
           >
             Retry
           </button>
+          {templates.filter((template) => !template.archived).length > 0 ? <div className="mt-6 border-t border-line pt-4"><h2 className="text-sm font-medium text-ink">Your templates</h2><div className="mt-3 grid gap-2 sm:grid-cols-2">{templates.filter((template) => !template.archived).map((template) => <button key={template.id} className="min-h-12 rounded-xl border border-line bg-raised px-4 text-left text-sm text-ink hover:bg-panel" type="button" disabled={starting} onClick={() => void startFromTemplate(template)}><span className="block font-medium">{template.title}</span><span className="text-xs text-muted">{template.exercises.length} exercises</span></button>)}</div></div> : null}
           {templates.filter((template) => !template.archived).length > 0 ? (
             <div className="mt-6 border-t border-line pt-5">
               <h2 className="text-sm font-medium text-ink">Start from a template</h2>
@@ -285,6 +288,7 @@ function WorkoutContent({ user }: { user: User }) {
           </button>
           {completedSessionCount > 0 ? <p className="mt-4 text-sm text-zinc-500">{completedSessionCount} recent completed workout{completedSessionCount === 1 ? "" : "s"} available for context.</p> : null}
           {completedSessionCount > 0 ? <div className="mt-5 border-t border-line pt-4"><h2 className="text-sm font-medium text-ink">Recent history</h2><div className="mt-2 divide-y divide-line border-y border-line">{recentSessions.filter((item) => item.status === "completed").slice(0, 5).map((item) => <div key={item.id} className="flex min-h-11 items-center justify-between gap-3 py-2 text-sm"><span className="font-medium text-ink">{item.title}</span><span className="text-muted">{item.date} · {workoutVolumeLb(item).toLocaleString()} lb</span></div>)}</div></div> : null}
+          <TrainingCoachPanel user={user} />
         </section>
       </div>
     );
@@ -369,11 +373,14 @@ function WorkoutContent({ user }: { user: User }) {
           />
         ))}
 
+        {(draft.cardioBlocks?.length ?? 0) > 0 ? <section className="border-t border-line pt-5"><p className="text-sm font-medium text-muted">Cardio & conditioning</p><div className="mt-3 space-y-3">{(draft.cardioBlocks ?? []).map((block) => <CardioEditor key={block.id} block={block} onChange={(next) => markDirty({ ...draft, cardioBlocks: (draft.cardioBlocks ?? []).map((item) => item.id === next.id ? next : item) })} onRemove={() => markDirty({ ...draft, cardioBlocks: (draft.cardioBlocks ?? []).filter((item) => item.id !== block.id) })} />)}</div></section> : null}
+
         <ExercisePicker
           chosenIds={draft.exercises.map((exercise) => exercise.exerciseId)}
           definitions={[...exerciseCatalogue, ...customExercises.filter((exercise) => !exercise.archived)]}
           onAdd={(definition) => markDirty({ ...draft, exercises: [...draft.exercises, newWorkoutExercise(definition)] })}
         />
+        <button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 text-sm font-medium text-ink" type="button" onClick={() => markDirty({ ...draft, cardioBlocks: [...(draft.cardioBlocks ?? []), newCardioBlock()] })}><Plus className="h-4 w-4" aria-hidden="true" /> Add cardio block</button>
 
         <div className="sticky bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-20 -mx-4 flex flex-col gap-2 border-t border-line bg-night/95 px-4 py-3 backdrop-blur-sm md:static md:mx-0 md:flex-row md:items-center md:border-0 md:bg-transparent md:p-0">
           <button className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-base font-medium text-primary-ink disabled:opacity-60 md:flex-none" type="button" disabled={saving || finishing} onClick={finishWorkout}>
@@ -391,6 +398,9 @@ function WorkoutContent({ user }: { user: User }) {
 }
 
 function ExercisePicker({ chosenIds, definitions, onAdd }: { chosenIds: string[]; definitions: ExerciseDefinition[]; onAdd: (definition: ExerciseDefinition) => void }) {
+  const [query, setQuery] = useState("");
+  const [muscle, setMuscle] = useState("all");
+  const [equipment, setEquipment] = useState("all");
   const available = definitions.filter((exercise) => !chosenIds.includes(exercise.id));
   if (available.length === 0) return null;
   return (
@@ -398,10 +408,11 @@ function ExercisePicker({ chosenIds, definitions, onAdd }: { chosenIds: string[]
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-ink">
         Add exercise <ChevronDown className="h-5 w-5 text-muted" aria-hidden="true" />
       </summary>
+      <div className="mt-3 grid gap-2 sm:grid-cols-3"><input className="min-h-11 rounded-md border-line bg-raised text-sm text-ink sm:col-span-1" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search exercises" aria-label="Search exercises" /><select className="min-h-11 rounded-md border-line bg-raised text-sm text-ink" value={muscle} onChange={(event) => setMuscle(event.target.value)} aria-label="Filter by muscle group"><option value="all">All muscles</option>{[...new Set(available.map((item) => item.primaryMuscleGroup))].map((item) => <option key={item} value={item}>{item}</option>)}</select><select className="min-h-11 rounded-md border-line bg-raised text-sm text-ink" value={equipment} onChange={(event) => setEquipment(event.target.value)} aria-label="Filter by equipment"><option value="all">All equipment</option>{[...new Set(available.map((item) => item.equipment))].map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        {available.map((exercise) => (
+        {available.filter((exercise) => (muscle === "all" || exercise.primaryMuscleGroup === muscle) && (equipment === "all" || exercise.equipment === equipment) && `${exercise.name} ${exercise.movementCategory}`.toLowerCase().includes(query.toLowerCase())).map((exercise) => (
           <button key={exercise.id} className="flex min-h-12 items-center justify-between rounded-md border border-line bg-raised px-3 text-left text-sm text-ink hover:border-mint/50" type="button" onClick={() => onAdd(exercise)}>
-            <span><span className="block font-medium">{exercise.name}</span><span className="text-xs text-muted">{exercise.primaryMuscleGroup}</span></span>
+            <span><span className="block font-medium">{exercise.name}</span><span className="text-xs text-muted">{exercise.primaryMuscleGroup} · {exercise.equipment}</span></span>
             <Plus className="h-5 w-5 text-mint" aria-hidden="true" />
           </button>
         ))}
@@ -418,7 +429,7 @@ function CustomExerciseManager({ user, exercises }: { user: User; exercises: Use
     if (!name.trim()) { setError("Enter an exercise name."); return; }
     setSaving(true); setError("");
     try {
-      await saveExerciseDefinition(user.uid, { id: crypto.randomUUID(), schemaVersion: 1, source: "custom", name: name.trim(), primaryMuscleGroup: "full-body", equipment: "", movementCategory: "", instructions: "", setupNotes: "", archived: false });
+      await saveExerciseDefinition(user.uid, { id: crypto.randomUUID(), schemaVersion: 2, source: "custom", name: name.trim(), primaryMuscleGroup: "full-body", secondaryMuscleGroups: [], equipment: "", movementCategory: "", kind: "strength", instructions: "", setupNotes: "", substitutionIds: [], archived: false });
       setName("");
     } catch (nextError) { setError(nextError instanceof Error ? nextError.message : "Could not save exercise."); }
     finally { setSaving(false); }
@@ -474,6 +485,11 @@ function RestTimer() {
   return <div className="mt-3 flex items-center gap-2" aria-live="polite"><button className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 text-sm text-muted" type="button" onClick={() => setRemaining(90)}><Timer className="h-4 w-4" />{label}</button>{remaining ? <button className="min-h-11 px-2 text-xs text-muted" type="button" onClick={() => setRemaining(0)}>Stop</button> : null}</div>;
 }
 
+function CardioEditor({ block, onChange, onRemove }: { block: CardioBlock; onChange: (block: CardioBlock) => void; onRemove: () => void }) {
+  const numericChange = (field: "durationMinutes" | "distanceKm" | "rpe", raw: string) => onChange({ ...block, [field]: raw === "" ? null : Number(raw) });
+  return <fieldset className="rounded-lg border border-line bg-panel p-4"><div className="flex items-center justify-between gap-3"><legend className="text-sm font-medium text-ink">Cardio block</legend><button className="min-h-11 text-sm text-muted hover:text-ink" type="button" onClick={onRemove}>Remove</button></div><label className="mt-3 block text-xs font-medium text-muted">Activity<input className="mt-1 block min-h-11 w-full rounded-md border-line bg-raised text-sm text-ink" value={block.activity} maxLength={100} onChange={(event) => onChange({ ...block, activity: event.target.value })} placeholder="Run, cycle, row…" /></label><div className="mt-3 grid grid-cols-3 gap-2"><NumberField id={`cardio-${block.id}-duration`} label="Minutes" min={1} max={1440} step="1" value={block.durationMinutes} onChange={(value) => numericChange("durationMinutes", value)} /><NumberField id={`cardio-${block.id}-distance`} label="Distance km" min={0} max={1000} step="0.01" value={block.distanceKm} onChange={(value) => numericChange("distanceKm", value)} /><NumberField id={`cardio-${block.id}-rpe`} label="RPE" min={1} max={10} step="0.5" value={block.rpe} onChange={(value) => numericChange("rpe", value)} /></div><label className="mt-3 block text-xs font-medium text-muted">Notes<input className="mt-1 block min-h-11 w-full rounded-md border-line bg-raised text-sm text-ink" value={block.notes} maxLength={300} onChange={(event) => onChange({ ...block, notes: event.target.value })} /></label></fieldset>;
+}
+
 function SetEditor({ set, index, previousSet, onChange, onRemove }: { set: WorkoutSet; index: number; previousSet?: WorkoutSet; onChange: (set: WorkoutSet) => void; onRemove: () => void }) {
   const id = `set-${set.id}`;
   const numericChange = (field: "weightLb" | "reps" | "rpe", raw: string) => onChange({ ...set, [field]: raw === "" ? null : Number(raw) });
@@ -504,5 +520,5 @@ function WorkoutLoading() {
 }
 
 function workoutDataSignature(session: WorkoutSession) {
-  return JSON.stringify({ date: session.date, title: session.title, status: session.status, exercises: session.exercises, notes: session.notes });
+  return JSON.stringify({ date: session.date, title: session.title, status: session.status, exercises: session.exercises, cardioBlocks: session.cardioBlocks ?? [], notes: session.notes });
 }

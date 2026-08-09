@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/training-review",
+      "schedule": "0 15 * * 1"
+    }
+  ]
+}

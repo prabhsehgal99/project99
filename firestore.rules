@@ -198,17 +198,18 @@ service cloud.firestore {
       let data = request.resource.data;
       return data.keys().hasOnly([
         'schemaVersion', 'date', 'title', 'status', 'exercises', 'notes',
-        'startedAt', 'completedAt', 'createdAt', 'updatedAt'
+        'cardioBlocks', 'startedAt', 'completedAt', 'createdAt', 'updatedAt'
       ])
       && data.keys().hasAll([
         'schemaVersion', 'date', 'title', 'status', 'exercises', 'notes',
         'startedAt', 'completedAt', 'createdAt', 'updatedAt'
       ])
-      && data.schemaVersion == 1
+      && data.schemaVersion in [1, 2]
       && validDateKey(data.date)
       && data.title is string && data.title.size() > 0 && data.title.size() <= 80
       && data.status in ['active', 'completed']
       && data.exercises is list && data.exercises.size() <= 30
+      && (!data.keys().hasAny(['cardioBlocks']) || (data.cardioBlocks is list && data.cardioBlocks.size() <= 12))
       && data.notes is string && data.notes.size() <= 2000
       && data.startedAt is timestamp
       && (data.completedAt == null || data.completedAt is timestamp)
@@ -288,8 +289,8 @@ service cloud.firestore {
       match /exerciseDefinitions/{exerciseId} {
         allow read, delete: if owns(userId);
         allow create, update: if owns(userId)
-          && request.resource.data.keys().hasOnly(['schemaVersion', 'source', 'name', 'primaryMuscleGroup', 'equipment', 'movementCategory', 'instructions', 'setupNotes', 'archived', 'createdAt', 'updatedAt'])
-          && request.resource.data.schemaVersion == 1
+          && request.resource.data.keys().hasOnly(['schemaVersion', 'source', 'name', 'primaryMuscleGroup', 'secondaryMuscleGroups', 'equipment', 'movementCategory', 'kind', 'instructions', 'setupNotes', 'substitutionIds', 'archived', 'createdAt', 'updatedAt'])
+          && request.resource.data.schemaVersion in [1, 2]
           && request.resource.data.source == 'custom'
           && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 120
           && request.resource.data.primaryMuscleGroup in ['chest', 'back', 'shoulders', 'arms', 'legs', 'core', 'full-body']
@@ -297,6 +298,9 @@ service cloud.firestore {
           && request.resource.data.movementCategory is string && request.resource.data.movementCategory.size() <= 80
           && request.resource.data.instructions is string && request.resource.data.instructions.size() <= 2000
           && request.resource.data.setupNotes is string && request.resource.data.setupNotes.size() <= 1000
+          && (!request.resource.data.keys().hasAny(['secondaryMuscleGroups']) || (request.resource.data.secondaryMuscleGroups is list && request.resource.data.secondaryMuscleGroups.size() <= 7))
+          && (!request.resource.data.keys().hasAny(['kind']) || request.resource.data.kind in ['strength', 'bodyweight', 'cardio', 'conditioning'])
+          && (!request.resource.data.keys().hasAny(['substitutionIds']) || (request.resource.data.substitutionIds is list && request.resource.data.substitutionIds.size() <= 12))
           && request.resource.data.archived is bool && request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
       }
 
@@ -309,6 +313,21 @@ service cloud.firestore {
           && request.resource.data.notes is string && request.resource.data.notes.size() <= 2000
           && request.resource.data.exercises is list && request.resource.data.exercises.size() <= 30
           && request.resource.data.archived is bool && request.resource.data.createdAt is timestamp && request.resource.data.updatedAt is timestamp;
+      }
+
+      match /trainingProfiles/{profileId} {
+        allow read: if owns(userId);
+        allow write: if false;
+      }
+
+      match /trainingPlans/{planId} {
+        allow read: if owns(userId);
+        allow write: if false;
+      }
+
+      match /trainingPlanProposals/{proposalId} {
+        allow read: if owns(userId);
+        allow write: if false;
       }
 
       match /foods/{foodId} {

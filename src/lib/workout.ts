@@ -1,4 +1,5 @@
 import type {
+  CardioBlock,
   ExerciseDefinition,
   MuscleGroup,
   WorkoutExercise,
@@ -9,17 +10,7 @@ import type {
   WorkoutTemplate,
   WorkoutTemplateExercise
 } from "@/lib/types";
-
-export const exerciseCatalogue: ExerciseDefinition[] = [
-  { id: "barbell-back-squat", name: "Barbell Back Squat", primaryMuscleGroup: "legs" },
-  { id: "barbell-bench-press", name: "Barbell Bench Press", primaryMuscleGroup: "chest" },
-  { id: "barbell-row", name: "Barbell Row", primaryMuscleGroup: "back" },
-  { id: "conventional-deadlift", name: "Conventional Deadlift", primaryMuscleGroup: "legs" },
-  { id: "dumbbell-shoulder-press", name: "Dumbbell Shoulder Press", primaryMuscleGroup: "shoulders" },
-  { id: "lat-pulldown", name: "Lat Pulldown", primaryMuscleGroup: "back" },
-  { id: "leg-press", name: "Leg Press", primaryMuscleGroup: "legs" },
-  { id: "romanian-deadlift", name: "Romanian Deadlift", primaryMuscleGroup: "legs" }
-];
+export { exerciseCatalogue } from "@/data/exercise-catalogue";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -56,9 +47,15 @@ export function newWorkoutExercise(definition: ExerciseDefinition): WorkoutExerc
     exerciseId: definition.id,
     name: definition.name,
     primaryMuscleGroup: definition.primaryMuscleGroup,
+    equipment: definition.equipment,
+    movementCategory: definition.movementCategory,
     notes: "",
     sets: [newWorkoutSet("working")]
   };
+}
+
+export function newCardioBlock(activity = "Cardio"): CardioBlock {
+  return { id: crypto.randomUUID(), activity, durationMinutes: null, distanceKm: null, rpe: null, notes: "" };
 }
 
 export function workoutExerciseFromTemplate(exercise: WorkoutTemplateExercise): WorkoutExercise {
@@ -67,6 +64,8 @@ export function workoutExerciseFromTemplate(exercise: WorkoutTemplateExercise): 
     exerciseId: exercise.exerciseId,
     name: exercise.name,
     primaryMuscleGroup: exercise.primaryMuscleGroup,
+    equipment: "",
+    movementCategory: "",
     notes: exercise.notes,
     sets: exercise.prescriptions.flatMap((prescription) =>
       Array.from({ length: prescription.targetSets }, () => newWorkoutSet(prescription.kind))
@@ -77,11 +76,12 @@ export function workoutExerciseFromTemplate(exercise: WorkoutTemplateExercise): 
 export function workoutFromTemplate(template: WorkoutTemplate, id: string, date: string): WorkoutSession {
   return {
     id,
-    schemaVersion: 1,
+    schemaVersion: 2,
     date,
     title: template.title,
     status: "active",
     exercises: template.exercises.map(workoutExerciseFromTemplate),
+    cardioBlocks: [],
     notes: template.notes
   };
 }
@@ -132,7 +132,9 @@ export function normalizeWorkoutSession(id: string, raw: unknown): WorkoutSessio
             id: stringOrDefault(value.id, crypto.randomUUID()),
             exerciseId: stringOrDefault(value.exerciseId, stringOrDefault(value.name)),
             name: value.name,
-            primaryMuscleGroup: muscleGroupOrDefault(value.primaryMuscleGroup),
+                  primaryMuscleGroup: muscleGroupOrDefault(value.primaryMuscleGroup),
+                  equipment: stringOrDefault(value.equipment),
+                  movementCategory: stringOrDefault(value.movementCategory),
             notes: stringOrDefault(value.notes),
             sets
           }
@@ -142,11 +144,15 @@ export function normalizeWorkoutSession(id: string, raw: unknown): WorkoutSessio
 
   return {
     id,
-    schemaVersion: 1,
+    schemaVersion: raw.schemaVersion === 2 ? 2 : 1,
     date: raw.date,
     title: stringOrDefault(raw.title, "Workout"),
     status: sessionStatusOrDefault(raw.status),
     exercises,
+    cardioBlocks: Array.isArray(raw.cardioBlocks) ? raw.cardioBlocks.flatMap((value): CardioBlock[] => {
+      if (!isRecord(value) || typeof value.id !== "string") return [];
+      return [{ id: value.id, activity: stringOrDefault(value.activity, "Cardio"), durationMinutes: nullableNumber(value.durationMinutes), distanceKm: nullableNumber(value.distanceKm), rpe: nullableNumber(value.rpe), notes: stringOrDefault(value.notes) }];
+    }) : [],
     notes: stringOrDefault(raw.notes),
     startedAt: raw.startedAt as WorkoutSession["startedAt"],
     completedAt: raw.completedAt as WorkoutSession["completedAt"],
@@ -199,6 +205,7 @@ export function validateWorkoutSession(session: WorkoutSession, options: { forCo
   if (session.exercises.length > 30) {
     errors.push("A workout can contain up to 30 exercises.");
   }
+  if ((session.cardioBlocks?.length ?? 0) > 12) errors.push("A workout can contain up to 12 cardio blocks.");
 
   let completedWorkingSets = 0;
   for (const exercise of session.exercises) {
@@ -225,6 +232,14 @@ export function validateWorkoutSession(session: WorkoutSession, options: { forCo
         completedWorkingSets += 1;
       }
     }
+  }
+
+  for (const block of session.cardioBlocks ?? []) {
+    if (!block.activity.trim() || block.activity.length > 100) errors.push("Each cardio block needs an activity name of 100 characters or fewer.");
+    if (block.durationMinutes !== null && (!Number.isFinite(block.durationMinutes) || block.durationMinutes <= 0 || block.durationMinutes > 1_440)) errors.push(`${block.activity} has an invalid duration.`);
+    if (block.distanceKm !== null && (!Number.isFinite(block.distanceKm) || block.distanceKm < 0 || block.distanceKm > 1_000)) errors.push(`${block.activity} has an invalid distance.`);
+    if (block.rpe !== null && (!Number.isFinite(block.rpe) || block.rpe < 1 || block.rpe > 10)) errors.push(`${block.activity} has an RPE outside 1–10.`);
+    if (block.notes.trim().length > 300) errors.push(`${block.activity} has a cardio note longer than 300 characters.`);
   }
 
   if (options.forCompletion && completedWorkingSets === 0) {
