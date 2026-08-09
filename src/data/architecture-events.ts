@@ -699,7 +699,7 @@ export const architectureEvents: ArchitectureEvent[] = [
           status: "implemented",
           feature: "User-owned persistence",
           responsibility: "Centralizes client reads, subscriptions, writes, normalization, and error reporting for user-owned Firestore documents.",
-          paths: ["src/lib/firestore.ts", "src/lib/types.ts", "firestore.rules", "tests/firestore.rules.test.ts"],
+          paths: ["src/lib/firestore.ts", "src/lib/types.ts", "firestore.rules", "firestore.indexes.json", "tests/firestore.rules.test.ts"],
           dependencies: ["firebase-auth-boundary", "environment-boundary"],
           introduced: "2026-07-31",
           lastChanged: "2026-08-07",
@@ -950,7 +950,7 @@ export const architectureEvents: ArchitectureEvent[] = [
       {
         operation: "added",
         elementId: "quick-log-sheet",
-        summary: "Added the global Quick Log action backed by validated Daily Log transactions.",
+        summary: "Added the global Quick Log action backed by validated Daily Log transactions and a direct Meals destination.",
         element: element({
           id: "quick-log-sheet",
           name: "Quick Log sheet",
@@ -958,12 +958,12 @@ export const architectureEvents: ArchitectureEvent[] = [
           filter: "interface",
           status: "implemented",
           feature: "Quick Log",
-          responsibility: "Lets authenticated users record frequent Daily Log fields through focused dialog editors and transaction-safe writes that preserve unrelated fields.",
+          responsibility: "Lets authenticated users record frequent Daily Log fields through focused dialog editors, then opens Meals for itemized food capture without duplicating nutrition persistence.",
           paths: ["src/components/quick-log/quick-log-provider.tsx", "src/lib/daily-log.ts", "src/lib/firestore.ts", "src/lib/daily-log.test.ts"],
           dependencies: ["today-data-boundary", "daily-log-core", "firestore-data-boundary", "navigation-guard"],
           introduced: "2026-08-08",
           lastChanged: "2026-08-08",
-          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model")],
+          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model"), decision("D-024 - Meals is a first-class destination and Quick Log action")],
           verification: [
             { label: "Daily Log mutation tests", status: "passed", path: "src/lib/daily-log.test.ts" },
             { label: "Firestore rules suite", status: "passed", path: "tests/firestore.rules.test.ts" }
@@ -1002,7 +1002,7 @@ export const architectureEvents: ArchitectureEvent[] = [
     id: "2026-08-08-workout-nutrition-components",
     date: "2026-08-08",
     title: "Workout templates and first-party nutrition",
-    summary: "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
+    summary: "Project99 gained owner-scoped reusable workout definitions/templates and a complete date-scoped nutrition workflow that combines immutable meal snapshots with the Daily Log manual adjustment.",
     changeType: "added",
     milestone: "Phase 1B–1C components",
     sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database")],
@@ -1010,15 +1010,15 @@ export const architectureEvents: ArchitectureEvent[] = [
       {
         operation: "added",
         elementId: "nutrition-wing",
-        summary: "Added date-scoped food logging with quantity edits, favourites, recents, saved meals, and snapshot-based copying.",
+        summary: "Completed date-scoped meal logging with food editing/archival, atomic meal reuse, target deltas, and immutable snapshot protection.",
         element: element({
           id: "nutrition-wing", name: "Nutrition wing", category: "product", filter: "product", status: "implemented", feature: "First-party nutrition",
-          responsibility: "Stores user-created food snapshots and dated meal entries, exposes fast per-meal capture and copying, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          responsibility: "Stores user-created food snapshots and dated entries, exposes a fast meal-first capture and correction workflow, then combines derived values with the Daily Log manual nutrition adjustment.",
           paths: ["src/app/nutrition/page.tsx", "src/components/nutrition-page.tsx", "src/lib/nutrition.ts", "src/lib/types.ts"],
           dependencies: ["daily-log-core", "firestore-data-boundary", "today-data-boundary"], introduced: "2026-08-08", lastChanged: "2026-08-08",
-          sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database")],
+          sourceRefs: [decision("D-001 - Daily Log is the central dated record"), decision("D-004 - Internal food database"), decision("D-023 - Nutrition totals combine immutable meal snapshots and manual adjustments")],
           verification: [{ label: "Nutrition projection tests", status: "passed", path: "src/lib/nutrition.test.ts" }, { label: "Rules emulator tests", status: "passed", path: "tests/firestore.rules.test.ts" }],
-          limitations: ["Curated foods, barcode scanning, imports, and recipe-builder workflows remain deferred."], position: { x: 960, y: 250, width: 210, height: 80 }
+          limitations: ["Curated foods, barcode scanning, imports, recipe-builder workflows, and nutrition analytics remain deferred."], position: { x: 960, y: 250, width: 210, height: 80 }
         })
       },
       {

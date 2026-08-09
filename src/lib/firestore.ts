@@ -21,6 +21,7 @@ import type { User } from "firebase/auth";
 import { applyDailyLogMutation, normalizeDailyLog, type DailyLogMutation } from "@/lib/daily-log";
 import { getFirebaseDb } from "@/lib/firebase";
 import { reportFirestoreError } from "@/lib/monitoring";
+import { sortNutritionEntries } from "@/lib/nutrition";
 import { normalizeWorkoutSession } from "@/lib/workout";
 import {
   defaultDailyLog,
@@ -333,11 +334,11 @@ export function subscribeToFoods(uid: string, onNext: (items: Food[]) => void, o
 
 export function subscribeToNutritionEntries(uid: string, date: string, onNext: (items: NutritionEntry[]) => void, onError: (error: Error) => void) {
   return onSnapshot(
-    query(collection(getFirebaseDb(), "users", uid, "nutritionEntries"), where("date", "==", date), orderBy("createdAt", "asc")),
-    (snapshot) => onNext(snapshot.docs.flatMap((item) => {
+    query(collection(getFirebaseDb(), "users", uid, "nutritionEntries"), where("date", "==", date)),
+    (snapshot) => onNext(sortNutritionEntries(snapshot.docs.flatMap((item) => {
       const value = documentWithId<NutritionEntry>(item.id, item.data());
       return value ? [value] : [];
-    })),
+    }))),
     onError
   );
 }
@@ -365,6 +366,24 @@ export async function saveFood(uid: string, food: Food) {
 export async function saveNutritionEntry(uid: string, entry: NutritionEntry) {
   const ref = doc(getFirebaseDb(), "users", uid, "nutritionEntries", entry.id);
   await setDoc(ref, { ...entry, createdAt: entry.createdAt ?? serverTimestamp(), updatedAt: serverTimestamp() });
+}
+
+export async function saveNutritionEntries(uid: string, entries: NutritionEntry[]) {
+  if (entries.length === 0) return;
+  if (entries.length > 30) throw new Error("A meal can contain up to 30 foods.");
+
+  return reportFirestoreError("save-nutrition-entries", async () => {
+    const db = getFirebaseDb();
+    const batch = writeBatch(db);
+    entries.forEach((entry) => {
+      batch.set(doc(db, "users", uid, "nutritionEntries", entry.id), {
+        ...entry,
+        createdAt: entry.createdAt ?? serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    });
+    await batch.commit();
+  });
 }
 
 export async function updateNutritionEntry(uid: string, entry: NutritionEntry) {

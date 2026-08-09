@@ -422,7 +422,7 @@ function DailyLogContent({ user, dateKey }: { user: User; dateKey: string }) {
             />
             <CategoryButton
               icon={<Utensils className="h-5 w-5" aria-hidden="true" />}
-              title="Nutrition"
+              title="Meals"
               detail={`${draft.caloriesConsumed === "" ? 0 : draft.caloriesConsumed} kcal · ${draft.proteinConsumed === "" ? 0 : draft.proteinConsumed} g protein · ${draft.waterLitres === "" ? 0 : draft.waterLitres} L`}
               onClick={() => setActiveSection("nutrition")}
             />
