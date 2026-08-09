@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { copyNutritionEntry, entriesFromSavedMeal, foodSnapshot, isAvailableFood, mealNutrition, nutritionDaySummary, nutritionForEntry, nutritionTargets, orderedMealLabels, savedMealItem } from "@/lib/nutrition";
+import { copyNutritionEntry, entriesFromSavedMeal, foodSnapshot, isAvailableFood, mealNutrition, nutritionDaySummary, nutritionForEntry, nutritionTargets, orderedMealLabels, savedMealItem, sortNutritionEntries } from "@/lib/nutrition";
 import { defaultDailyLog, type Food, type NutritionEntry, type SavedMeal } from "@/lib/types";
 
 const entry: NutritionEntry = {
@@ -28,6 +28,12 @@ describe("nutrition summaries", () => {
     expect(entry).toMatchObject({ id: "entry", date: "2026-08-08", mealGroup: "breakfast" });
     expect(mealNutrition([entry, copied])).toEqual({ calories: 400, protein: 12, carbohydrates: 60, fat: 8, fibre: 10 });
     expect(orderedMealLabels([copied, entry])).toEqual(["Breakfast", "Dinner"]);
+  });
+
+  it("sorts the day’s entry snapshots locally while the server index is building", () => {
+    const later = { ...entry, id: "later", createdAt: { toMillis: () => 2 } as NonNullable<NutritionEntry["createdAt"]> };
+    const earlier = { ...entry, id: "earlier", createdAt: { toMillis: () => 1 } as NonNullable<NutritionEntry["createdAt"]> };
+    expect(sortNutritionEntries([later, earlier]).map((item) => item.id)).toEqual(["earlier", "later"]);
   });
 
   it("builds saved-meal snapshots and destination copies without changing the source", () => {

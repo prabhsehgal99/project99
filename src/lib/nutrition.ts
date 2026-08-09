@@ -69,6 +69,13 @@ export function entriesForMeal(entries: NutritionEntry[], mealLabel: string) {
   return entries.filter((entry) => entry.mealLabel === mealLabel);
 }
 
+export function sortNutritionEntries(entries: NutritionEntry[]) {
+  return [...entries].sort((left, right) => {
+    const timestampOrder = (left.createdAt?.toMillis() ?? 0) - (right.createdAt?.toMillis() ?? 0);
+    return timestampOrder || left.id.localeCompare(right.id);
+  });
+}
+
 export function mealNutrition(entries: NutritionEntry[]) {
   return addNutrition(...entries.map(nutritionForEntry));
 }

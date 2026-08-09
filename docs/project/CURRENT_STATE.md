@@ -29,9 +29,11 @@ saved-meal item shapes. Authenticated dev/preview runtime QA remains required
 before merge because agent workspaces do not contain dev Firebase credentials.
 Meals is also a first-class authenticated navigation destination and a Quick
 Log choice; the prior “Manual nutrition” label is retired.
-The dated meal-entry lookup requires the checked-in `nutritionEntries` composite
-index (`date`, then `createdAt` ascending). It was deployed to `project99-dev`
-on 2026-08-08; release the same reviewed manifest to production after merge.
+The checked-in `nutritionEntries` composite index (`date`, then `createdAt`
+ascending) was deployed to `project99-dev` on 2026-08-08 and is building.
+Until Firebase marks it ready, dated meal entries use the automatic `date`
+index and deterministic client-side ordering; release the same manifest to
+production after merge.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
 foundation issues were implemented in PR #28, merged to `main`, and closed.

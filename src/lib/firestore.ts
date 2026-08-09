@@ -21,6 +21,7 @@ import type { User } from "firebase/auth";
 import { applyDailyLogMutation, normalizeDailyLog, type DailyLogMutation } from "@/lib/daily-log";
 import { getFirebaseDb } from "@/lib/firebase";
 import { reportFirestoreError } from "@/lib/monitoring";
+import { sortNutritionEntries } from "@/lib/nutrition";
 import { normalizeWorkoutSession } from "@/lib/workout";
 import {
   defaultDailyLog,
@@ -333,11 +334,11 @@ export function subscribeToFoods(uid: string, onNext: (items: Food[]) => void, o
 
 export function subscribeToNutritionEntries(uid: string, date: string, onNext: (items: NutritionEntry[]) => void, onError: (error: Error) => void) {
   return onSnapshot(
-    query(collection(getFirebaseDb(), "users", uid, "nutritionEntries"), where("date", "==", date), orderBy("createdAt", "asc")),
-    (snapshot) => onNext(snapshot.docs.flatMap((item) => {
+    query(collection(getFirebaseDb(), "users", uid, "nutritionEntries"), where("date", "==", date)),
+    (snapshot) => onNext(sortNutritionEntries(snapshot.docs.flatMap((item) => {
       const value = documentWithId<NutritionEntry>(item.id, item.data());
       return value ? [value] : [];
-    })),
+    }))),
     onError
   );
 }
