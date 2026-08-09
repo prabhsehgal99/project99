@@ -699,7 +699,7 @@ export const architectureEvents: ArchitectureEvent[] = [
           status: "implemented",
           feature: "User-owned persistence",
           responsibility: "Centralizes client reads, subscriptions, writes, normalization, and error reporting for user-owned Firestore documents.",
-          paths: ["src/lib/firestore.ts", "src/lib/types.ts", "firestore.rules", "tests/firestore.rules.test.ts"],
+          paths: ["src/lib/firestore.ts", "src/lib/types.ts", "firestore.rules", "firestore.indexes.json", "tests/firestore.rules.test.ts"],
           dependencies: ["firebase-auth-boundary", "environment-boundary"],
           introduced: "2026-07-31",
           lastChanged: "2026-08-07",

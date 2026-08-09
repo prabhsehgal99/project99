@@ -1608,6 +1608,7 @@ export const architectureObservatoryEvents =
             "src/lib/firestore.ts",
             "src/lib/types.ts",
             "firestore.rules",
+            "firestore.indexes.json",
             "tests/firestore.rules.test.ts"
           ],
           "position": {
