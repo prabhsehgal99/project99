@@ -69,6 +69,7 @@ export type UserSettings = {
 };
 
 export type MuscleGroup = "chest" | "back" | "shoulders" | "arms" | "legs" | "core" | "full-body";
+export type ExerciseKind = "strength" | "bodyweight" | "cardio" | "conditioning";
 
 export type WorkoutSetKind = "warmup" | "working";
 
@@ -86,19 +87,31 @@ export type WorkoutExercise = {
   exerciseId: string;
   name: string;
   primaryMuscleGroup: MuscleGroup;
+  equipment?: string;
+  movementCategory?: string;
   notes: string;
   sets: WorkoutSet[];
+};
+
+export type CardioBlock = {
+  id: string;
+  activity: string;
+  durationMinutes: number | null;
+  distanceKm: number | null;
+  rpe: number | null;
+  notes: string;
 };
 
 export type WorkoutSessionStatus = "active" | "completed";
 
 export type WorkoutSession = {
   id: string;
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   date: string;
   title: string;
   status: WorkoutSessionStatus;
   exercises: WorkoutExercise[];
+  cardioBlocks?: CardioBlock[];
   notes: string;
   startedAt?: Timestamp;
   completedAt?: Timestamp | null;
@@ -110,10 +123,16 @@ export type ExerciseDefinition = {
   id: string;
   name: string;
   primaryMuscleGroup: MuscleGroup;
+  secondaryMuscleGroups: MuscleGroup[];
+  equipment: string;
+  movementCategory: string;
+  kind: ExerciseKind;
+  instructions: string;
+  substitutionIds: string[];
 };
 
 export type UserExerciseDefinition = ExerciseDefinition & {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   source: "custom";
   equipment: string;
   movementCategory: string;
@@ -144,13 +163,56 @@ export type WorkoutTemplateExercise = {
 
 export type WorkoutTemplate = {
   id: string;
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   title: string;
   notes: string;
   exercises: WorkoutTemplateExercise[];
   archived: boolean;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
+};
+
+export type TrainingProfile = {
+  schemaVersion: 1;
+  goal: string;
+  experience: "beginner" | "intermediate" | "advanced";
+  trainingDays: number;
+  sessionMinutes: number;
+  equipment: string[];
+  constraints: string;
+  consentedAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type TrainingPlanWorkout = {
+  id: string;
+  dayLabel: string;
+  title: string;
+  exercises: WorkoutTemplateExercise[];
+  cardioBlocks: CardioBlock[];
+};
+
+export type TrainingPlan = {
+  id: string;
+  schemaVersion: 1;
+  status: "active" | "superseded" | "archived";
+  title: string;
+  summary: string;
+  workouts: TrainingPlanWorkout[];
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
+export type TrainingPlanProposal = {
+  id: string;
+  schemaVersion: 1;
+  planId: string | null;
+  status: "pending" | "accepted" | "declined";
+  rationale: string;
+  summary: string;
+  plan: Omit<TrainingPlan, "id" | "schemaVersion" | "status" | "createdAt" | "updatedAt">;
+  createdAt?: Timestamp;
+  decidedAt?: Timestamp;
 };
 
 export type NutritionValues = {

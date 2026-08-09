@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-08-08 (calm visual-system pass in progress)
+Last updated: 2026-08-08 (expanded workout library and adaptive coach in progress)
 
 ## Current milestone
 
@@ -20,6 +20,12 @@ same draft pull request.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
 foundation issues were implemented in PR #28, merged to `main`, and closed.
+
+Issue #46 expands Train with a 140+ movement library, search/filtering,
+structured cardio blocks, compatibility-safe workout schema additions, and an
+owner-approved adaptive coaching slice. The coach uses protected server routes,
+server-only OpenAI/Firebase Admin credentials, deterministic output validation,
+weekly Vercel review, and milestone-triggered proposal generation.
 
 Issue #37 implements the approved calm daily experience redesign on branch
 `feature/37-calm-daily-experience` in draft PR #38. The branch is implemented,

@@ -2685,5 +2685,196 @@ export const architectureObservatoryEvents =
     ],
     "summary": "Firestore Rules releases now run from reviewed main through a tested, auditable GitHub Actions workflow instead of an arbitrary local checkout.",
     "title": "Protected Firestore Rules release gate"
+  },
+  {
+    "changeType": "modified",
+    "changes": [
+      {
+        "element": {
+          "category": "product",
+          "dependencies": [
+            "daily-log-core",
+            "firestore-data-boundary"
+          ],
+          "feature": "Workout engine",
+          "filter": "product",
+          "id": "workout-wing",
+          "introduced": "2026-08-05",
+          "lastChanged": "2026-08-08",
+          "limitations": [
+            "Authenticated runtime verification requires the dev Firebase environment."
+          ],
+          "name": "Workout wing",
+          "paths": [
+            "src/data/exercise-catalogue.ts",
+            "src/components/workout-page.tsx",
+            "src/lib/workout.ts",
+            "src/lib/types.ts"
+          ],
+          "position": {
+            "height": 78,
+            "width": 210,
+            "x": 160,
+            "y": 120
+          },
+          "responsibility": "Runs active strength and cardio sessions with a comprehensive local exercise library, reusable definitions, templates, and immutable completed snapshots.",
+          "sourceRefs": [
+            {
+              "commit": "e4be0295255655d881ee33d96278fee0b69cb625",
+              "label": "PR #22: Start workout engine foundation",
+              "pullRequest": 22,
+              "url": "https://github.com/prabhsehgal99/project99/pull/22"
+            },
+            {
+              "issue": 46,
+              "label": "Issue #46: Expand workout library and add adaptive training coach",
+              "url": "https://github.com/prabhsehgal99/project99/issues/46"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Workout unit tests",
+              "path": "src/lib/workout.test.ts",
+              "status": "passed"
+            }
+          ]
+        },
+        "elementId": "workout-wing",
+        "operation": "modified",
+        "summary": "Expanded the active logger with searchable exercise discovery and separate cardio blocks while retaining immutable session snapshots."
+      },
+      {
+        "element": {
+          "category": "core",
+          "dependencies": [
+            "firebase-auth-boundary",
+            "firestore-data-boundary",
+            "workout-wing"
+          ],
+          "feature": "Owner-approved workout plans",
+          "filter": "data-security",
+          "id": "adaptive-training-coach",
+          "introduced": "2026-08-08",
+          "lastChanged": "2026-08-08",
+          "limitations": [
+            "OpenAI and Firebase Admin credentials must be configured before live generation can run."
+          ],
+          "name": "Adaptive training coach",
+          "paths": [
+            "src/app/api/training-coach",
+            "src/app/api/cron/training-review/route.ts",
+            "src/lib/firebase-admin.ts",
+            "src/lib/training-plans.ts",
+            "vercel.json"
+          ],
+          "position": {
+            "height": 78,
+            "width": 245,
+            "x": 395,
+            "y": 120
+          },
+          "responsibility": "Creates structured training-plan proposals from explicitly consented owner fitness data, validates them deterministically, and keeps active-plan changes behind an explicit owner decision.",
+          "sourceRefs": [
+            {
+              "issue": 46,
+              "label": "Issue #46: Expand workout library and add adaptive training coach",
+              "url": "https://github.com/prabhsehgal99/project99/issues/46"
+            },
+            {
+              "label": "D-023 - Adaptive coaching is server-generated and user-approved",
+              "url": "docs/project/DECISIONS.md"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Training-plan unit tests",
+              "path": "src/lib/training-plans.test.ts",
+              "status": "passed"
+            },
+            {
+              "detail": "npm run build passed during implementation.",
+              "label": "Production build",
+              "status": "passed"
+            }
+          ]
+        },
+        "elementId": "adaptive-training-coach",
+        "operation": "added",
+        "summary": "Added authenticated server routes, deterministic plan validation, OpenAI structured output, and owner-approved proposal activation."
+      },
+      {
+        "element": {
+          "category": "frame",
+          "dependencies": [
+            "firebase-auth-boundary"
+          ],
+          "feature": "User-owned persistence",
+          "filter": "data-security",
+          "id": "firestore-data-boundary",
+          "introduced": "2026-07-31",
+          "lastChanged": "2026-08-08",
+          "limitations": [],
+          "name": "Firestore data boundary",
+          "paths": [
+            "src/lib/firestore.ts",
+            "src/lib/firebase-admin.ts",
+            "firestore.rules",
+            "tests/firestore.rules.test.ts"
+          ],
+          "position": {
+            "height": 78,
+            "width": 245,
+            "x": 680,
+            "y": 400
+          },
+          "responsibility": "Centralizes owner-scoped client persistence and Rules validation, while server-managed coaching records use protected authenticated server routes.",
+          "sourceRefs": [
+            {
+              "commit": "81bb7ab34cf28428aa13c2fd5a82c922006cd6dc",
+              "label": "PR #27: Add emulator-backed Firestore rules tests",
+              "pullRequest": 27,
+              "url": "https://github.com/prabhsehgal99/project99/pull/27"
+            },
+            {
+              "issue": 46,
+              "label": "Issue #46: Expand workout library and add adaptive training coach",
+              "url": "https://github.com/prabhsehgal99/project99/issues/46"
+            }
+          ],
+          "status": "implemented",
+          "verification": [
+            {
+              "label": "Rules emulator tests",
+              "path": "tests/firestore.rules.test.ts",
+              "status": "passed"
+            }
+          ]
+        },
+        "elementId": "firestore-data-boundary",
+        "operation": "modified",
+        "summary": "Rules now protect coach-managed owner documents from all client writes while preserving owner reads."
+      }
+    ],
+    "date": "2026-08-08",
+    "id": "2026-08-08-expanded-workout-coach",
+    "knownLimitations": [
+      "Weekly cron reviews run only in production and require CRON_SECRET plus server-side OpenAI and Firebase Admin credentials."
+    ],
+    "milestone": "Phase 1B workout engine with approved Phase 2B exception",
+    "sourceRefs": [
+      {
+        "issue": 46,
+        "label": "Issue #46: Expand workout library and add adaptive training coach",
+        "url": "https://github.com/prabhsehgal99/project99/issues/46"
+      },
+      {
+        "label": "D-023 - Adaptive coaching is server-generated and user-approved",
+        "url": "docs/project/DECISIONS.md"
+      }
+    ],
+    "summary": "Train gained a broad exercise catalogue, structured cardio blocks, and a server-managed, owner-approved adaptive plan boundary.",
+    "title": "Expanded workout library and adaptive coach"
   }
 ] satisfies ArchitectureEvent[];

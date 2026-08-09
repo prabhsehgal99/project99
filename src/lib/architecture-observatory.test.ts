@@ -16,7 +16,7 @@ describe("architecture observatory history", () => {
     const snapshot = createArchitectureSnapshot(architectureEvents, "2026-08-08T00:00:00.000Z");
 
     expect(snapshot.warnings).toEqual([]);
-    expect(snapshot.latestEventId).toBe("2026-08-08-firestore-rules-release-gate");
+    expect(snapshot.latestEventId).toBe("2026-08-08-expanded-workout-coach");
     expect(snapshot.elements.map((element) => element.id)).toContain("daily-log-core");
     expect(snapshot.elements.map((element) => element.id)).toContain("workout-wing");
     expect(snapshot.elements.map((element) => element.id)).toContain("quality-gate-system");

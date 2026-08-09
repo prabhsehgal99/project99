@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { estimatedOneRepMaxLb, exerciseVolumeLb, previousCompletedExercise, validateWorkoutSession, workoutFromTemplate, workoutVolumeLb } from "@/lib/workout";
+import { exerciseCatalogueCount } from "@/data/exercise-catalogue";
+import { estimatedOneRepMaxLb, exerciseVolumeLb, newCardioBlock, previousCompletedExercise, validateWorkoutSession, workoutFromTemplate, workoutVolumeLb } from "@/lib/workout";
 import type { WorkoutExercise, WorkoutSession, WorkoutTemplate } from "@/lib/types";
 
 const bench: WorkoutExercise = {
@@ -29,6 +30,9 @@ function session(overrides: Partial<WorkoutSession> = {}): WorkoutSession {
 }
 
 describe("workout calculations", () => {
+  it("ships a broad built-in exercise library", () => {
+    expect(exerciseCatalogueCount).toBeGreaterThanOrEqual(140);
+  });
   it("counts completed working-set volume but excludes warm-ups and blank sets", () => {
     expect(exerciseVolumeLb(bench)).toBe(1080);
     expect(workoutVolumeLb(session())).toBe(1080);
@@ -58,5 +62,11 @@ describe("validateWorkoutSession", () => {
     const invalid = session({ exercises: [{ ...bench, sets: [bench.sets[2]] }] });
     expect(validateWorkoutSession(invalid, { forCompletion: true }).valid).toBe(false);
     expect(validateWorkoutSession(session(), { forCompletion: true }).valid).toBe(true);
+  });
+
+  it("validates separately logged cardio blocks", () => {
+    const cardio = newCardioBlock("Stationary Bike");
+    expect(validateWorkoutSession(session({ cardioBlocks: [{ ...cardio, durationMinutes: 30, rpe: 6 }] })).valid).toBe(true);
+    expect(validateWorkoutSession(session({ cardioBlocks: [{ ...cardio, durationMinutes: 0 }] })).valid).toBe(false);
   });
 });

@@ -130,6 +130,7 @@ function userSettingsRef(db: Firestore, uid = OWNER_UID, documentId = "preferenc
 
 function foodRef(db: Firestore, uid = OWNER_UID, id = "food-1") { return db.doc(`users/${uid}/foods/${id}`); }
 function nutritionEntryRef(db: Firestore, uid = OWNER_UID, id = "entry-1") { return db.doc(`users/${uid}/nutritionEntries/${id}`); }
+function trainingProfileRef(db: Firestore, uid = OWNER_UID) { return db.doc(`users/${uid}/trainingProfiles/current`); }
 
 function food(overrides: RuleDocument = {}): RuleDocument {
   return { schemaVersion: 1, name: "Oats", brand: "", provenance: "user", servingName: "bowl", servingGrams: 50, per100g: { calories: 400, protein: 12, carbohydrates: 60, fat: 8, fibre: 10 }, favourite: false, archived: false, createdAt: FIXED_TIMESTAMP, updatedAt: FIXED_TIMESTAMP, ...overrides };
@@ -248,6 +249,18 @@ describe("ownership", () => {
     await assertFails(
       workoutSessionRef(unauthenticated, OWNER_UID, "unauthenticated-create").set(workoutSession())
     );
+  });
+
+  it("keeps coach-managed profiles readable only by their owner and client-write protected", async () => {
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await trainingProfileRef(context.firestore()).set({ schemaVersion: 1, goal: "Build strength", experience: "intermediate", trainingDays: 4, sessionMinutes: 60, equipment: ["Full gym"], constraints: "", consentedAt: FIXED_TIMESTAMP, updatedAt: FIXED_TIMESTAMP });
+    });
+    const owner = authenticatedDb(OWNER_UID);
+    const other = authenticatedDb(OTHER_UID);
+    await assertSucceeds(trainingProfileRef(owner).get());
+    await assertFails(trainingProfileRef(other).get());
+    await assertFails(trainingProfileRef(owner).update({ goal: "Tampered" }));
+    await assertFails(trainingProfileRef(other).set({ goal: "Tampered" }));
   });
 
   it("enforces ownership for user profiles, including creates", async () => {
@@ -465,7 +478,7 @@ describe("workout-session schema", () => {
   });
 
   it.each([
-    ["schemaVersion", 2],
+    ["schemaVersion", 3],
     ["date", "2026-8-06"],
     ["title", ""],
     ["title", "x".repeat(81)],

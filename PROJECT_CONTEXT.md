@@ -205,8 +205,10 @@ during foundation work.
 Friends, coaches, accountability, and shared challenges. Do not build a social
 media feed.
 
-Do not implement AI until explicitly requested. Begin with rule-based insights;
-LLM coaching comes later.
+AI-assisted coaching is limited to the explicitly approved adaptive workout-plan
+feature: it runs through protected server routes, validates structured output,
+uses only explicitly consented owner data, and requires approval before a plan
+changes. Other AI features remain deferred.
 
 ## Explicit non-goals for now
 

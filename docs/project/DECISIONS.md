@@ -359,6 +359,15 @@ The environment contract and mapping are covered by unit tests.
   `FIREBASE_SERVICE_ACCOUNT` secrets. Rules releases are intentional, recorded
   Actions runs rather than direct Firebase CLI commands.
 
+### D-023 - Adaptive coaching is server-generated and user-approved
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Supersedes:** D-005 only for the owner-approved adaptive workout coach.
+- **Decision:** Project99 may use an OpenAI server integration to generate structured workout-plan proposals from an explicitly consented owner’s available fitness data. Deterministic validation must reject malformed or unsupported output, and a proposal may never update the active plan without the owner’s approval.
+- **Reason:** The owner explicitly requested flexible, goal-led automatic coaching while retaining control of all persisted changes.
+- **Consequences:** OpenAI and Firebase Admin credentials remain server-only; coach profile, plan, and proposal documents are client-write protected. The product stays useful when AI is not configured.
+
 
 ## Decision entry template
 

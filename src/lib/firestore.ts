@@ -237,6 +237,7 @@ export async function startWorkoutSession(uid: string, date: string) {
       title: "Workout",
       status: "active",
       exercises: [],
+      cardioBlocks: [],
       notes: "",
       startedAt: serverTimestamp(),
       completedAt: null,
@@ -251,11 +252,12 @@ export async function saveActiveWorkoutSession(uid: string, session: WorkoutSess
   return reportFirestoreError("save-active-workout-session", async () => {
     const ref = doc(getFirebaseDb(), "users", uid, "workoutSessions", session.id);
     await updateDoc(ref, {
-      schemaVersion: 1,
+      schemaVersion: 2,
       date: session.date,
       title: session.title.trim(),
       status: "active",
       exercises: session.exercises,
+      cardioBlocks: session.cardioBlocks,
       notes: session.notes.trim(),
       updatedAt: serverTimestamp()
     });
@@ -276,11 +278,12 @@ export async function finishWorkoutSession(uid: string, session: WorkoutSession)
     };
     const batch = writeBatch(db);
     batch.update(completedSessionRef, {
-      schemaVersion: 1,
+      schemaVersion: 2,
       date: session.date,
       title: session.title.trim(),
       status: "completed",
       exercises: session.exercises,
+      cardioBlocks: session.cardioBlocks,
       notes: session.notes.trim(),
       completedAt: serverTimestamp(),
       updatedAt: serverTimestamp()

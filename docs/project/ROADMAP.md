@@ -287,6 +287,15 @@ Separate reusable definitions from completed activity:
 The existing workout-session model, calculations, validation, resume/save/finish
 behavior, and Daily Log linkage remain unchanged by the experience refinement.
 
+### Approved adaptive-plan exception
+
+The owner explicitly approved a constrained Phase 2B pull-forward for adaptive
+workout plans. It may use explicitly consented data through a protected
+server-side OpenAI integration, but deterministic validation must own canonical
+calculations and the owner must approve every persisted plan change. This does
+not pull broader AI insights, medical guidance, or automatic plan mutation into
+Phase 1.
+
 ### Training intelligence
 
 - Previous workout

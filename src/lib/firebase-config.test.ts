@@ -42,8 +42,7 @@ function envExampleKeys(): string[] {
 
 describe("firebase config contract", () => {
   it("matches .env.example exactly", () => {
-    expect(envExampleKeys().filter((key) => key !== "NEXT_PUBLIC_SENTRY_DSN")).toEqual([...FIREBASE_ENV_KEYS]);
-    expect(envExampleKeys()).toContain("NEXT_PUBLIC_SENTRY_DSN");
+    expect(envExampleKeys()).toEqual([...FIREBASE_ENV_KEYS, "NEXT_PUBLIC_SENTRY_DSN", "OPENAI_API_KEY", "OPENAI_MODEL", "FIREBASE_ADMIN_PROJECT_ID", "FIREBASE_ADMIN_CLIENT_EMAIL", "FIREBASE_ADMIN_PRIVATE_KEY", "CRON_SECRET"]);
   });
 });
 
