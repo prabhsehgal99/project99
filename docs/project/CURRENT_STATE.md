@@ -27,6 +27,8 @@ Daily Log adjustment without migrating historical records. Multi-entry meal
 operations use bounded batch writes, and Rules protect entry snapshots and
 saved-meal item shapes. Authenticated dev/preview runtime QA remains required
 before merge because agent workspaces do not contain dev Firebase credentials.
+Meals is also a first-class authenticated navigation destination and a Quick
+Log choice; the prior “Manual nutrition” label is retired.
 
 The Phase 1B workout-engine foundation is merged. The four previously open
 foundation issues were implemented in PR #28, merged to `main`, and closed.

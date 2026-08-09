@@ -950,7 +950,7 @@ export const architectureEvents: ArchitectureEvent[] = [
       {
         operation: "added",
         elementId: "quick-log-sheet",
-        summary: "Added the global Quick Log action backed by validated Daily Log transactions.",
+        summary: "Added the global Quick Log action backed by validated Daily Log transactions and a direct Meals destination.",
         element: element({
           id: "quick-log-sheet",
           name: "Quick Log sheet",
@@ -958,12 +958,12 @@ export const architectureEvents: ArchitectureEvent[] = [
           filter: "interface",
           status: "implemented",
           feature: "Quick Log",
-          responsibility: "Lets authenticated users record frequent Daily Log fields through focused dialog editors and transaction-safe writes that preserve unrelated fields.",
+          responsibility: "Lets authenticated users record frequent Daily Log fields through focused dialog editors, then opens Meals for itemized food capture without duplicating nutrition persistence.",
           paths: ["src/components/quick-log/quick-log-provider.tsx", "src/lib/daily-log.ts", "src/lib/firestore.ts", "src/lib/daily-log.test.ts"],
           dependencies: ["today-data-boundary", "daily-log-core", "firestore-data-boundary", "navigation-guard"],
           introduced: "2026-08-08",
           lastChanged: "2026-08-08",
-          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model")],
+          sourceRefs: [githubIssue(37, "Implement calm daily experience redesign"), decision("D-019 - Today and Quick Log are the primary daily interaction model"), decision("D-024 - Meals is a first-class destination and Quick Log action")],
           verification: [
             { label: "Daily Log mutation tests", status: "passed", path: "src/lib/daily-log.test.ts" },
             { label: "Firestore rules suite", status: "passed", path: "tests/firestore.rules.test.ts" }

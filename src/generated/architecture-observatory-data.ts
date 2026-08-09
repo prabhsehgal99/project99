@@ -2319,7 +2319,7 @@ export const architectureObservatoryEvents =
             "x": 635,
             "y": 235
           },
-          "responsibility": "Lets authenticated users record frequent Daily Log fields through focused dialog editors and transaction-safe writes that preserve unrelated fields.",
+          "responsibility": "Lets authenticated users record frequent Daily Log fields through focused dialog editors, then opens Meals for itemized food capture without duplicating nutrition persistence.",
           "sourceRefs": [
             {
               "issue": 37,
@@ -2328,6 +2328,10 @@ export const architectureObservatoryEvents =
             },
             {
               "label": "D-019 - Today and Quick Log are the primary daily interaction model",
+              "url": "docs/project/DECISIONS.md"
+            },
+            {
+              "label": "D-024 - Meals is a first-class destination and Quick Log action",
               "url": "docs/project/DECISIONS.md"
             }
           ],
@@ -2347,7 +2351,7 @@ export const architectureObservatoryEvents =
         },
         "elementId": "quick-log-sheet",
         "operation": "added",
-        "summary": "Added the global Quick Log action backed by validated Daily Log transactions."
+        "summary": "Added the global Quick Log action backed by validated Daily Log transactions and a direct Meals destination."
       },
       {
         "element": {

@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "firebase/auth";
-import { Activity, BarChart3, Dumbbell, Loader2, MoreHorizontal, PlusCircle, SunMedium } from "lucide-react";
+import { Activity, BarChart3, Dumbbell, Loader2, MoreHorizontal, PlusCircle, SunMedium, Utensils } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type MouseEvent, type ReactNode } from "react";
@@ -14,6 +14,7 @@ import { Panel } from "@/components/ui";
 const navItems = [
   { href: "/dashboard", label: "Today", icon: SunMedium },
   { href: "/workouts", label: "Train", icon: Dumbbell },
+  { href: "/nutrition", label: "Meals", icon: Utensils },
   { href: "/progress", label: "Progress", icon: BarChart3 },
   { href: "/more", label: "More", icon: MoreHorizontal }
 ];
@@ -123,7 +124,7 @@ function AuthenticatedAppFrame({
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-night/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-night/95 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:hidden"
         aria-label="Primary"
       >
         <MobileNavItem item={navItems[0]} pathname={pathname} />
@@ -136,8 +137,7 @@ function AuthenticatedAppFrame({
         >
           <PlusCircle className="h-7 w-7" aria-hidden="true" />
         </button>
-        <MobileNavItem item={navItems[2]} pathname={pathname} />
-        <MobileNavItem item={navItems[3]} pathname={pathname} />
+        {navItems.slice(2).map((item) => <MobileNavItem key={item.href} item={item} pathname={pathname} />)}
       </nav>
     </div>
   );

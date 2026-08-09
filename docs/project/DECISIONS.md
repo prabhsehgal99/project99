@@ -368,6 +368,14 @@ The environment contract and mapping are covered by unit tests.
 - **Reason:** This preserves existing records, keeps completed food values stable after a food-library edit, and makes the daily total transparent to the user.
 - **Consequences:** Nutrition surfaces must subscribe to dated entries whenever they display macro totals. Bulk meal creation uses bounded atomic batches, and Rules protect entry snapshots and saved-meal item shapes.
 
+### D-024 - Meals is a first-class destination and Quick Log action
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Decision:** Expose `/nutrition` as Meals in the authenticated desktop and mobile navigation, and expose a Meals choice in Quick Log that opens the same destination. Remove the misleading Quick Log label “Manual nutrition”; manual macros remain an adjustment in the detailed Daily Log and the water-total Quick Log editor.
+- **Reason:** Itemized meal logging is a primary daily task and should not be hidden behind a generic Log choice or described as a manual macro entry.
+- **Consequences:** Authenticated mobile navigation contains six destinations including the central Log action. Future food-related entry points use the name Meals.
+
 
 ## Decision entry template
 

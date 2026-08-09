@@ -38,7 +38,7 @@ reviews the whole day on phone or desktop.
 
 ## User flow
 
-1. Open Nutrition from Today, Quick Log, or a dated Daily Log.
+1. Open Meals from authenticated navigation, Quick Log, Today, or a dated Daily Log.
 2. Choose the destination meal and find, create, or reuse food.
 3. Confirm a serving quantity and see its macro preview before adding it.
 4. Review, correct, copy, or save the assembled meal; totals update from the dated entry snapshot plus any manual adjustment.

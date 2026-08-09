@@ -146,7 +146,7 @@ function NutritionContent({ user }: { user: User }) {
       <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
           <Link className="inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-ink" href={`/log/${date}`}><ArrowLeft className="h-4 w-4" />Daily Log</Link>
-          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.12em] text-muted">Nutrition</p>
+          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.12em] text-muted">Meals</p>
           <h1 className="mt-1 text-3xl font-medium tracking-[-0.04em] text-ink">{longDateLabel(date)}</h1>
         </div>
         <label className="text-sm text-muted">Date<input className="mt-1 block min-h-11 rounded-xl border border-line bg-raised px-3 text-ink" type="date" max={today} value={date} onChange={(event) => changeDate(event.target.value)} /></label>

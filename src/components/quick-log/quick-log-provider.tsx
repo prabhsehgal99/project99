@@ -5,13 +5,12 @@ import {
   CheckCircle2,
   Dumbbell,
   Droplets,
-  Flame,
   Loader2,
   Moon,
   NotebookPen,
-  PlusCircle,
   Scale,
   Activity,
+  Utensils,
   X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -215,8 +214,7 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
               <div className="grid grid-cols-2 gap-3">
                 <QuickLogChoice icon={<Scale className="h-5 w-5" aria-hidden="true" />} label="Weight" onClick={() => setEditor("body")} />
                 <QuickLogChoice icon={<Moon className="h-5 w-5" aria-hidden="true" />} label="Sleep" onClick={() => setEditor("sleep")} />
-                <QuickLogChoice icon={<Flame className="h-5 w-5" aria-hidden="true" />} label="Manual nutrition" onClick={() => setEditor("nutrition")} />
-                <QuickLogChoice icon={<PlusCircle className="h-5 w-5" aria-hidden="true" />} label="Add food" onClick={() => { closeQuickLog(); router.push("/nutrition"); }} />
+                <QuickLogChoice icon={<Utensils className="h-5 w-5" aria-hidden="true" />} label="Meals" onClick={() => { closeQuickLog(); router.push("/nutrition"); }} />
                 <QuickLogChoice icon={<CheckCircle2 className="h-5 w-5" aria-hidden="true" />} label="Recovery" onClick={() => setEditor("recovery")} />
                 <QuickLogChoice icon={<Activity className="h-5 w-5" aria-hidden="true" />} label="Steps" onClick={() => setEditor("steps")} />
                 <QuickLogChoice icon={<NotebookPen className="h-5 w-5" aria-hidden="true" />} label="Note" onClick={() => setEditor("note")} />
@@ -259,7 +257,7 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
           {editor === "nutrition" ? (
             <FocusedEditor onBack={() => setEditor("root")}>
               <NumberInput label="Water" value={waterLitres} min={0} max={15} step={0.25} decimalPlaces={2} suffix="L" onChange={setWaterLitres} />
-              <p className="text-sm leading-6 text-muted">Manual adjustment is added to itemized meals. Use Add food for itemized nutrition.</p>
+              <p className="text-sm leading-6 text-muted">Manual values are added to meals. Use the Meals tab to log food item by item.</p>
               <NumberInput label="Manual calories" value={caloriesConsumed} min={0} max={20000} step={50} decimalPlaces={0} suffix="kcal" onChange={setCaloriesConsumed} />
               <NumberInput label="Protein" value={proteinConsumed} min={0} max={1000} step={5} decimalPlaces={0} suffix="g" onChange={setProteinConsumed} />
               <details className="rounded-md border border-line bg-night/40 p-3">
@@ -358,7 +356,7 @@ function editorTitle(editor: QuickLogEditor) {
     root: "What changed?",
     body: "Morning weight",
     sleep: "Sleep",
-    nutrition: "Nutrition and water",
+    nutrition: "Manual adjustment and water",
     recovery: "Recovery",
     activity: "Training and habit",
     steps: "Steps",
