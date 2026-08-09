@@ -24,7 +24,7 @@ function TodayContent() {
   const nutrition = nutritionDaySummary(todayLog, nutritionEntries).total;
   const summary = dailyLogSummary({ ...todayLog, caloriesConsumed: nutrition.calories, proteinConsumed: nutrition.protein, carbohydratesConsumed: nutrition.carbohydrates, fatConsumed: nutrition.fat, fibreConsumed: nutrition.fibre }, settings);
   const focus = todayFocus(todayLog, settings, activeWorkout);
-  const rhythm = loggedMoments(todayLog);
+  const rhythm = loggedMoments(todayLog, nutrition);
 
   function dismissFocus() {
     dismissTodayFocus(today);
@@ -116,11 +116,11 @@ function MetricRow({ label, value, percent }: { label: string; value: string; pe
   return <div className="grid min-h-14 grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line last:border-b-0 sm:grid-cols-[92px_minmax(0,1fr)_auto]"><span className="text-sm text-ink">{label}</span><ProgressBar value={percent} /><span className="whitespace-nowrap text-xs tabular-nums text-muted">{value}</span></div>;
 }
 
-function loggedMoments(log: ReturnType<typeof useTodayData>["todayLog"]) {
+function loggedMoments(log: ReturnType<typeof useTodayData>["todayLog"], nutrition: { calories: number; protein: number }) {
   const moments: { label: string; detail: string; tone: string; icon: typeof Scale }[] = [];
   if (log.sleepHours !== null) moments.push({ label: "Sleep", detail: `${log.sleepHours} h`, tone: "bg-violet", icon: Moon });
   if (log.weightKg !== null) moments.push({ label: "Morning weight", detail: `${log.weightKg.toFixed(1)} kg`, tone: "bg-mint", icon: Scale });
-  if (log.caloriesConsumed > 0 || log.proteinConsumed > 0) moments.push({ label: "Nutrition", detail: `${log.caloriesConsumed} kcal · ${log.proteinConsumed} g protein`, tone: "bg-warm", icon: Utensils });
+  if (nutrition.calories > 0 || nutrition.protein > 0) moments.push({ label: "Nutrition", detail: `${nutrition.calories} kcal · ${nutrition.protein} g protein`, tone: "bg-warm", icon: Utensils });
   if (log.workoutStatus === "complete") moments.push({ label: "Workout", detail: formatActivityStatus(log.workoutStatus), tone: "bg-mint", icon: Dumbbell });
   if (log.cardioStatus === "complete") moments.push({ label: "Cardio", detail: formatActivityStatus(log.cardioStatus), tone: "bg-warm", icon: Bike });
   if (log.energyLevel !== null || log.moodLevel !== null || log.sorenessLevel !== null) moments.push({ label: "Recovery", detail: `Energy ${log.energyLevel ?? "—"}/5 · Mood ${log.moodLevel ?? "—"}/5`, tone: "bg-violet", icon: CheckCircle2 });

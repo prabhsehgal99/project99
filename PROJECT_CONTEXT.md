@@ -53,7 +53,7 @@ Defaults:
 
 - Dark mode.
 - Monochrome, emerald, and purple accent themes.
-- Authenticated navigation uses Today, Train, Log, Progress, and More.
+- Authenticated navigation uses Today, Train, Log, Meals, Progress, and More.
 - Log is a global fast-capture action that opens Quick Log, not a route.
 - Persistent bottom navigation on mobile and a sidebar on desktop.
 - Readable, accessible, one-hand-friendly screens and touch targets.

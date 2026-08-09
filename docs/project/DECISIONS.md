@@ -359,6 +359,23 @@ The environment contract and mapping are covered by unit tests.
   `FIREBASE_SERVICE_ACCOUNT` secrets. Rules releases are intentional, recorded
   Actions runs rather than direct Firebase CLI commands.
 
+### D-023 - Nutrition totals combine immutable meal snapshots and manual adjustments
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Context:** The initial Daily Log stored manually entered daily macro totals, while the Phase 1C food logger introduced independent dated food entries. Replacing historical totals or persisting a second aggregate would either destroy useful history or introduce conflicting sources of truth.
+- **Decision:** Keep owner-scoped `nutritionEntries` as immutable per-food snapshots grouped into meals in the interface. Keep Daily Log macro fields as a manual adjustment. Compute all displayed daily nutrition totals at read time as meal entries plus that adjustment; do not migrate or persist the aggregate.
+- **Reason:** This preserves existing records, keeps completed food values stable after a food-library edit, and makes the daily total transparent to the user.
+- **Consequences:** Nutrition surfaces must subscribe to dated entries whenever they display macro totals. Bulk meal creation uses bounded atomic batches, and Rules protect entry snapshots and saved-meal item shapes.
+
+### D-024 - Meals is a first-class destination and Quick Log action
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Decision:** Expose `/nutrition` as Meals in the authenticated desktop and mobile navigation, and expose a Meals choice in Quick Log that opens the same destination. Remove the misleading Quick Log label “Manual nutrition” and the one-tap water action; manual macros remain an adjustment in the detailed Daily Log, while Quick Log retains a focused Water total editor.
+- **Reason:** Itemized meal logging is a primary daily task and should not be hidden behind a generic Log choice or described as a manual macro entry.
+- **Consequences:** Authenticated mobile navigation contains six destinations including the central Log action. Future food-related entry points use the name Meals.
+
 
 ## Decision entry template
 

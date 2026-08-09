@@ -1608,6 +1608,7 @@ export const architectureObservatoryEvents =
             "src/lib/firestore.ts",
             "src/lib/types.ts",
             "firestore.rules",
+            "firestore.indexes.json",
             "tests/firestore.rules.test.ts"
           ],
           "position": {
@@ -2319,7 +2320,7 @@ export const architectureObservatoryEvents =
             "x": 635,
             "y": 235
           },
-          "responsibility": "Lets authenticated users record frequent Daily Log fields through focused dialog editors and transaction-safe writes that preserve unrelated fields.",
+          "responsibility": "Lets authenticated users record frequent Daily Log fields through focused dialog editors, then opens Meals for itemized food capture without duplicating nutrition persistence.",
           "sourceRefs": [
             {
               "issue": 37,
@@ -2328,6 +2329,10 @@ export const architectureObservatoryEvents =
             },
             {
               "label": "D-019 - Today and Quick Log are the primary daily interaction model",
+              "url": "docs/project/DECISIONS.md"
+            },
+            {
+              "label": "D-024 - Meals is a first-class destination and Quick Log action",
               "url": "docs/project/DECISIONS.md"
             }
           ],
@@ -2347,7 +2352,7 @@ export const architectureObservatoryEvents =
         },
         "elementId": "quick-log-sheet",
         "operation": "added",
-        "summary": "Added the global Quick Log action backed by validated Daily Log transactions."
+        "summary": "Added the global Quick Log action backed by validated Daily Log transactions and a direct Meals destination."
       },
       {
         "element": {
@@ -2442,7 +2447,7 @@ export const architectureObservatoryEvents =
           "introduced": "2026-08-08",
           "lastChanged": "2026-08-08",
           "limitations": [
-            "Curated foods, barcode scanning, imports, and recipe-builder workflows remain deferred."
+            "Curated foods, barcode scanning, imports, recipe-builder workflows, and nutrition analytics remain deferred."
           ],
           "name": "Nutrition wing",
           "paths": [
@@ -2457,7 +2462,7 @@ export const architectureObservatoryEvents =
             "x": 960,
             "y": 250
           },
-          "responsibility": "Stores user-created food snapshots and dated meal entries, exposes fast per-meal capture and copying, then combines their derived values with the Daily Log manual nutrition adjustment.",
+          "responsibility": "Stores user-created food snapshots and dated entries, exposes a fast meal-first capture and correction workflow, then combines derived values with the Daily Log manual nutrition adjustment.",
           "sourceRefs": [
             {
               "label": "D-001 - Daily Log is the central dated record",
@@ -2465,6 +2470,10 @@ export const architectureObservatoryEvents =
             },
             {
               "label": "D-004 - Internal food database",
+              "url": "docs/project/DECISIONS.md"
+            },
+            {
+              "label": "D-023 - Nutrition totals combine immutable meal snapshots and manual adjustments",
               "url": "docs/project/DECISIONS.md"
             }
           ],
@@ -2484,7 +2493,7 @@ export const architectureObservatoryEvents =
         },
         "elementId": "nutrition-wing",
         "operation": "added",
-        "summary": "Added date-scoped food logging with quantity edits, favourites, recents, saved meals, and snapshot-based copying."
+        "summary": "Completed date-scoped meal logging with food editing/archival, atomic meal reuse, target deltas, and immutable snapshot protection."
       },
       {
         "element": {
@@ -2599,7 +2608,7 @@ export const architectureObservatoryEvents =
         "url": "docs/project/DECISIONS.md"
       }
     ],
-    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and fast, date-scoped nutrition logging that complements the Daily Log manual adjustment.",
+    "summary": "Project99 gained owner-scoped reusable workout definitions/templates and a complete date-scoped nutrition workflow that combines immutable meal snapshots with the Daily Log manual adjustment.",
     "title": "Workout templates and first-party nutrition"
   },
   {

@@ -5,13 +5,12 @@ import {
   CheckCircle2,
   Dumbbell,
   Droplets,
-  Flame,
   Loader2,
   Moon,
   NotebookPen,
-  PlusCircle,
   Scale,
   Activity,
+  Utensils,
   X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -35,7 +34,7 @@ export type QuickLogEditor =
   | "root"
   | "body"
   | "sleep"
-  | "nutrition"
+  | "water"
   | "recovery"
   | "activity"
   | "steps"
@@ -52,7 +51,6 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
   const { today, todayLog } = useTodayData();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
-  const firstActionRef = useRef<HTMLButtonElement>(null);
   const [editor, setEditor] = useState<QuickLogEditor>("root");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -62,11 +60,6 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
   const [weightKg, setWeightKg] = useState<number | "">("");
   const [sleepHours, setSleepHours] = useState<number | "">("");
   const [waterLitres, setWaterLitres] = useState<number | "">("");
-  const [caloriesConsumed, setCaloriesConsumed] = useState<number | "">("");
-  const [proteinConsumed, setProteinConsumed] = useState<number | "">("");
-  const [carbohydratesConsumed, setCarbohydratesConsumed] = useState<number | "">("");
-  const [fatConsumed, setFatConsumed] = useState<number | "">("");
-  const [fibreConsumed, setFibreConsumed] = useState<number | "">("");
   const [moodLevel, setMoodLevel] = useState<ScaleLevel | null>(null);
   const [energyLevel, setEnergyLevel] = useState<ScaleLevel | null>(null);
   const [sorenessLevel, setSorenessLevel] = useState<ScaleLevel | null>(null);
@@ -80,11 +73,6 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
     setWeightKg(todayLog.weightKg ?? "");
     setSleepHours(todayLog.sleepHours ?? "");
     setWaterLitres(todayLog.waterMl / 1000);
-    setCaloriesConsumed(todayLog.caloriesConsumed);
-    setProteinConsumed(todayLog.proteinConsumed);
-    setCarbohydratesConsumed(todayLog.carbohydratesConsumed);
-    setFatConsumed(todayLog.fatConsumed);
-    setFibreConsumed(todayLog.fibreConsumed);
     setMoodLevel(todayLog.moodLevel);
     setEnergyLevel(todayLog.energyLevel);
     setSorenessLevel(todayLog.sorenessLevel);
@@ -104,7 +92,6 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
       setStatus("");
       setRetryMutation(null);
       dialogRef.current?.showModal();
-      window.setTimeout(() => firstActionRef.current?.focus(), 0);
     },
     [initializeFields]
   );
@@ -199,29 +186,15 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
 
           {editor === "root" ? (
             <div className="grid gap-3">
-              <button
-                ref={firstActionRef}
-                className="flex min-h-14 items-center justify-between rounded-2xl bg-primary px-4 text-left font-medium text-primary-ink transition active:scale-[0.99]"
-                type="button"
-                disabled={saving}
-                onClick={() => void runMutation({ type: "incrementWater", amountMl: 250 }, "Added 250 mL of water.")}
-              >
-                <span className="inline-flex items-center gap-3">
-                  {saving ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Droplets className="h-5 w-5" aria-hidden="true" />}
-                  Add 250 mL water
-                </span>
-                <span className="text-sm">Now</span>
-              </button>
               <div className="grid grid-cols-2 gap-3">
                 <QuickLogChoice icon={<Scale className="h-5 w-5" aria-hidden="true" />} label="Weight" onClick={() => setEditor("body")} />
                 <QuickLogChoice icon={<Moon className="h-5 w-5" aria-hidden="true" />} label="Sleep" onClick={() => setEditor("sleep")} />
-                <QuickLogChoice icon={<Flame className="h-5 w-5" aria-hidden="true" />} label="Manual nutrition" onClick={() => setEditor("nutrition")} />
-                <QuickLogChoice icon={<PlusCircle className="h-5 w-5" aria-hidden="true" />} label="Add food" onClick={() => { closeQuickLog(); router.push("/nutrition"); }} />
+                <QuickLogChoice icon={<Utensils className="h-5 w-5" aria-hidden="true" />} label="Meals" onClick={() => { closeQuickLog(); router.push("/nutrition"); }} />
                 <QuickLogChoice icon={<CheckCircle2 className="h-5 w-5" aria-hidden="true" />} label="Recovery" onClick={() => setEditor("recovery")} />
                 <QuickLogChoice icon={<Activity className="h-5 w-5" aria-hidden="true" />} label="Steps" onClick={() => setEditor("steps")} />
                 <QuickLogChoice icon={<NotebookPen className="h-5 w-5" aria-hidden="true" />} label="Note" onClick={() => setEditor("note")} />
                 <QuickLogChoice icon={<Dumbbell className="h-5 w-5" aria-hidden="true" />} label="Training" onClick={() => setEditor("activity")} />
-                <QuickLogChoice icon={<Droplets className="h-5 w-5" aria-hidden="true" />} label="Water total" onClick={() => setEditor("nutrition")} />
+                <QuickLogChoice icon={<Droplets className="h-5 w-5" aria-hidden="true" />} label="Water total" onClick={() => setEditor("water")} />
               </div>
               <button
                 className="min-h-11 rounded-md border border-line px-4 text-sm font-medium text-ink"
@@ -256,35 +229,19 @@ export function QuickLogProvider({ user, children }: { user: User; children: Rea
             </FocusedEditor>
           ) : null}
 
-          {editor === "nutrition" ? (
+          {editor === "water" ? (
             <FocusedEditor onBack={() => setEditor("root")}>
               <NumberInput label="Water" value={waterLitres} min={0} max={15} step={0.25} decimalPlaces={2} suffix="L" onChange={setWaterLitres} />
-              <p className="text-sm leading-6 text-muted">Manual adjustment is added to itemized meals. Use Add food for itemized nutrition.</p>
-              <NumberInput label="Manual calories" value={caloriesConsumed} min={0} max={20000} step={50} decimalPlaces={0} suffix="kcal" onChange={setCaloriesConsumed} />
-              <NumberInput label="Protein" value={proteinConsumed} min={0} max={1000} step={5} decimalPlaces={0} suffix="g" onChange={setProteinConsumed} />
-              <details className="rounded-md border border-line bg-night/40 p-3">
-                <summary className="min-h-11 cursor-pointer text-sm font-medium text-muted">Carbs, fat, and fibre</summary>
-                <div className="mt-4 grid gap-4">
-                  <NumberInput label="Carbohydrates" value={carbohydratesConsumed} min={0} max={2000} step={5} decimalPlaces={0} suffix="g" onChange={setCarbohydratesConsumed} />
-                  <NumberInput label="Fat" value={fatConsumed} min={0} max={1000} step={5} decimalPlaces={0} suffix="g" onChange={setFatConsumed} />
-                  <NumberInput label="Fibre" value={fibreConsumed} min={0} max={200} step={1} decimalPlaces={0} suffix="g" onChange={setFibreConsumed} />
-                </div>
-              </details>
               <PrimarySave
                 saving={saving}
-                label="Log"
+                label="Save water"
                 onClick={() =>
                   void runMutation(
                     {
-                      type: "setNutrition",
-                      waterMl: waterLitres === "" ? 0 : Math.round(waterLitres * 1000),
-                      caloriesConsumed: caloriesConsumed === "" ? 0 : caloriesConsumed,
-                      proteinConsumed: proteinConsumed === "" ? 0 : proteinConsumed,
-                      carbohydratesConsumed: carbohydratesConsumed === "" ? 0 : carbohydratesConsumed,
-                      fatConsumed: fatConsumed === "" ? 0 : fatConsumed,
-                      fibreConsumed: fibreConsumed === "" ? 0 : fibreConsumed
+                      type: "setWater",
+                      waterMl: waterLitres === "" ? 0 : Math.round(waterLitres * 1000)
                     },
-                    "Nutrition saved."
+                    "Water saved."
                   )
                 }
               />
@@ -358,7 +315,7 @@ function editorTitle(editor: QuickLogEditor) {
     root: "What changed?",
     body: "Morning weight",
     sleep: "Sleep",
-    nutrition: "Nutrition and water",
+    water: "Water total",
     recovery: "Recovery",
     activity: "Training and habit",
     steps: "Steps",
