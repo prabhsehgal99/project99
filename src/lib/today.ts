@@ -4,11 +4,11 @@ import type { DailyLog, UserSettings, WorkoutSession } from "@/lib/types";
 export type TodayFocus =
   | { type: "resume-workout"; title: string; href: "/workouts"; label: "Resume workout" }
   | { type: "start-workout"; title: string; href: "/workouts"; label: "Start workout" }
-  | { type: "log-weight"; title: string; quickLog: "body"; label: "Add morning weight" }
-  | { type: "log-sleep"; title: string; quickLog: "sleep"; label: "Log sleep" }
-  | { type: "quick-check-in"; title: string; quickLog: "recovery"; label: "Check in" }
-  | { type: "add-water"; title: string; quickLog: "root"; label: "Add water" }
-  | { type: "open-log"; title: string; quickLog: "root"; label: "Open Quick Log" };
+  | { type: "log-weight"; title: string; href: string; label: "Add morning weight" }
+  | { type: "log-sleep"; title: string; href: string; label: "Log sleep" }
+  | { type: "quick-check-in"; title: string; href: string; label: "Check in" }
+  | { type: "add-water"; title: string; label: "Add water" }
+  | { type: "open-log"; title: string; label: "Open Quick Log" };
 
 export function todayFocus(log: DailyLog, settings: UserSettings, activeWorkout: WorkoutSession | null): TodayFocus {
   if (activeWorkout) {
@@ -21,11 +21,11 @@ export function todayFocus(log: DailyLog, settings: UserSettings, activeWorkout:
   }
 
   if (log.weightKg === null) {
-    return { type: "log-weight", title: "Start with the first body signal.", quickLog: "body", label: "Add morning weight" };
+    return { type: "log-weight", title: "Start with the first body signal.", href: `/log/${log.date}`, label: "Add morning weight" };
   }
 
   if (log.sleepHours === null) {
-    return { type: "log-sleep", title: "Record last night's recovery.", quickLog: "sleep", label: "Log sleep" };
+    return { type: "log-sleep", title: "Record last night's recovery.", href: `/log/${log.date}`, label: "Log sleep" };
   }
 
   if (log.workoutStatus === "planned") {
@@ -33,13 +33,13 @@ export function todayFocus(log: DailyLog, settings: UserSettings, activeWorkout:
   }
 
   if (log.energyLevel === null || log.moodLevel === null || log.sorenessLevel === null) {
-    return { type: "quick-check-in", title: "Add a short recovery check-in.", quickLog: "recovery", label: "Check in" };
+    return { type: "quick-check-in", title: "Add a short recovery check-in.", href: `/log/${log.date}`, label: "Check in" };
   }
 
   const summary = dailyLogSummary(log, settings);
   if (summary.waterPercent < 100) {
-    return { type: "add-water", title: "Water is the next small update.", quickLog: "root", label: "Add water" };
+    return { type: "add-water", title: "Water is the next small update.", label: "Add water" };
   }
 
-  return { type: "open-log", title: "Today is up to date.", quickLog: "root", label: "Open Quick Log" };
+  return { type: "open-log", title: "Today is up to date.", label: "Open Quick Log" };
 }

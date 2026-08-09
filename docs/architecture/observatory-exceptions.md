@@ -13,6 +13,17 @@ Each exception must include:
 
 ## Exceptions
 
+### 2026-08-08 — Issue #49, simplify Quick Log
+
+- **Changed paths:** `docs/project/CURRENT_STATE.md`,
+  `docs/project/DECISIONS.md`, `src/components/dashboard-page.tsx`,
+  `src/components/progress-page.tsx`,
+  `src/components/quick-log/quick-log-provider.tsx`, `src/lib/today.test.ts`,
+  and `src/lib/today.ts`.
+- **Reason:** This change narrows an existing capture surface and redirects its
+  existing detailed-editor links. It introduces no data model, persisted schema,
+  service, authorization boundary, route, or architectural dependency.
+
 ### 2026-08-08 — Issue #39, calm visual system
 
 - **Changed paths:** `docs/project/CURRENT_STATE.md`,

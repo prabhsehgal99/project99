@@ -260,11 +260,12 @@ secrets and production approval configured before its first use.
 - A narrow Today data provider shares today's Daily Log, settings, loading/error
   state, and active workout state between Today and Quick Log without moving
   route-specific history, charts, or past-day editors into global state.
-- Quick Log uses focused native-dialog editors and transaction-safe Daily Log
+- Quick Log is limited to itemized meals, one-tap 250 mL water logging, and
+  journal notes. It uses a focused native dialog and transaction-safe Daily Log
   mutations that read the latest document, normalize it, apply one typed
   mutation, validate the complete result, preserve `createdAt`, and update
   `updatedAt`. These mutations preserve unrelated fields and concurrent
-  server-backed updates.
+  server-backed updates; detailed health fields remain in the dated Daily Log.
 - Existing Firestore collection paths, Daily Log schema, settings schema,
   workout-session model, workout calculations, owner-scoped authorization, and
   Security Rules remain intact.

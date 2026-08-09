@@ -24,6 +24,7 @@ describe("todayFocus", () => {
   it("asks for morning weight before other empty-day actions", () => {
     const focus = todayFocus(defaultDailyLog("2026-07-31"), defaultSettings, null);
     expect(focus.type).toBe("log-weight");
+    expect(focus).toMatchObject({ href: "/log/2026-07-31" });
   });
 
   it("offers training after body and sleep signals exist", () => {
@@ -58,5 +59,17 @@ describe("todayFocus", () => {
       null
     );
     expect(focus.type).toBe("add-water");
+  });
+
+  it("sends detailed sleep and recovery updates to the Daily Log", () => {
+    const sleepFocus = todayFocus({ ...defaultDailyLog("2026-07-31"), weightKg: 80 }, defaultSettings, null);
+    expect(sleepFocus).toMatchObject({ type: "log-sleep", href: "/log/2026-07-31" });
+
+    const recoveryFocus = todayFocus(
+      { ...defaultDailyLog("2026-07-31"), weightKg: 80, sleepHours: 7, workoutStatus: "complete" },
+      defaultSettings,
+      null
+    );
+    expect(recoveryFocus).toMatchObject({ type: "quick-check-in", href: "/log/2026-07-31" });
   });
 });

@@ -359,6 +359,23 @@ The environment contract and mapping are covered by unit tests.
   `FIREBASE_SERVICE_ACCOUNT` secrets. Rules releases are intentional, recorded
   Actions runs rather than direct Firebase CLI commands.
 
+### D-023 - Quick Log is limited to meals, water, and journal capture
+
+- **Date:** 2026-08-08
+- **Status:** Accepted
+- **Context:** The initial Quick Log sheet exposed too many equally weighted Daily
+  Log fields, making a fast capture action read like another general-purpose
+  editor.
+- **Decision:** Quick Log contains only itemized meal entry, one-tap 250 mL water
+  logging represented by a glass icon, and journal notes. Body, sleep, recovery,
+  steps, activity, and manual nutrition adjustments remain available in the
+  complete dated Daily Log.
+- **Reason:** The global action should be a small, repeatable daily ritual rather
+  than a second surface for every Daily Log field.
+- **Consequences:** Today and Progress link detailed health prompts to the Daily
+  Log. Quick Log retains the existing transaction-safe water and journal writes,
+  while meals use the established Nutrition experience.
+
 
 ## Decision entry template
 
